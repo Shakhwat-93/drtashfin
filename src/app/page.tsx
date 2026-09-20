@@ -270,17 +270,17 @@ export default function DashboardPage() {
         {/* Main Grid: Recent Patients & Side Panels */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Recent Patients Table (Spans 2 cols on desktop) */}
-          <div className="lg:col-span-2 space-y-4">
-            <Card>
+          <div className="lg:col-span-2 space-y-4 min-w-0">
+            <Card className="min-w-0">
               <CardHeader className="flex flex-row items-center justify-between pb-3">
                 <CardTitle>Recent Patients</CardTitle>
                 <Button variant="ghost" size="sm" rightIcon={<ChevronRight className="h-3.5 w-3.5" />}>
                   View All
                 </Button>
               </CardHeader>
-              <CardContent className="p-0 sm:p-6 sm:pt-0">
-                <TableContainer className="border-0 sm:border rounded-none sm:rounded-xl">
-                  <Table>
+              <CardContent className="p-3 sm:p-6 sm:pt-0">
+                <TableContainer responsive="stack" className="border-0 md:border">
+                  <Table responsive="stack">
                     <TableHeader>
                       <TableRow>
                         <TableHead>Patient</TableHead>
@@ -293,7 +293,7 @@ export default function DashboardPage() {
                     <TableBody>
                       {STATIC_RECENT_PATIENTS.map((patient) => (
                         <TableRow key={patient.id}>
-                          <TableCell>
+                          <TableCell label="Patient">
                             <div className="flex flex-col">
                               <span className="font-serif text-sm font-medium text-[#201C1A]">
                                 {patient.name}
@@ -303,18 +303,18 @@ export default function DashboardPage() {
                               </span>
                             </div>
                           </TableCell>
-                          <TableCell className="text-xs text-[#201C1A]">
+                          <TableCell label="Type" className="text-xs text-[#201C1A]">
                             {patient.type}
                           </TableCell>
-                          <TableCell>
+                          <TableCell label="Status">
                             <Badge variant={patient.badgeVariant} size="sm" hasDot>
                               {patient.status}
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-xs text-[#7A746F]">
+                          <TableCell label="Time" className="text-xs text-[#7A746F]">
                             {patient.time}
                           </TableCell>
-                          <TableCell className="text-right">
+                          <TableCell label="Action" isAction className="text-right">
                             <Button variant="outline" size="sm">
                               Open File
                             </Button>

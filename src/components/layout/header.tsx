@@ -44,7 +44,7 @@ export function Header({ onMenuClick }: HeaderProps) {
       </div>
 
       {/* Center/Left: Global Patient Search */}
-      <div className="flex-1 max-w-md mx-4">
+      <div className="flex-1 max-w-md mx-2 sm:mx-4 min-w-0">
         <div className="relative">
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-[#7A746F]">
             <Search className="h-4 w-4" />

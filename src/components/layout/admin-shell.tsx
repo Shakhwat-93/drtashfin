@@ -38,9 +38,9 @@ export function AdminShell({ children }: AdminShellProps) {
       </Drawer>
 
       {/* Main Area: Top Header + Dynamic Content */}
-      <div className="flex flex-1 flex-col lg:pl-64">
+      <div className="flex flex-1 flex-col lg:pl-64 min-w-0 max-w-full">
         <Header onMenuClick={() => setIsMobileNavOpen(true)} />
-        <main className="flex-1 pb-12">{children}</main>
+        <main className="flex-1 pb-12 min-w-0 max-w-full">{children}</main>
       </div>
     </div>
   );
