@@ -27,6 +27,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePatient } from "@/features/patients";
+import { ConsultationHistoryList } from "@/features/consultations";
 
 export default function PatientProfilePage({
   params,
@@ -220,15 +221,16 @@ export default function PatientProfilePage({
             <div className="text-[11px] font-bold uppercase tracking-wider text-[#7A746F] mr-2">
               Clinical Actions:
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1.5 text-xs text-[#201C1A]"
-              onClick={() => alert("Consultation module will be connected in upcoming clinical phase.")}
-            >
-              <Stethoscope className="h-3.5 w-3.5 text-[#DE4F3C]" />
-              <span>New Visit</span>
-            </Button>
+            <Link href={`/patients/${patient.patientId}/consultations/new`}>
+              <Button
+                variant="primary"
+                size="sm"
+                className="gap-1.5 text-xs font-medium"
+              >
+                <Stethoscope className="h-3.5 w-3.5" />
+                <span>New Consultation</span>
+              </Button>
+            </Link>
 
             <Button
               variant="outline"
@@ -363,20 +365,7 @@ export default function PatientProfilePage({
 
           {/* 2. Visits Tab */}
           <TabsContent value="visits">
-            <EmptyState
-              icon={Stethoscope}
-              title="No Visits Recorded Yet"
-              description="Clinical consultations, chief complaints, and examination notes will be maintained here."
-              action={
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => alert("Consultations will be implemented in upcoming clinical phase.")}
-                >
-                  Start New Consultation
-                </Button>
-              }
-            />
+            <ConsultationHistoryList patient={patient} />
           </TabsContent>
 
           {/* 3. Medical History Tab */}

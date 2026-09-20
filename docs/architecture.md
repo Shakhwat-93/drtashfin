@@ -82,11 +82,11 @@ The data tier follows a strict **Repository / Provider Pattern** to decouple the
 UI Layer -> Feature Hooks -> Repository Interface -> Data Provider (Mock NOW / Supabase LATER)
 ```
 
-- **Repository Contract (`IPatientRepository`, `IClinicalRepository`):** Declares domain query and mutation operations without exposing storage implementation details.
-- **Provider Factory (`src/lib/data/index.ts`):** Exposes dependency-injected getters (`getPatientRepository()`, `getClinicalRepository()`).
-- **Active Provider:** `MockPatientRepository` (utilizes development-only storage with in-memory fallback for SSR and testing).
-- **Future Provider:** `SupabasePatientRepository` (will connect directly to self-hosted PostgreSQL via Supabase when VPS infrastructure is provisioned).
-- **Zero UI Rewrites:** Migrating from mock data to Supabase in a future phase will require swapping the repository implementation in the factory without altering any UI components, forms, or custom hooks.
+- **Repository Contract (`IPatientRepository`, `IClinicalRepository`, `IConsultationRepository`):** Declares domain query and mutation operations without exposing storage implementation details.
+- **Provider Factory (`src/lib/data/index.ts`):** Exposes dependency-injected getters (`getPatientRepository()`, `getClinicalRepository()`, `getConsultationRepository()`).
+- **Active Providers:** `MockPatientRepository`, `MockClinicalRepository`, `MockConsultationRepository` (utilize development-only storage with in-memory fallback for SSR and testing).
+- **Future Provider:** `Supabase*Repository` (will connect directly to self-hosted PostgreSQL via Supabase when VPS infrastructure is provisioned).
+- **Zero UI Rewrites:** Migrating from mock data to Supabase in a future phase will require swapping the repository implementations in the factory without altering any UI components, forms, or custom hooks.
 
 ---
 
