@@ -1,26 +1,88 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary: #DE4F3C;
+  --color-primary-hover: #C94230;
+  --color-primary-active: #B83A2A;
+  --color-primary-subtle: #FDF0EE;
+
+  --color-canvas: #FAF5EE;
+  --color-surface: #FFFFFF;
+  --color-section: #F9EFE5;
+
+  --color-text-main: #201C1A;
+  --color-text-muted: #7A746F;
+  --color-border-warm: #EAE3D9;
+  --color-border-subtle: #F3ECE2;
+
+  --color-success-bg: #EBF5EE;
+  --color-success-border: #D1EAD8;
+  --color-success-text: #1F6B38;
+
+  --color-warning-bg: #FEF7EB;
+  --color-warning-border: #FCE7BE;
+  --color-warning-text: #975B00;
+
+  --color-danger-bg: #FDF0EE;
+  --color-danger-border: #F9D0CA;
+  --color-danger-text: #B02A1A;
+
+  --color-info-bg: #EEF5FA;
+  --color-info-border: #D3E4F4;
+  --color-info-text: #1D5D9B;
+
+  --font-serif: var(--font-serif);
+  --font-sans: var(--font-sans);
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #FAF5EE;
+  --foreground: #201C1A;
+  --card: #FFFFFF;
+  --section: #F9EFE5;
+  --border: #EAE3D9;
+  --muted: #7A746F;
+  --primary: #DE4F3C;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: var(--border);
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Elegant serif font class */
+.font-serif {
+  font-family: var(--font-serif), Georgia, Cambria, "Times New Roman", Times, serif;
+}
+
+/* Custom scrollbar for modern subtle appearance */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #DFD7CB;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #C7BFB3;
+}
+
+/* Accessible focus outline */
+:focus-visible {
+  outline: 2px solid #DE4F3C;
+  outline-offset: 2px;
 }
