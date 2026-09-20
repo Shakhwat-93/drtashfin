@@ -15,6 +15,8 @@ export interface IPatientRepository {
   getPatients(params?: PatientQueryParams): Promise<PaginatedResult<Patient>>;
   getPatientById(id: string): Promise<Patient | null>;
   getPatientByPatientId(patientId: string): Promise<Patient | null>;
+  getPatientByIdentifier(identifier: string): Promise<Patient | null>;
+  checkPotentialDuplicate(name: string, phone?: string): Promise<Patient | null>;
   createPatient(data: CreatePatientDTO): Promise<Patient>;
   updatePatient(id: string, data: UpdatePatientDTO): Promise<Patient>;
   deletePatient(id: string): Promise<boolean>;

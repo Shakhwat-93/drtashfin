@@ -58,7 +58,7 @@ export class MockPatientRepository implements IPatientRepository {
   ): Promise<PaginatedResult<Patient>> {
     let list = this.getAllInternal();
 
-    // 1. Search Filter (name, patientId, phone, email)
+    // 1. Search Filter (name, patientId, phone, email, dateOfBirth)
     if (params.search && params.search.trim() !== "") {
       const q = params.search.trim().toLowerCase();
       list = list.filter(
@@ -66,7 +66,8 @@ export class MockPatientRepository implements IPatientRepository {
           p.name.toLowerCase().includes(q) ||
           p.patientId.toLowerCase().includes(q) ||
           (p.phone && p.phone.toLowerCase().includes(q)) ||
-          (p.email && p.email.toLowerCase().includes(q))
+          (p.email && p.email.toLowerCase().includes(q)) ||
+          (p.dateOfBirth && p.dateOfBirth.includes(q))
       );
     }
 
@@ -127,6 +128,50 @@ export class MockPatientRepository implements IPatientRepository {
       (p) => p.patientId.toUpperCase() === patientId.trim().toUpperCase()
     );
     return found || null;
+  }
+
+  public async getPatientByIdentifier(identifier: string): Promise<Patient | null> {
+    if (!identifier || identifier.trim() === "") return null;
+    const clean = identifier.trim();
+    const list = this.getAllInternal();
+
+    // 1. Try match by human-readable patientId (e.g. PT-000001)
+    const byPatientId = list.find(
+      (p) => p.patientId.toUpperCase() === clean.toUpperCase()
+    );
+    if (byPatientId) return byPatientId;
+
+    // 2. Try match by internal UUID
+    const byId = list.find((p) => p.id === clean);
+    return byId || null;
+  }
+
+  public async checkPotentialDuplicate(
+    name: string,
+    phone?: string
+  ): Promise<Patient | null> {
+    const list = this.getAllInternal();
+    const cleanName = name.trim().toLowerCase();
+    const cleanPhone = phone ? phone.replace(/[^0-9]/g, "") : "";
+
+    const match = list.find((p) => {
+      // Check phone match (if provided and at least 7 digits)
+      if (cleanPhone.length >= 7 && p.phone) {
+        const pCleanPhone = p.phone.replace(/[^0-9]/g, "");
+        if (pCleanPhone === cleanPhone || (cleanPhone.length >= 10 && pCleanPhone.endsWith(cleanPhone.slice(-10)))) {
+          return true;
+        }
+      }
+
+      // Check exact name match (case-insensitive)
+      if (cleanName.length >= 3 && p.name.trim().toLowerCase() === cleanName) {
+        return true;
+      }
+
+      return false;
+    });
+
+    return match || null;
   }
 
   public async createPatient(data: CreatePatientDTO): Promise<Patient> {
