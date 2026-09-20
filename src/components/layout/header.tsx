@@ -8,7 +8,6 @@ import {
   DropdownTrigger,
   DropdownContent,
   DropdownItem,
-  DropdownSeparator,
 } from "@/components/ui/dropdown";
 
 export interface HeaderProps {
@@ -44,7 +43,7 @@ export function Header({ onMenuClick }: HeaderProps) {
         </div>
       </div>
 
-      {/* Center/Left: Global Patient Search (Visual Only) */}
+      {/* Center/Left: Global Patient Search */}
       <div className="flex-1 max-w-md mx-4">
         <div className="relative">
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-[#7A746F]">
@@ -53,7 +52,7 @@ export function Header({ onMenuClick }: HeaderProps) {
           <input
             type="search"
             readOnly
-            placeholder="Search patients by name, ID, or phone... (Visual Only)"
+            placeholder="Search patients..."
             className="w-full h-9 rounded-lg border border-[#EAE3D9] bg-[#FAF5EE]/70 pl-9 pr-4 text-xs text-[#201C1A] placeholder:text-[#7A746F] focus:outline-hidden focus:border-[#DE4F3C] focus:bg-white transition-all cursor-text"
           />
           <div className="hidden md:flex absolute right-2.5 top-1/2 -translate-y-1/2 items-center gap-0.5 rounded border border-[#EAE3D9] bg-white px-1.5 py-0.5 text-[10px] font-medium text-[#7A746F]">
@@ -110,10 +109,6 @@ export function Header({ onMenuClick }: HeaderProps) {
               <ShieldCheck className="h-3.5 w-3.5 text-[#7A746F]" />
               Clinic Preferences
             </DropdownItem>
-            <DropdownSeparator />
-            <div className="px-3 py-1.5 text-[10px] text-[#7A746F]">
-              Phase 02 Shell (Auth disabled)
-            </div>
           </DropdownContent>
         </Dropdown>
       </div>

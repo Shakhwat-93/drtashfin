@@ -22,7 +22,6 @@ import {
   Card,
   CardHeader,
   CardTitle,
-  CardDescription,
   CardContent,
   Badge,
   Table,
@@ -43,16 +42,9 @@ import {
   Select,
 } from "@/components/ui";
 
-// ==============================================================================
-// STATIC DESIGN PLACEHOLDERS ONLY — Phase 02
-// Do NOT connect to Supabase/database in this phase.
-// All values below are design tokens to showcase visual hierarchy and layout.
-// ==============================================================================
-
 interface StatCardData {
   title: string;
   value: string | number;
-  subtext: string;
   icon: React.ElementType;
   badgeText: string;
   badgeVariant: "neutral" | "info" | "warning" | "success";
@@ -62,7 +54,6 @@ const STATIC_STATS: StatCardData[] = [
   {
     title: "Today's Patients",
     value: 12,
-    subtext: "4 completed · 8 remaining",
     icon: Users,
     badgeText: "Scheduled",
     badgeVariant: "info",
@@ -70,7 +61,6 @@ const STATIC_STATS: StatCardData[] = [
   {
     title: "Today's Follow-ups",
     value: 4,
-    subtext: "Post-op & medication reviews",
     icon: CalendarClock,
     badgeText: "High Priority",
     badgeVariant: "warning",
@@ -78,7 +68,6 @@ const STATIC_STATS: StatCardData[] = [
   {
     title: "Pending Investigations",
     value: 7,
-    subtext: "Lab tests & imaging pending",
     icon: FlaskConical,
     badgeText: "In Progress",
     badgeVariant: "neutral",
@@ -86,14 +75,13 @@ const STATIC_STATS: StatCardData[] = [
   {
     title: "Today's Operations",
     value: 2,
-    subtext: "1 Minor · 1 Major procedure",
     icon: Activity,
     badgeText: "OT Ready",
     badgeVariant: "success",
   },
 ];
 
-interface RecentPatientPlaceholder {
+interface RecentPatient {
   id: string;
   name: string;
   ageGender: string;
@@ -103,7 +91,7 @@ interface RecentPatientPlaceholder {
   badgeVariant: "success" | "warning" | "info";
 }
 
-const STATIC_RECENT_PATIENTS: RecentPatientPlaceholder[] = [
+const STATIC_RECENT_PATIENTS: RecentPatient[] = [
   {
     id: "P-10492",
     name: "Eleanor Vance",
@@ -142,7 +130,7 @@ const STATIC_RECENT_PATIENTS: RecentPatientPlaceholder[] = [
   },
 ];
 
-interface FollowUpPlaceholder {
+interface FollowUpItem {
   id: string;
   name: string;
   condition: string;
@@ -150,7 +138,7 @@ interface FollowUpPlaceholder {
   room: string;
 }
 
-const STATIC_FOLLOW_UPS: FollowUpPlaceholder[] = [
+const STATIC_FOLLOW_UPS: FollowUpItem[] = [
   {
     id: "F-201",
     name: "Clara Beaumont",
@@ -174,7 +162,7 @@ const STATIC_FOLLOW_UPS: FollowUpPlaceholder[] = [
   },
 ];
 
-interface ActivityPlaceholder {
+interface ActivityItem {
   id: string;
   title: string;
   description: string;
@@ -182,7 +170,7 @@ interface ActivityPlaceholder {
   icon: React.ElementType;
 }
 
-const STATIC_ACTIVITIES: ActivityPlaceholder[] = [
+const STATIC_ACTIVITIES: ActivityItem[] = [
   {
     id: "A-1",
     title: "Lab Report Uploaded",
@@ -212,11 +200,10 @@ export default function DashboardPage() {
   return (
     <AdminShell>
       <PageContainer>
-        {/* Page Header with Breadcrumb/Label and Quick Actions */}
+        {/* Page Header */}
         <PageHeader
           label="CLINIC OVERVIEW"
           title="Good Morning, Doctor"
-          description="Here's what's happening with your patients today."
           actions={
             <>
               <Button
@@ -265,7 +252,7 @@ export default function DashboardPage() {
                     <Icon className="h-4 w-4" />
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-2">
+                <CardContent className="pt-2 pb-5">
                   <div className="flex items-baseline justify-between">
                     <span className="font-serif text-3xl font-medium tracking-tight text-[#201C1A]">
                       {stat.value}
@@ -274,7 +261,6 @@ export default function DashboardPage() {
                       {stat.badgeText}
                     </Badge>
                   </div>
-                  <p className="text-[11px] text-[#7A746F]">{stat.subtext}</p>
                 </CardContent>
               </Card>
             );
@@ -286,13 +272,8 @@ export default function DashboardPage() {
           {/* Recent Patients Table (Spans 2 cols on desktop) */}
           <div className="lg:col-span-2 space-y-4">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle>Recent Patients</CardTitle>
-                  <CardDescription>
-                    Patients seen or waiting for consults today (Static Placeholder)
-                  </CardDescription>
-                </div>
+              <CardHeader className="flex flex-row items-center justify-between pb-3">
+                <CardTitle>Recent Patients</CardTitle>
                 <Button variant="ghost" size="sm" rightIcon={<ChevronRight className="h-3.5 w-3.5" />}>
                   View All
                 </Button>
@@ -352,10 +333,7 @@ export default function DashboardPage() {
             {/* Today's Follow-ups */}
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-3">
-                <div>
-                  <CardTitle>Today&apos;s Follow-ups</CardTitle>
-                  <CardDescription>Scheduled post-consultations</CardDescription>
-                </div>
+                <CardTitle>Today&apos;s Follow-ups</CardTitle>
                 <Badge variant="neutral" size="sm">
                   {STATIC_FOLLOW_UPS.length} Today
                 </Badge>
@@ -380,7 +358,7 @@ export default function DashboardPage() {
                         <span>{item.room}</span>
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm" className="h-7 px-2">
+                    <Button variant="ghost" size="sm" className="h-7 px-2" aria-label={`Open follow-up for ${item.name}`}>
                       <ArrowUpRight className="h-3.5 w-3.5" />
                     </Button>
                   </div>
@@ -392,7 +370,6 @@ export default function DashboardPage() {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle>Recent Activity</CardTitle>
-                <CardDescription>System log of clinical events</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 {STATIC_ACTIVITIES.map((act) => {
@@ -421,15 +398,15 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Demonstration Modal for Accessible Dialog Primitive */}
+        {/* Modal for Adding New Patient */}
         <Modal
           isOpen={isNewPatientModalOpen}
           onClose={() => setIsNewPatientModalOpen(false)}
         >
           <ModalHeader>
-            <ModalTitle>Register New Patient (UI Prototype)</ModalTitle>
+            <ModalTitle>Register New Patient</ModalTitle>
             <ModalDescription>
-              Demonstrating visual form inputs and modal ergonomics. No real backend data is recorded in Phase 02.
+              Enter patient details to initiate clinical file.
             </ModalDescription>
           </ModalHeader>
           <ModalBody className="space-y-4">
@@ -467,7 +444,7 @@ export default function DashboardPage() {
               variant="primary"
               onClick={() => setIsNewPatientModalOpen(false)}
             >
-              Save Patient (UI Only)
+              Save Patient
             </Button>
           </ModalFooter>
         </Modal>
