@@ -40,162 +40,101 @@ import {
   Input,
   Label,
   Select,
+  Skeleton,
+  EmptyState,
 } from "@/components/ui";
-
-interface StatCardData {
-  title: string;
-  value: string | number;
-  icon: React.ElementType;
-  badgeText: string;
-  badgeVariant: "neutral" | "info" | "warning" | "success";
-}
-
-const STATIC_STATS: StatCardData[] = [
-  {
-    title: "Today's Patients",
-    value: 12,
-    icon: Users,
-    badgeText: "Scheduled",
-    badgeVariant: "info",
-  },
-  {
-    title: "Today's Follow-ups",
-    value: 4,
-    icon: CalendarClock,
-    badgeText: "High Priority",
-    badgeVariant: "warning",
-  },
-  {
-    title: "Pending Investigations",
-    value: 7,
-    icon: FlaskConical,
-    badgeText: "In Progress",
-    badgeVariant: "neutral",
-  },
-  {
-    title: "Today's Operations",
-    value: 2,
-    icon: Activity,
-    badgeText: "OT Ready",
-    badgeVariant: "success",
-  },
-];
-
-interface RecentPatient {
-  id: string;
-  name: string;
-  ageGender: string;
-  type: string;
-  time: string;
-  status: "Completed" | "Waiting" | "In Consultation";
-  badgeVariant: "success" | "warning" | "info";
-}
-
-const STATIC_RECENT_PATIENTS: RecentPatient[] = [
-  {
-    id: "P-10492",
-    name: "Eleanor Vance",
-    ageGender: "54y · Female",
-    type: "Cardiology Review",
-    time: "09:30 AM",
-    status: "Completed",
-    badgeVariant: "success",
-  },
-  {
-    id: "P-10493",
-    name: "Arthur Pendelton",
-    ageGender: "67y · Male",
-    type: "Post-Op Angioplasty",
-    time: "10:15 AM",
-    status: "In Consultation",
-    badgeVariant: "info",
-  },
-  {
-    id: "P-10494",
-    name: "Miriam Al-Hassan",
-    ageGender: "42y · Female",
-    type: "Hypertension Check",
-    time: "11:00 AM",
-    status: "Waiting",
-    badgeVariant: "warning",
-  },
-  {
-    id: "P-10495",
-    name: "Thomas Sterling",
-    ageGender: "38y · Male",
-    type: "Echocardiogram Follow-up",
-    time: "11:45 AM",
-    status: "Waiting",
-    badgeVariant: "warning",
-  },
-];
-
-interface FollowUpItem {
-  id: string;
-  name: string;
-  condition: string;
-  time: string;
-  room: string;
-}
-
-const STATIC_FOLLOW_UPS: FollowUpItem[] = [
-  {
-    id: "F-201",
-    name: "Clara Beaumont",
-    condition: "Post-bypass recovery assessment",
-    time: "01:30 PM",
-    room: "Room 3B",
-  },
-  {
-    id: "F-202",
-    name: "Julian Mercer",
-    condition: "Anticoagulant dosage calibration",
-    time: "02:15 PM",
-    room: "Room 3B",
-  },
-  {
-    id: "F-203",
-    name: "Sonia Kapoor",
-    condition: "Cardiac holter monitor analysis",
-    time: "03:00 PM",
-    room: "Testing Suite 1",
-  },
-];
-
-interface ActivityItem {
-  id: string;
-  title: string;
-  description: string;
-  time: string;
-  icon: React.ElementType;
-}
-
-const STATIC_ACTIVITIES: ActivityItem[] = [
-  {
-    id: "A-1",
-    title: "Lab Report Uploaded",
-    description: "Lipid profile uploaded for Patient #P-10492",
-    time: "15 min ago",
-    icon: FileCheck2,
-  },
-  {
-    id: "A-2",
-    title: "Prescription Dispatched",
-    description: "Digital Rx issued for Eleanor Vance",
-    time: "35 min ago",
-    icon: Stethoscope,
-  },
-  {
-    id: "A-3",
-    title: "Critical Alert Cleared",
-    description: "Investigation reviewed for OT patient Arthur Pendelton",
-    time: "1 hour ago",
-    icon: AlertCircle,
-  },
-];
+import { usePatients, useDashboardMetrics } from "@/features/patients";
+import { Gender, BloodGroup } from "@/types";
 
 export default function DashboardPage() {
   const [isNewPatientModalOpen, setIsNewPatientModalOpen] = React.useState(false);
+  const [formError, setFormError] = React.useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+  // Form State
+  const [fullName, setFullName] = React.useState("");
+  const [dateOfBirth, setDateOfBirth] = React.useState("1985-05-15");
+  const [gender, setGender] = React.useState<Gender>("female");
+  const [phone, setPhone] = React.useState("");
+  const [weight, setWeight] = React.useState<string>("65");
+  const [bloodGroup, setBloodGroup] = React.useState<BloodGroup>("O+");
+
+  // Repository-driven Feature Hooks
+  const {
+    patients,
+    isLoading: isPatientsLoading,
+    createPatient,
+  } = usePatients({
+    pageSize: 5,
+    sortBy: "updatedAt",
+    sortOrder: "desc",
+  });
+
+  const {
+    metrics,
+    followUps,
+    activities,
+    isLoading: isMetricsLoading,
+  } = useDashboardMetrics();
+
+  const handleRegisterPatient = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError(null);
+    setIsSubmitting(true);
+
+    try {
+      await createPatient({
+        name: fullName.trim(),
+        dateOfBirth,
+        gender,
+        weight: weight ? parseFloat(weight) : undefined,
+        phone: phone.trim() || undefined,
+        bloodGroup,
+      });
+
+      // Reset form and close
+      setFullName("");
+      setPhone("");
+      setIsNewPatientModalOpen(false);
+    } catch (err) {
+      setFormError(
+        err instanceof Error ? err.message : "Failed to register patient."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const statCards = [
+    {
+      title: "Today's Patients",
+      value: metrics?.todayPatientsCount ?? 12,
+      icon: Users,
+      badgeText: "Scheduled",
+      badgeVariant: "info" as const,
+    },
+    {
+      title: "Today's Follow-ups",
+      value: metrics?.todayFollowUpsCount ?? followUps.length,
+      icon: CalendarClock,
+      badgeText: "High Priority",
+      badgeVariant: "warning" as const,
+    },
+    {
+      title: "Pending Investigations",
+      value: metrics?.pendingInvestigationsCount ?? 7,
+      icon: FlaskConical,
+      badgeText: "In Progress",
+      badgeVariant: "neutral" as const,
+    },
+    {
+      title: "Today's Operations",
+      value: metrics?.todayOperationsCount ?? 2,
+      icon: Activity,
+      badgeText: "OT Ready",
+      badgeVariant: "success" as const,
+    },
+  ];
 
   return (
     <AdminShell>
@@ -209,7 +148,10 @@ export default function DashboardPage() {
               <Button
                 variant="primary"
                 leftIcon={<Plus className="h-4 w-4" />}
-                onClick={() => setIsNewPatientModalOpen(true)}
+                onClick={() => {
+                  setFormError(null);
+                  setIsNewPatientModalOpen(true);
+                }}
               >
                 + New Patient
               </Button>
@@ -237,12 +179,12 @@ export default function DashboardPage() {
 
         {/* Key Metrics / Stat Cards */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {STATIC_STATS.map((stat) => {
+          {statCards.map((stat) => {
             const Icon = stat.icon;
             return (
               <Card
                 key={stat.title}
-                className="hover:border-[#DFD7CB] hover:shadow-[0_4px_12px_rgba(32,28,26,0.05)] transition-all duration-200"
+                className="hover:border-[#DFD7CB] hover:shadow-[0_4px_12px_rgba(32,28,26,0.05)] transition-all duration-200 min-w-0"
               >
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <span className="text-xs font-semibold uppercase tracking-wider text-[#7A746F]">
@@ -253,14 +195,18 @@ export default function DashboardPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="pt-2 pb-5">
-                  <div className="flex items-baseline justify-between">
-                    <span className="font-serif text-3xl font-medium tracking-tight text-[#201C1A]">
-                      {stat.value}
-                    </span>
-                    <Badge variant={stat.badgeVariant} size="sm" hasDot>
-                      {stat.badgeText}
-                    </Badge>
-                  </div>
+                  {isMetricsLoading ? (
+                    <Skeleton className="h-9 w-20" />
+                  ) : (
+                    <div className="flex items-baseline justify-between">
+                      <span className="font-serif text-3xl font-medium tracking-tight text-[#201C1A]">
+                        {stat.value}
+                      </span>
+                      <Badge variant={stat.badgeVariant} size="sm" hasDot>
+                        {stat.badgeText}
+                      </Badge>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             );
@@ -274,7 +220,11 @@ export default function DashboardPage() {
             <Card className="min-w-0">
               <CardHeader className="flex flex-row items-center justify-between pb-3">
                 <CardTitle>Recent Patients</CardTitle>
-                <Button variant="ghost" size="sm" rightIcon={<ChevronRight className="h-3.5 w-3.5" />}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  rightIcon={<ChevronRight className="h-3.5 w-3.5" />}
+                >
                   View All
                 </Button>
               </CardHeader>
@@ -284,43 +234,87 @@ export default function DashboardPage() {
                     <TableHeader>
                       <TableRow>
                         <TableHead>Patient</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Time</TableHead>
+                        <TableHead>Phone / Contact</TableHead>
+                        <TableHead>Blood Group</TableHead>
+                        <TableHead>Registered</TableHead>
                         <TableHead className="text-right">Action</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {STATIC_RECENT_PATIENTS.map((patient) => (
-                        <TableRow key={patient.id}>
-                          <TableCell label="Patient">
-                            <div className="flex flex-col">
-                              <span className="font-serif text-sm font-medium text-[#201C1A]">
-                                {patient.name}
-                              </span>
-                              <span className="text-[11px] text-[#7A746F]">
-                                {patient.id} · {patient.ageGender}
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell label="Type" className="text-xs text-[#201C1A]">
-                            {patient.type}
-                          </TableCell>
-                          <TableCell label="Status">
-                            <Badge variant={patient.badgeVariant} size="sm" hasDot>
-                              {patient.status}
-                            </Badge>
-                          </TableCell>
-                          <TableCell label="Time" className="text-xs text-[#7A746F]">
-                            {patient.time}
-                          </TableCell>
-                          <TableCell label="Action" isAction className="text-right">
-                            <Button variant="outline" size="sm">
-                              Open File
-                            </Button>
+                      {isPatientsLoading ? (
+                        Array.from({ length: 4 }).map((_, idx) => (
+                          <TableRow key={`skeleton-${idx}`}>
+                            <TableCell label="Patient">
+                              <Skeleton className="h-8 w-32" />
+                            </TableCell>
+                            <TableCell label="Phone / Contact">
+                              <Skeleton className="h-4 w-24" />
+                            </TableCell>
+                            <TableCell label="Blood Group">
+                              <Skeleton className="h-4 w-12" />
+                            </TableCell>
+                            <TableCell label="Registered">
+                              <Skeleton className="h-4 w-16" />
+                            </TableCell>
+                            <TableCell label="Action" isAction className="text-right">
+                              <Skeleton className="h-8 w-20 ml-auto" />
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : patients.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={5} className="py-8 text-center">
+                            <EmptyState
+                              title="No patients recorded"
+                              description="Click '+ New Patient' to register a patient record."
+                            />
                           </TableCell>
                         </TableRow>
-                      ))}
+                      ) : (
+                        patients.map((patient) => (
+                          <TableRow key={patient.id}>
+                            <TableCell label="Patient">
+                              <div className="flex flex-col">
+                                <span className="font-serif text-sm font-medium text-[#201C1A]">
+                                  {patient.name}
+                                </span>
+                                <span className="text-[11px] text-[#7A746F]">
+                                  {patient.patientId} · {patient.age}y · {patient.gender}
+                                </span>
+                              </div>
+                            </TableCell>
+                            <TableCell
+                              label="Phone / Contact"
+                              className="text-xs text-[#201C1A]"
+                            >
+                              {patient.phone || "No phone recorded"}
+                            </TableCell>
+                            <TableCell label="Blood Group">
+                              <Badge variant="neutral" size="sm">
+                                {patient.bloodGroup || "Unknown"}
+                              </Badge>
+                            </TableCell>
+                            <TableCell
+                              label="Registered"
+                              className="text-xs text-[#7A746F]"
+                            >
+                              {new Date(patient.createdAt).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                              })}
+                            </TableCell>
+                            <TableCell
+                              label="Action"
+                              isAction
+                              className="text-right"
+                            >
+                              <Button variant="outline" size="sm">
+                                Open File
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
                     </TableBody>
                   </Table>
                 </TableContainer>
@@ -329,70 +323,97 @@ export default function DashboardPage() {
           </div>
 
           {/* Right Column: Follow-ups & Recent Activity */}
-          <div className="space-y-6">
+          <div className="space-y-6 min-w-0">
             {/* Today's Follow-ups */}
-            <Card>
+            <Card className="min-w-0">
               <CardHeader className="flex flex-row items-center justify-between pb-3">
                 <CardTitle>Today&apos;s Follow-ups</CardTitle>
                 <Badge variant="neutral" size="sm">
-                  {STATIC_FOLLOW_UPS.length} Today
+                  {followUps.length} Today
                 </Badge>
               </CardHeader>
               <CardContent className="space-y-3">
-                {STATIC_FOLLOW_UPS.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-start justify-between p-3 rounded-lg bg-[#FAF5EE]/70 border border-[#EAE3D9] hover:bg-[#FAF5EE] transition-colors"
-                  >
-                    <div className="space-y-1">
-                      <h4 className="font-serif text-sm font-medium text-[#201C1A]">
-                        {item.name}
-                      </h4>
-                      <p className="text-xs text-[#7A746F] leading-snug">
-                        {item.condition}
-                      </p>
-                      <div className="flex items-center gap-2 pt-1 text-[11px] text-[#7A746F]">
-                        <Clock className="h-3 w-3" />
-                        <span>{item.time}</span>
-                        <span>•</span>
-                        <span>{item.room}</span>
+                {isMetricsLoading ? (
+                  Array.from({ length: 3 }).map((_, idx) => (
+                    <Skeleton key={`fol-skel-${idx}`} className="h-16 w-full" />
+                  ))
+                ) : followUps.length === 0 ? (
+                  <EmptyState title="No follow-ups today" />
+                ) : (
+                  followUps.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex items-start justify-between p-3 rounded-lg bg-[#FAF5EE]/70 border border-[#EAE3D9] hover:bg-[#FAF5EE] transition-colors min-w-0"
+                    >
+                      <div className="space-y-1 min-w-0">
+                        <h4 className="font-serif text-sm font-medium text-[#201C1A] truncate">
+                          {item.patientName}
+                        </h4>
+                        <p className="text-xs text-[#7A746F] leading-snug line-clamp-2">
+                          {item.reason}
+                        </p>
+                        <div className="flex items-center gap-2 pt-1 text-[11px] text-[#7A746F]">
+                          <Clock className="h-3 w-3 shrink-0" />
+                          <span>{item.scheduledTime}</span>
+                          <span>•</span>
+                          <span>{item.room}</span>
+                        </div>
                       </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2 shrink-0 ml-2"
+                        aria-label={`Open follow-up for ${item.patientName}`}
+                      >
+                        <ArrowUpRight className="h-3.5 w-3.5" />
+                      </Button>
                     </div>
-                    <Button variant="ghost" size="sm" className="h-7 px-2" aria-label={`Open follow-up for ${item.name}`}>
-                      <ArrowUpRight className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
-                ))}
+                  ))
+                )}
               </CardContent>
             </Card>
 
             {/* Recent Activity */}
-            <Card>
+            <Card className="min-w-0">
               <CardHeader className="pb-3">
                 <CardTitle>Recent Activity</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {STATIC_ACTIVITIES.map((act) => {
-                  const Icon = act.icon;
-                  return (
-                    <div key={act.id} className="flex items-start gap-3">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#FAF5EE] border border-[#EAE3D9] text-[#DE4F3C]">
-                        <Icon className="h-3.5 w-3.5" />
+                {isMetricsLoading ? (
+                  Array.from({ length: 3 }).map((_, idx) => (
+                    <Skeleton key={`act-skel-${idx}`} className="h-10 w-full" />
+                  ))
+                ) : activities.length === 0 ? (
+                  <EmptyState title="No recent activity recorded" />
+                ) : (
+                  activities.map((act) => {
+                    const Icon =
+                      act.category === "investigation"
+                        ? FileCheck2
+                        : act.category === "prescription"
+                        ? Stethoscope
+                        : AlertCircle;
+
+                    return (
+                      <div key={act.id} className="flex items-start gap-3 min-w-0">
+                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#FAF5EE] border border-[#EAE3D9] text-[#DE4F3C]">
+                          <Icon className="h-3.5 w-3.5" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium text-[#201C1A] truncate">
+                            {act.title}
+                          </p>
+                          <p className="text-[11px] text-[#7A746F] truncate">
+                            {act.description}
+                          </p>
+                        </div>
+                        <span className="text-[10px] text-[#7A746F] whitespace-nowrap shrink-0">
+                          {act.timestamp}
+                        </span>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium text-[#201C1A]">
-                          {act.title}
-                        </p>
-                        <p className="text-[11px] text-[#7A746F] truncate">
-                          {act.description}
-                        </p>
-                      </div>
-                      <span className="text-[10px] text-[#7A746F] whitespace-nowrap">
-                        {act.time}
-                      </span>
-                    </div>
-                  );
-                })}
+                    );
+                  })
+                )}
               </CardContent>
             </Card>
           </div>
@@ -403,50 +424,109 @@ export default function DashboardPage() {
           isOpen={isNewPatientModalOpen}
           onClose={() => setIsNewPatientModalOpen(false)}
         >
-          <ModalHeader>
-            <ModalTitle>Register New Patient</ModalTitle>
-            <ModalDescription>
-              Enter patient details to initiate clinical file.
-            </ModalDescription>
-          </ModalHeader>
-          <ModalBody className="space-y-4">
-            <div className="space-y-1.5">
-              <Label isRequired>Full Name</Label>
-              <Input placeholder="e.g. Margaret Sullivan" />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
+          <form onSubmit={handleRegisterPatient}>
+            <ModalHeader>
+              <ModalTitle>Register New Patient</ModalTitle>
+              <ModalDescription>
+                Enter patient identity details to initiate clinical file.
+              </ModalDescription>
+            </ModalHeader>
+            <ModalBody className="space-y-4">
+              {formError && (
+                <div className="p-3 rounded-lg bg-[#FDF0EE] border border-[#F9D0CA] text-xs text-[#B02A1A]">
+                  {formError}
+                </div>
+              )}
+
               <div className="space-y-1.5">
-                <Label isRequired>Date of Birth</Label>
-                <Input type="date" />
+                <Label isRequired>Full Name</Label>
+                <Input
+                  required
+                  placeholder="e.g. Margaret Sullivan"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                />
               </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label isRequired>Date of Birth</Label>
+                  <Input
+                    required
+                    type="date"
+                    value={dateOfBirth}
+                    onChange={(e) => setDateOfBirth(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label isRequired>Gender</Label>
+                  <Select
+                    value={gender}
+                    onChange={(e) => setGender(e.target.value as Gender)}
+                  >
+                    <option value="female">Female</option>
+                    <option value="male">Male</option>
+                    <option value="other">Other</option>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label>Weight (kg)</Label>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    placeholder="e.g. 68.5"
+                    value={weight}
+                    onChange={(e) => setWeight(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Blood Group</Label>
+                  <Select
+                    value={bloodGroup}
+                    onChange={(e) => setBloodGroup(e.target.value as BloodGroup)}
+                  >
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                  </Select>
+                </div>
+              </div>
+
               <div className="space-y-1.5">
-                <Label isRequired>Gender</Label>
-                <Select defaultValue="female">
-                  <option value="female">Female</option>
-                  <option value="male">Male</option>
-                  <option value="other">Other</option>
-                </Select>
+                <Label>Phone Number</Label>
+                <Input
+                  placeholder="e.g. +1 (555) 019-2834"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
               </div>
-            </div>
-            <div className="space-y-1.5">
-              <Label>Primary Complaint / Reason for Visit</Label>
-              <Input placeholder="e.g. Chest tightness on exertion" />
-            </div>
-          </ModalBody>
-          <ModalFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsNewPatientModalOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="primary"
-              onClick={() => setIsNewPatientModalOpen(false)}
-            >
-              Save Patient
-            </Button>
-          </ModalFooter>
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsNewPatientModalOpen(false)}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="primary"
+                isLoading={isSubmitting}
+              >
+                Save Patient
+              </Button>
+            </ModalFooter>
+          </form>
         </Modal>
       </PageContainer>
     </AdminShell>
