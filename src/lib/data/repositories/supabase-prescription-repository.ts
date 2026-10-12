@@ -55,6 +55,24 @@ function mapPrescriptionFromRow(
       : undefined,
     notes: row.notes ? String(row.notes) : undefined,
     items,
+    archivedDocumentId: row.archived_document_id
+      ? String(row.archived_document_id)
+      : undefined,
+    archivedPdfKey: row.archived_pdf_key
+      ? String(row.archived_pdf_key)
+      : undefined,
+    archivedPdfHash: row.archived_pdf_hash
+      ? String(row.archived_pdf_hash)
+      : undefined,
+    archivedPdfSize:
+      row.archived_pdf_size !== null && row.archived_pdf_size !== undefined
+        ? Number(row.archived_pdf_size)
+        : undefined,
+    archivedAt: row.archived_at ? String(row.archived_at) : undefined,
+    archiveVersion:
+      row.archive_version !== null && row.archive_version !== undefined
+        ? Number(row.archive_version)
+        : undefined,
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),
   };
@@ -407,5 +425,45 @@ export class SupabasePrescriptionRepository implements IPrescriptionRepository {
     }
 
     return true;
+  }
+
+  public async attachArchivedDocument(
+    prescriptionId: string,
+    metadata: {
+      archivedDocumentId: string;
+      archivedPdfKey: string;
+      archivedPdfHash: string;
+      archivedPdfSize: number;
+      archiveVersion: number;
+      archivedAt: string;
+    }
+  ): Promise<Prescription> {
+    const { error } = await this.client
+      .from("prescriptions")
+      .update({
+        archived_document_id: metadata.archivedDocumentId,
+        archived_pdf_key: metadata.archivedPdfKey,
+        archived_pdf_hash: metadata.archivedPdfHash,
+        archived_pdf_size: metadata.archivedPdfSize,
+        archive_version: metadata.archiveVersion,
+        archived_at: metadata.archivedAt,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", prescriptionId);
+
+    if (error) {
+      throw new DataError(
+        `Failed to attach archive metadata: ${error.message}`,
+        error.code
+      );
+    }
+
+    const updated = await this.getPrescriptionById(prescriptionId);
+    if (!updated) {
+      throw new DataError(
+        `Prescription "${prescriptionId}" not found after archive update.`
+      );
+    }
+    return updated;
   }
 }

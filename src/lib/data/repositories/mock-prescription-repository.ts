@@ -220,4 +220,35 @@ export class MockPrescriptionRepository implements IPrescriptionRepository {
     this.prescriptions.splice(idx, 1);
     return true;
   }
+
+  public async attachArchivedDocument(
+    prescriptionId: string,
+    metadata: {
+      archivedDocumentId: string;
+      archivedPdfKey: string;
+      archivedPdfHash: string;
+      archivedPdfSize: number;
+      archiveVersion: number;
+      archivedAt: string;
+    }
+  ): Promise<Prescription> {
+    const idx = this.prescriptions.findIndex((p) => p.id === prescriptionId);
+    if (idx === -1) {
+      throw new DataError(`Prescription "${prescriptionId}" not found`);
+    }
+
+    const updated: Prescription = {
+      ...this.prescriptions[idx],
+      archivedDocumentId: metadata.archivedDocumentId,
+      archivedPdfKey: metadata.archivedPdfKey,
+      archivedPdfHash: metadata.archivedPdfHash,
+      archivedPdfSize: metadata.archivedPdfSize,
+      archiveVersion: metadata.archiveVersion,
+      archivedAt: metadata.archivedAt,
+      updatedAt: new Date().toISOString(),
+    };
+
+    this.prescriptions[idx] = updated;
+    return JSON.parse(JSON.stringify(updated));
+  }
 }

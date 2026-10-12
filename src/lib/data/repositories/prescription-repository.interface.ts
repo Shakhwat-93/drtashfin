@@ -46,4 +46,19 @@ export interface IPrescriptionRepository {
    * Discard a draft prescription. Finalized prescriptions cannot be deleted.
    */
   deleteDraftPrescription(id: string): Promise<boolean>;
+
+  /**
+   * Record archival metadata on a finalized prescription.
+   */
+  attachArchivedDocument(
+    prescriptionId: string,
+    metadata: {
+      archivedDocumentId: string;
+      archivedPdfKey: string;
+      archivedPdfHash: string;
+      archivedPdfSize: number;
+      archiveVersion: number;
+      archivedAt: string;
+    }
+  ): Promise<Prescription>;
 }

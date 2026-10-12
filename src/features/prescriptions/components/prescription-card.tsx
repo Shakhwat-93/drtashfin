@@ -11,6 +11,8 @@ import {
   Edit2,
   Trash2,
   AlertCircle,
+  ShieldCheck,
+  Download,
 } from "lucide-react";
 import { Prescription } from "@/types/prescription";
 import { Badge } from "@/components/ui/badge";
@@ -83,10 +85,21 @@ export function PrescriptionCard({
                     Draft
                   </Badge>
                 ) : (
-                  <Badge variant="success" className="text-[10px] px-2 py-0.5">
-                    <CheckCircle2 className="h-2.5 w-2.5 mr-1" />
-                    Finalized
-                  </Badge>
+                  <div className="flex items-center gap-1.5">
+                    <Badge variant="success" className="text-[10px] px-2 py-0.5">
+                      <CheckCircle2 className="h-2.5 w-2.5 mr-1" />
+                      Finalized
+                    </Badge>
+                    {prescription.archivedPdfKey && (
+                      <Badge
+                        variant="neutral"
+                        className="text-[10px] px-2 py-0.5 border-emerald-300 text-emerald-800 bg-emerald-50"
+                      >
+                        <ShieldCheck className="h-2.5 w-2.5 mr-1 text-emerald-600" />
+                        v{prescription.archiveVersion || 1} R2
+                      </Badge>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
@@ -175,16 +188,33 @@ export function PrescriptionCard({
                 </Button>
               </Link>
             ) : (
-              <Link href={`/patients/${patientId}/prescriptions/${prescription.id}`}>
+              <div className="flex items-center gap-1.5">
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-8 gap-1.5 text-xs hover:border-[#201C1A]"
+                  onClick={() =>
+                    window.open(
+                      `/api/prescriptions/${prescription.id}/pdf?download=1`,
+                      "_blank"
+                    )
+                  }
+                  className="h-8 gap-1 text-xs text-[#7A746F] hover:text-[#201C1A]"
+                  title="Download PDF"
                 >
-                  <span>View Details</span>
-                  <ChevronRight className="h-3.5 w-3.5" />
+                  <Download className="h-3 w-3" />
+                  <span>PDF</span>
                 </Button>
-              </Link>
+                <Link href={`/patients/${patientId}/prescriptions/${prescription.id}`}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 gap-1.5 text-xs hover:border-[#201C1A]"
+                  >
+                    <span>View Details</span>
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </Button>
+                </Link>
+              </div>
             )}
           </div>
         </div>

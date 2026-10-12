@@ -9,16 +9,24 @@ import {
   Clock,
   Edit2,
   Calendar,
-  Building2,
   ShieldCheck,
-  Share2,
+  ShieldAlert,
+  Download,
+  ExternalLink,
+  CloudUpload,
+  RefreshCw,
+  Copy,
+  Check,
+  FileText,
+  AlertTriangle,
+  Lock,
 } from "lucide-react";
 import { Patient } from "@/types/patient";
 import { Prescription } from "@/types/prescription";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { usePrescriptionArchive } from "../hooks/use-prescription-archive";
 
 export interface PrescriptionDetailViewProps {
   prescription: Prescription;
@@ -32,6 +40,23 @@ export function PrescriptionDetailView({
   className,
 }: PrescriptionDetailViewProps) {
   const isFinalized = prescription.status === "finalized";
+  const [copiedHash, setCopiedHash] = React.useState(false);
+  const [showIntegrityCard, setShowIntegrityCard] = React.useState(false);
+
+  const {
+    isArchiving,
+    isVerifying,
+    archiveError,
+    verifyError,
+    verification,
+    versions,
+    isArchived,
+    latestDocument,
+    archivePrescription,
+    verifyIntegrity,
+    downloadPdf,
+    openPdf,
+  } = usePrescriptionArchive(prescription.id);
 
   const formattedDate = new Date(
     prescription.prescriptionDate + "T00:00:00"
@@ -53,6 +78,17 @@ export function PrescriptionDetailView({
       })
     : null;
 
+  const handleCopyHash = (hash: string) => {
+    navigator.clipboard.writeText(hash);
+    setCopiedHash(true);
+    setTimeout(() => setCopiedHash(false), 2000);
+  };
+
+  const handleVerify = async () => {
+    setShowIntegrityCard(true);
+    await verifyIntegrity();
+  };
+
   return (
     <div className={cn("space-y-6 max-w-4xl mx-auto", className)}>
       {/* Top Action Bar (hidden on print) */}
@@ -68,35 +104,321 @@ export function PrescriptionDetailView({
           </Button>
         </Link>
 
-        <div className="flex items-center gap-2">
-          {!isFinalized && (
-            <Link
-              href={`/patients/${patient.patientId}/prescriptions/${prescription.id}/edit`}
-            >
+        <div className="flex flex-wrap items-center gap-2">
+          {!isFinalized ? (
+            <>
+              <Link
+                href={`/patients/${patient.patientId}/prescriptions/${prescription.id}/edit`}
+              >
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5 h-8 text-xs text-amber-800 border-amber-300 bg-amber-50 hover:bg-amber-100"
+                >
+                  <Edit2 className="h-3.5 w-3.5" />
+                  <span>Edit Draft</span>
+                </Button>
+              </Link>
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-1.5 h-8 text-xs text-amber-800 border-amber-300 bg-amber-50 hover:bg-amber-100"
+                onClick={() =>
+                  window.open(
+                    `/api/prescriptions/${prescription.id}/pdf?preview=1`,
+                    "_blank"
+                  )
+                }
+                className="gap-1.5 h-8 text-xs text-[#7A746F]"
               >
-                <Edit2 className="h-3.5 w-3.5" />
-                <span>Edit Draft</span>
+                <FileText className="h-3.5 w-3.5" />
+                <span>Preview Draft PDF</span>
               </Button>
-            </Link>
+            </>
+          ) : (
+            <>
+              {/* Official Cloudflare R2 Archival Action */}
+              {!isArchived ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => archivePrescription()}
+                  disabled={isArchiving}
+                  className="gap-1.5 h-8 text-xs border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 font-medium"
+                >
+                  <CloudUpload
+                    className={cn(
+                      "h-3.5 w-3.5",
+                      isArchiving && "animate-spin"
+                    )}
+                  />
+                  <span>
+                    {isArchiving
+                      ? "Securing to R2..."
+                      : "Secure to Cloudflare R2"}
+                  </span>
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleVerify}
+                  disabled={isVerifying}
+                  className="gap-1.5 h-8 text-xs border-emerald-300 bg-emerald-50 text-emerald-900 hover:bg-emerald-100 font-medium"
+                >
+                  <ShieldCheck
+                    className={cn(
+                      "h-3.5 w-3.5 text-emerald-700",
+                      isVerifying && "animate-spin"
+                    )}
+                  />
+                  <span>
+                    {isVerifying ? "Verifying Hash..." : "Verify Integrity"}
+                  </span>
+                </Button>
+              )}
+
+              {/* View PDF Stream */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={openPdf}
+                className="gap-1.5 h-8 text-xs hover:border-[#201C1A]"
+              >
+                <ExternalLink className="h-3.5 w-3.5 text-[#7A746F]" />
+                <span>View PDF</span>
+              </Button>
+
+              {/* Download Official PDF */}
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={downloadPdf}
+                className="gap-1.5 h-8 text-xs font-medium shadow-xs"
+              >
+                <Download className="h-3.5 w-3.5" />
+                <span>Download PDF</span>
+              </Button>
+            </>
           )}
 
+          {/* Browser Quick Print */}
           <Button
-            variant="primary"
+            variant="outline"
             size="sm"
             onClick={() => window.print()}
-            className="gap-1.5 h-8 text-xs shadow-xs"
+            className="gap-1.5 h-8 text-xs"
           >
             <Printer className="h-3.5 w-3.5" />
-            <span>Print Prescription</span>
+            <span>Print</span>
           </Button>
         </div>
       </div>
 
-      {/* Main Clinical Prescription Paper */}
+      {/* Cloudflare R2 Archive & Cryptographic Integrity Banner */}
+      {isFinalized && (
+        <div className="rounded-2xl border border-[#EAE3D9] bg-white p-5 shadow-xs space-y-3 print:hidden">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <div
+                className={cn(
+                  "flex h-8 w-8 items-center justify-center rounded-xl border",
+                  isArchived
+                    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                    : "border-amber-200 bg-amber-50 text-amber-700"
+                )}
+              >
+                {isArchived ? (
+                  <ShieldCheck className="h-4 w-4" />
+                ) : (
+                  <CloudUpload className="h-4 w-4" />
+                )}
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#201C1A]">
+                    {isArchived
+                      ? `Cloudflare R2 Official Archive (v${latestDocument?.version || 1})`
+                      : "Cloudflare R2 Archival Pending"}
+                  </h4>
+                  {isArchived ? (
+                    <Badge variant="success" size="sm" className="text-[10px]">
+                      Encrypted & Immutable
+                    </Badge>
+                  ) : (
+                    <Badge variant="warning" size="sm" className="text-[10px]">
+                      Action Required
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-[11px] text-[#7A746F] mt-0.5">
+                  {isArchived
+                    ? "Official immutable PDF persisted in private R2 bucket with SHA-256 cryptographic fingerprint."
+                    : "Finalized clinical prescription is ready for official PDF generation and R2 cloud archival."}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {!isArchived && (
+                <Button
+                  size="sm"
+                  variant="primary"
+                  onClick={() => archivePrescription()}
+                  disabled={isArchiving}
+                  className="h-7 text-xs font-medium gap-1.5"
+                >
+                  <CloudUpload className="h-3 w-3" />
+                  <span>{isArchiving ? "Securing..." : "Archive to R2 Now"}</span>
+                </Button>
+              )}
+              {isArchived && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setShowIntegrityCard(!showIntegrityCard)}
+                  className="h-7 text-xs gap-1.5 text-[#504A45]"
+                >
+                  <span>
+                    {showIntegrityCard ? "Hide Details" : "View Hash & Audit"}
+                  </span>
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {archiveError && (
+            <div className="rounded-lg bg-red-50 border border-red-200 p-2.5 text-xs text-red-800 flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 shrink-0 text-red-600" />
+              <span>{archiveError}</span>
+            </div>
+          )}
+
+          {/* Expanded Cryptographic Integrity Audit Details */}
+          {(showIntegrityCard || verification) && latestDocument && (
+            <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF8F5] p-4 text-xs space-y-3 mt-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#EAE3D9] pb-2">
+                <span className="font-semibold text-[#201C1A]">
+                  Cryptographic Integrity Report
+                </span>
+                {verification ? (
+                  <Badge
+                    variant={verification.matches ? "success" : "danger"}
+                    className="text-[10px] font-mono"
+                  >
+                    {verification.matches
+                      ? "SHA-256 MATCH VERIFIED"
+                      : "INTEGRITY MISMATCH"}
+                  </Badge>
+                ) : (
+                  <span className="text-[11px] text-[#7A746F]">
+                    Click &quot;Verify Integrity&quot; to audit live
+                  </span>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px]">
+                <div>
+                  <span className="text-[#7A746F] block">SHA-256 Digest:</span>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <code className="rounded bg-white px-2 py-0.5 border border-[#EAE3D9] font-mono text-[10px] text-[#201C1A] select-all truncate max-w-[280px]">
+                      {latestDocument.contentHash}
+                    </code>
+                    <button
+                      type="button"
+                      onClick={() => handleCopyHash(latestDocument.contentHash)}
+                      className="p-1 hover:bg-[#EAE3D9]/60 rounded text-[#7A746F] hover:text-[#201C1A]"
+                      title="Copy SHA-256 Hash"
+                    >
+                      {copiedHash ? (
+                        <Check className="h-3 w-3 text-emerald-600" />
+                      ) : (
+                        <Copy className="h-3 w-3" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <span className="text-[#7A746F] block">R2 Storage Object Key:</span>
+                  <code className="font-mono text-[10px] text-[#201C1A] block truncate mt-0.5">
+                    {latestDocument.r2Key}
+                  </code>
+                </div>
+
+                <div>
+                  <span className="text-[#7A746F] block">Archived At (UTC):</span>
+                  <span className="font-medium text-[#201C1A]">
+                    {new Date(latestDocument.archivedAt).toUTCString()}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="text-[#7A746F] block">File Size & Version:</span>
+                  <span className="font-medium text-[#201C1A]">
+                    {latestDocument.fileSizeBytes
+                      ? `${(latestDocument.fileSizeBytes / 1024).toFixed(1)} KB`
+                      : "—"}{" "}
+                    • Version {latestDocument.version}
+                  </span>
+                </div>
+              </div>
+
+              {verification?.details && (
+                <div
+                  className={cn(
+                    "rounded-lg p-2.5 text-[11px] border",
+                    verification.matches
+                      ? "bg-emerald-50/50 border-emerald-200 text-emerald-900"
+                      : "bg-red-50 border-red-200 text-red-900"
+                  )}
+                >
+                  <p>{verification.details}</p>
+                </div>
+              )}
+
+              {/* Version History pills if multiple versions exist */}
+              {versions.length > 1 && (
+                <div className="border-t border-[#EAE3D9] pt-2">
+                  <span className="text-[11px] font-semibold text-[#7A746F] block mb-1.5">
+                    Archive Version History ({versions.length}):
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    {versions.map((ver) => (
+                      <button
+                        key={ver.id}
+                        type="button"
+                        onClick={() =>
+                          window.open(
+                            `/api/prescriptions/${prescription.id}/pdf?version=${ver.version}`,
+                            "_blank"
+                          )
+                        }
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-[#EAE3D9] bg-white px-2.5 py-1 text-[11px] text-[#201C1A] hover:bg-[#FAF5EE]"
+                      >
+                        <span className="font-bold">v{ver.version}</span>
+                        <span className="text-[#7A746F]">
+                          ({new Date(ver.archivedAt).toLocaleDateString()})
+                        </span>
+                        <ExternalLink className="h-2.5 w-2.5 text-[#7A746F]" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Medico-Legal Disclaimer */}
+              <div className="text-[10px] text-[#7A746F] pt-1">
+                Notice: Cryptographic document integrity verified via SHA-256 hash
+                comparison against Cloudflare R2 bucket. Attending Clinician visual
+                verification block. Full PKI X.509 digital certificate signing is
+                reserved for licensed CA integration.
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Main Clinical Prescription Paper (A4 Style) */}
       <div className="rounded-2xl border border-[#EAE3D9] bg-white p-6 sm:p-10 shadow-sm print:border-none print:shadow-none print:p-0 space-y-6">
         {/* Clinician & Clinic Header */}
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 border-b-2 border-[#201C1A] pb-6">
@@ -292,6 +614,11 @@ export function PrescriptionDetailView({
             {isFinalized && prescription.finalizedAt && (
               <p className="font-mono text-emerald-700">
                 Locked & Finalized at: {new Date(prescription.finalizedAt).toUTCString()}
+              </p>
+            )}
+            {latestDocument && (
+              <p className="font-mono text-[9px] text-[#7A746F]">
+                SHA-256: {latestDocument.contentHash}
               </p>
             )}
           </div>

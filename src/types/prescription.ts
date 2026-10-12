@@ -66,6 +66,14 @@ export interface Prescription {
   // Associated medicine items (ordered by orderIndex)
   items: PrescriptionItem[];
 
+  // Archival metadata (Phase 11: Document Integrity & Cloudflare R2 Archival)
+  archivedDocumentId?: string;
+  archivedPdfKey?: string;
+  archivedPdfHash?: string;
+  archivedPdfSize?: number;
+  archivedAt?: string;
+  archiveVersion?: number;
+
   createdAt: string;
   updatedAt: string;
 }
