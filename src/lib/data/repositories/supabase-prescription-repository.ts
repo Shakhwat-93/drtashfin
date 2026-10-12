@@ -7,7 +7,7 @@ import {
   UpdatePrescriptionDTO,
 } from "@/types/prescription";
 import { supabase } from "@/lib/supabase/client";
-import { DataError } from "../errors";
+import { DataError, ValidationError } from "../errors";
 
 function mapPrescriptionItemFromRow(row: Record<string, unknown>): PrescriptionItem {
   return {
@@ -144,7 +144,36 @@ export class SupabasePrescriptionRepository implements IPrescriptionRepository {
     dto: CreatePrescriptionDTO
   ): Promise<Prescription> {
     if (!dto.patientId) {
-      throw new DataError("patientId is required to create a prescription");
+      throw new ValidationError("patientId is required to create a prescription.");
+    }
+
+    // Verify consultation relationship server-side to prevent cross-patient writes
+    if (dto.consultationId) {
+      const { data: consult } = await this.client
+        .from("consultations")
+        .select("patient_id")
+        .eq("id", dto.consultationId)
+        .maybeSingle();
+
+      if (consult && consult.patient_id !== dto.patientId) {
+        throw new ValidationError(
+          `Consultation "${dto.consultationId}" does not belong to patient "${dto.patientId}". Cross-patient writes are strictly prevented.`
+        );
+      }
+    }
+
+    // Validate prescribed items completeness
+    if (dto.items && dto.items.length > 0) {
+      for (const it of dto.items) {
+        if (!it.brandName?.trim() || !it.genericName?.trim()) {
+          throw new ValidationError("Every prescribed item must include brandName and genericName.");
+        }
+        if (!it.frequency?.trim()) {
+          throw new ValidationError(
+            `Prescribed medication "${it.brandName}" requires an explicitly confirmed frequency (e.g. 1+0+1).`
+          );
+        }
+      }
     }
 
     const prescriptionPayload = {
@@ -224,6 +253,19 @@ export class SupabasePrescriptionRepository implements IPrescriptionRepository {
       throw new DataError(
         "Cannot modify a finalized prescription. Clinical records are locked for audit integrity."
       );
+    }
+
+    if (dto.items !== undefined && dto.items.length > 0) {
+      for (const it of dto.items) {
+        if (!it.brandName?.trim() || !it.genericName?.trim()) {
+          throw new ValidationError("Every prescribed item must include brandName and genericName.");
+        }
+        if (!it.frequency?.trim()) {
+          throw new ValidationError(
+            `Prescribed medication "${it.brandName}" requires an explicitly confirmed frequency (e.g. 1+0+1).`
+          );
+        }
+      }
     }
 
     const updatePayload: Record<string, unknown> = {};

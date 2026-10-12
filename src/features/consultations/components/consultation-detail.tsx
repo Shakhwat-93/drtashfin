@@ -14,6 +14,11 @@ import { Patient } from "@/types/patient";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import {
+  useConsultationPrescription,
+  PrescriptionCard,
+} from "@/features/prescriptions";
+import { getPrescriptionRepository } from "@/lib/data";
 
 export interface ConsultationDetailProps {
   consultation: Consultation;
@@ -26,6 +31,26 @@ export function ConsultationDetail({
   patient,
   className,
 }: ConsultationDetailProps) {
+  const { prescription, refresh: refreshPrescription } =
+    useConsultationPrescription(consultation.id);
+
+  const handleDeleteDraft = React.useCallback(
+    async (draftId: string) => {
+      if (
+        window.confirm("Are you sure you want to discard this draft prescription?")
+      ) {
+        try {
+          const repo = getPrescriptionRepository();
+          await repo.deleteDraftPrescription(draftId);
+          await refreshPrescription();
+        } catch (err) {
+          console.error("Failed to delete draft prescription:", err);
+        }
+      }
+    },
+    [refreshPrescription]
+  );
+
   const formattedConsultationDate = new Date(
     consultation.consultationDate + "T00:00:00"
   ).toLocaleDateString("en-US", {
@@ -78,18 +103,35 @@ export function ConsultationDetail({
         </Link>
 
         <div className="flex items-center gap-2">
-          <Link
-            href={`/patients/${patient.patientId}/prescriptions/new?consultationId=${consultation.id}`}
-          >
-            <Button
-              variant="primary"
-              size="sm"
-              className="gap-1.5 h-8 text-xs font-medium"
+          {prescription ? (
+            <Link
+              href={`/patients/${patient.patientId}/prescriptions/${prescription.id}`}
             >
-              <FileText className="h-3.5 w-3.5" />
-              <span>Write Prescription</span>
-            </Button>
-          </Link>
+              <Button
+                variant="primary"
+                size="sm"
+                className="gap-1.5 h-8 text-xs font-medium"
+              >
+                <FileText className="h-3.5 w-3.5" />
+                <span>
+                  View Rx ({prescription.prescriptionCode})
+                </span>
+              </Button>
+            </Link>
+          ) : (
+            <Link
+              href={`/patients/${patient.patientId}/prescriptions/new?consultationId=${consultation.id}`}
+            >
+              <Button
+                variant="primary"
+                size="sm"
+                className="gap-1.5 h-8 text-xs font-medium"
+              >
+                <FileText className="h-3.5 w-3.5" />
+                <span>Write Prescription</span>
+              </Button>
+            </Link>
+          )}
 
           <Button
             variant="outline"
@@ -335,6 +377,52 @@ export function ConsultationDetail({
             </div>
           </section>
         )}
+
+        {/* SECTION: PRESCRIPTION */}
+        <section className="space-y-3">
+          <div className="flex items-center justify-between border-b border-[#FAF5EE] pb-1">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-[#7A746F]">
+              Prescription
+            </h2>
+            {prescription && (
+              <Badge
+                variant={
+                  prescription.status === "finalized" ? "success" : "warning"
+                }
+                size="sm"
+                className="text-[10px] uppercase font-mono tracking-wider"
+              >
+                {prescription.status}
+              </Badge>
+            )}
+          </div>
+
+          {prescription ? (
+            <PrescriptionCard
+              prescription={prescription}
+              patientId={patient.patientId}
+              onDeleteDraft={handleDeleteDraft}
+            />
+          ) : (
+            <div className="rounded-xl border border-dashed border-[#EAE3D9] p-5 text-center bg-[#FAF5EE]/30 print:hidden">
+              <p className="text-xs text-[#7A746F] mb-3">
+                No prescription has been created for this consultation record yet.
+              </p>
+              <Link
+                href={`/patients/${patient.patientId}/prescriptions/new?consultationId=${consultation.id}`}
+              >
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 text-xs gap-1.5 font-medium border-[#EAE3D9] text-[#201C1A] hover:bg-[#FAF5EE]"
+                >
+                  <FileText className="h-3.5 w-3.5 text-[#DE4F3C]" />
+                  <span>Write Prescription for this Visit</span>
+                </Button>
+              </Link>
+            </div>
+          )}
+        </section>
 
         {/* SECTION: NEXT FOLLOW-UP */}
         {formattedFollowUp && (

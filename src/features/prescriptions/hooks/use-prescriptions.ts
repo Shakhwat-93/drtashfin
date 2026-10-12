@@ -157,3 +157,49 @@ export function useSinglePrescription(prescriptionId?: string) {
     setPrescription,
   };
 }
+
+export function useConsultationPrescription(consultationId?: string) {
+  const [prescription, setPrescription] = React.useState<Prescription | null>(
+    null
+  );
+  const [isLoading, setIsLoading] = React.useState(Boolean(consultationId));
+  const [error, setError] = React.useState<string | null>(null);
+
+  const fetchPrescription = React.useCallback(async () => {
+    if (!consultationId) {
+      setPrescription(null);
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    try {
+      const repo = getPrescriptionRepository();
+      const data = await repo.getPrescriptionByConsultationId(consultationId);
+      setPrescription(data);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Failed to load consultation prescription.";
+      console.error("Failed to load consultation prescription:", err);
+      setError(message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [consultationId]);
+
+  React.useEffect(() => {
+    fetchPrescription();
+  }, [fetchPrescription]);
+
+  return {
+    prescription,
+    isLoading,
+    error,
+    refresh: fetchPrescription,
+    setPrescription,
+  };
+}
+

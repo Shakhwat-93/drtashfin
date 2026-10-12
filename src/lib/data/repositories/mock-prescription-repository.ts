@@ -5,7 +5,7 @@ import {
   CreatePrescriptionDTO,
   UpdatePrescriptionDTO,
 } from "@/types/prescription";
-import { DataError } from "../errors";
+import { DataError, ValidationError } from "../errors";
 
 export class MockPrescriptionRepository implements IPrescriptionRepository {
   private prescriptions: Prescription[] = [];
@@ -48,7 +48,20 @@ export class MockPrescriptionRepository implements IPrescriptionRepository {
     dto: CreatePrescriptionDTO
   ): Promise<Prescription> {
     if (!dto.patientId) {
-      throw new DataError("patientId is required to create a prescription");
+      throw new ValidationError("patientId is required to create a prescription.");
+    }
+
+    if (dto.items && dto.items.length > 0) {
+      for (const it of dto.items) {
+        if (!it.brandName?.trim() || !it.genericName?.trim()) {
+          throw new ValidationError("Every prescribed item must include brandName and genericName.");
+        }
+        if (!it.frequency?.trim()) {
+          throw new ValidationError(
+            `Prescribed medication "${it.brandName}" requires an explicitly confirmed frequency (e.g. 1+0+1).`
+          );
+        }
+      }
     }
 
     const prescriptionId = `rx-mock-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
@@ -111,6 +124,19 @@ export class MockPrescriptionRepository implements IPrescriptionRepository {
       throw new DataError(
         "Cannot modify a finalized prescription. Clinical records are locked for audit integrity."
       );
+    }
+
+    if (dto.items !== undefined && dto.items.length > 0) {
+      for (const it of dto.items) {
+        if (!it.brandName?.trim() || !it.genericName?.trim()) {
+          throw new ValidationError("Every prescribed item must include brandName and genericName.");
+        }
+        if (!it.frequency?.trim()) {
+          throw new ValidationError(
+            `Prescribed medication "${it.brandName}" requires an explicitly confirmed frequency (e.g. 1+0+1).`
+          );
+        }
+      }
     }
 
     const now = new Date().toISOString();

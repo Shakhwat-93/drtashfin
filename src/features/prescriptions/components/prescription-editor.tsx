@@ -166,7 +166,34 @@ export function PrescriptionEditor({
     setIsDirty(true);
   }, [items, advice, followUpDate, followUpInstructions, notes, prescriptionDate]);
 
+  // Warn on browser navigation if unsaved changes exist
+  React.useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty && items.length > 0) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isDirty, items.length]);
+
+  const handleCancelWithWarning = () => {
+    if (isDirty && items.length > 0) {
+      if (!window.confirm("You have unsaved prescription changes. Are you sure you want to discard them?")) {
+        return;
+      }
+    }
+    if (onCancel) {
+      onCancel();
+    } else {
+      router.push(`/patients/${patient.patientId}`);
+    }
+  };
+
   // Handle medicine selection from MedEx autocomplete
+  // Note: Catalogue provides pharmaceutical reference only.
+  // Clinician explicitly enters or selects dosage, frequency, and duration.
   const handleSelectCatalogueMedicine = (med: Medicine) => {
     const newItem: CreatePrescriptionItemDTO = {
       medicineId: med.id,
@@ -175,15 +202,15 @@ export function PrescriptionEditor({
       strength: med.strength || "",
       dosageForm: med.dosageForm || "Tablet",
       manufacturer: med.manufacturer || "",
-      dose: med.dosageForm?.toLowerCase().includes("syrup") ? "5 ml" : "1 tablet",
-      frequency: "1+0+1",
+      dose: "",
+      frequency: "",
       route: med.dosageForm?.toLowerCase().includes("drop")
         ? "Eye Drop"
         : med.dosageForm?.toLowerCase().includes("cream") ||
           med.dosageForm?.toLowerCase().includes("ointment")
         ? "Topical"
         : "Oral",
-      duration: "7 days",
+      duration: "",
       timingInstructions: "After meal",
       specialInstructions: "",
       orderIndex: items.length,
@@ -205,10 +232,10 @@ export function PrescriptionEditor({
       genericName: manualGeneric.trim(),
       strength: manualStrength.trim() || undefined,
       dosageForm: manualForm.trim() || "Tablet",
-      dose: "1 tablet",
-      frequency: "1+0+1",
+      dose: "",
+      frequency: "",
       route: "Oral",
-      duration: "7 days",
+      duration: "",
       timingInstructions: "After meal",
       orderIndex: items.length,
     };
@@ -820,31 +847,17 @@ export function PrescriptionEditor({
       {/* ACTION BAR (SAVE DRAFT / FINALIZE / CANCEL) */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-2xl border border-[#EAE3D9] bg-[#FAF8F5] p-4 shadow-sm">
         <div>
-          {onCancel ? (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={onCancel}
-              disabled={isSubmitting}
-              className="text-xs gap-1.5"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" />
-              <span>Cancel</span>
-            </Button>
-          ) : (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => router.push(`/patients/${patient.patientId}`)}
-              disabled={isSubmitting}
-              className="text-xs gap-1.5"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" />
-              <span>Back to Patient</span>
-            </Button>
-          )}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleCancelWithWarning}
+            disabled={isSubmitting}
+            className="text-xs gap-1.5"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            <span>Cancel / Back</span>
+          </Button>
         </div>
 
         <div className="flex items-center gap-2.5">
