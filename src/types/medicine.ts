@@ -49,3 +49,11 @@ export type CreateMedicineDTO = Omit<
 export type UpdateMedicineDTO = Partial<
   Omit<Medicine, "id" | "createdAt" | "updatedAt">
 >;
+
+export interface PaginatedMedicinesResult {
+  medicines: Medicine[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}

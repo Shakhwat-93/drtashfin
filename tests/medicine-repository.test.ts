@@ -105,4 +105,28 @@ describe("Bangladesh Medicine Repository & Fast Search Suite", () => {
     assert.ok(forms.includes("Capsule"));
     assert.ok(forms.includes("Syrup"));
   });
+
+  test("returns accurate pagination metadata via searchMedicinesPaginated", async () => {
+    const repo = getMedicineRepository();
+    const totalCount = await repo.getTotalMedicineCount();
+
+    // Page 1 with pageSize 4
+    const resPage1 = await repo.searchMedicinesPaginated({ limit: 4, offset: 0 });
+    assert.equal(resPage1.medicines.length, 4);
+    assert.equal(resPage1.totalCount, totalCount);
+    assert.equal(resPage1.page, 1);
+    assert.equal(resPage1.pageSize, 4);
+    assert.equal(resPage1.totalPages, Math.ceil(totalCount / 4));
+
+    // Page 2 with pageSize 4
+    const resPage2 = await repo.searchMedicinesPaginated({ limit: 4, offset: 4 });
+    assert.equal(resPage2.medicines.length, 4);
+    assert.equal(resPage2.page, 2);
+    assert.notEqual(resPage1.medicines[0].id, resPage2.medicines[0].id);
+
+    // Search query with pagination
+    const searchRes = await repo.searchMedicinesPaginated({ query: "paracetamol", limit: 2, offset: 0 });
+    assert.ok(searchRes.totalCount >= 2, "Expected at least 2 paracetamol medicines");
+    assert.equal(searchRes.medicines.length, 2);
+  });
 });

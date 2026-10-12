@@ -3,6 +3,7 @@ import {
   MedicineSearchParams,
   CreateMedicineDTO,
   UpdateMedicineDTO,
+  PaginatedMedicinesResult,
 } from "@/types/medicine";
 
 export interface IMedicineRepository {
@@ -10,6 +11,14 @@ export interface IMedicineRepository {
    * Fast prefix and fuzzy search over brand name, generic name, strength, and manufacturer.
    */
   searchMedicines(params: MedicineSearchParams): Promise<Medicine[]>;
+
+  /**
+   * Paginated search over brand name, generic name, strength, dosage form, and manufacturer.
+   * Returns matching items alongside total matching count and pagination metadata.
+   */
+  searchMedicinesPaginated(
+    params: MedicineSearchParams
+  ): Promise<PaginatedMedicinesResult>;
 
   /**
    * Lookup medicine by internal UUID.

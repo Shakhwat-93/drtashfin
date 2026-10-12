@@ -4,6 +4,7 @@ import {
   MedicineSearchParams,
   CreateMedicineDTO,
   UpdateMedicineDTO,
+  PaginatedMedicinesResult,
 } from "@/types/medicine";
 
 export const INITIAL_MOCK_MEDICINES: Medicine[] = [
@@ -207,9 +208,9 @@ export class MockMedicineRepository implements IMedicineRepository {
     this.medicines = [...initialData];
   }
 
-  public async searchMedicines(
+  public async searchMedicinesPaginated(
     params: MedicineSearchParams = {}
-  ): Promise<Medicine[]> {
+  ): Promise<PaginatedMedicinesResult> {
     let result = [...this.medicines];
 
     if (params.query && params.query.trim() !== "") {
@@ -244,10 +245,28 @@ export class MockMedicineRepository implements IMedicineRepository {
 
     result.sort((a, b) => a.brandName.localeCompare(b.brandName));
 
+    const totalCount = result.length;
     const limit = Math.min(Math.max(params.limit || 20, 1), 100);
     const offset = Math.max(params.offset || 0, 0);
 
-    return result.slice(offset, offset + limit);
+    const medicines = result.slice(offset, offset + limit);
+    const page = Math.floor(offset / limit) + 1;
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+      medicines,
+      totalCount,
+      page,
+      pageSize: limit,
+      totalPages: totalPages || 1,
+    };
+  }
+
+  public async searchMedicines(
+    params: MedicineSearchParams = {}
+  ): Promise<Medicine[]> {
+    const res = await this.searchMedicinesPaginated(params);
+    return res.medicines;
   }
 
   public async getMedicineById(id: string): Promise<Medicine | null> {

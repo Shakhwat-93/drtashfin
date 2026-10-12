@@ -22,6 +22,7 @@ export interface MedicineSearchAutocompleteProps {
   autoFocus?: boolean;
   disabled?: boolean;
   showClinicalNotice?: boolean;
+  limit?: number;
 }
 
 export function MedicineSearchAutocomplete({
@@ -31,9 +32,10 @@ export function MedicineSearchAutocomplete({
   autoFocus = false,
   disabled = false,
   showClinicalNotice = true,
+  limit = 15,
 }: MedicineSearchAutocompleteProps) {
   const { query, setQuery, results, isLoading, error, clear, search } =
-    useMedicineSearch({ limit: 12 });
+    useMedicineSearch({ limit });
 
   const [isOpen, setIsOpen] = React.useState(false);
   const [activeIndex, setActiveIndex] = React.useState<number>(-1);

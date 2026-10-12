@@ -5,6 +5,7 @@ import {
   MedicineSearchParams,
   CreateMedicineDTO,
   UpdateMedicineDTO,
+  PaginatedMedicinesResult,
 } from "@/types/medicine";
 import { supabase } from "@/lib/supabase/client";
 import { DataError } from "../errors";
@@ -54,13 +55,15 @@ export class SupabaseMedicineRepository implements IMedicineRepository {
     this.client = client;
   }
 
-  public async searchMedicines(
+  public async searchMedicinesPaginated(
     params: MedicineSearchParams = {}
-  ): Promise<Medicine[]> {
+  ): Promise<PaginatedMedicinesResult> {
     const limit = Math.min(Math.max(params.limit || 20, 1), 100);
     const offset = Math.max(params.offset || 0, 0);
 
-    let query = this.client.from("medicines").select("*");
+    let query = this.client
+      .from("medicines")
+      .select("*", { count: "exact" });
 
     if (params.query && params.query.trim() !== "") {
       const q = params.query.trim().toLowerCase();
@@ -84,13 +87,30 @@ export class SupabaseMedicineRepository implements IMedicineRepository {
       .order("brand_name", { ascending: true })
       .range(offset, offset + limit - 1);
 
-    const { data, error } = await query;
+    const { data, count, error } = await query;
 
     if (error) {
       throw new DataError(`Failed to search medicines: ${error.message}`, error.code);
     }
 
-    return (data || []).map(mapMedicineFromRow);
+    const totalCount = count ?? 0;
+    const page = Math.floor(offset / limit) + 1;
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+      medicines: (data || []).map(mapMedicineFromRow),
+      totalCount,
+      page,
+      pageSize: limit,
+      totalPages: totalPages || 1,
+    };
+  }
+
+  public async searchMedicines(
+    params: MedicineSearchParams = {}
+  ): Promise<Medicine[]> {
+    const result = await this.searchMedicinesPaginated(params);
+    return result.medicines;
   }
 
   public async getMedicineById(id: string): Promise<Medicine | null> {
