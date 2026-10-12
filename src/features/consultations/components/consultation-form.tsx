@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, Loader2, Calendar, FileText } from "lucide-react";
+import { Check, Loader2, Calendar, FileText, Pill } from "lucide-react";
 import { Patient } from "@/types/patient";
 import {
   Consultation,
@@ -9,6 +9,8 @@ import {
   UpdateConsultationDTO,
   ConsanguinityOption,
 } from "@/types/consultation";
+import { Medicine } from "@/types/medicine";
+import { MedicineSearchAutocomplete } from "@/features/medicines";
 import {
   createConsultationSchema,
   updateConsultationSchema,
@@ -651,22 +653,53 @@ export function ConsultationForm({
 
       {/* SECTION 6: MANAGEMENT */}
       <section className="space-y-4 border-b border-[#EAE3D9] pb-6">
-        <h3 className="font-serif text-base font-semibold text-[#201C1A]">
-          Management
-        </h3>
+        <div className="flex items-center justify-between">
+          <h3 className="font-serif text-base font-semibold text-[#201C1A]">
+            Management
+          </h3>
+          <span className="text-[11px] text-[#7A746F]">
+            Treatment plan, medications, and advice
+          </span>
+        </div>
+
+        {/* Medicine Quick-Lookup Toolbar */}
+        <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF8F5] p-3.5 space-y-2">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-medium text-[#201C1A] flex items-center gap-1.5">
+              <Pill className="h-3.5 w-3.5 text-[#DE4F3C]" />
+              <span>Medicine Catalogue Lookup (MedEx BD)</span>
+            </span>
+            <span className="text-[11px] text-[#7A746F]">
+              Click or press Enter to add to Plan
+            </span>
+          </div>
+
+          <MedicineSearchAutocomplete
+            placeholder="Type brand name (e.g. Napa, Seclo, Zimax) to add to prescription..."
+            onSelect={(med: Medicine) => {
+              const prefix = med.dosageForm ? `${med.dosageForm.substring(0, 4)}.` : "Tab.";
+              const line = `• ${prefix} ${med.brandName} ${med.strength || ""} (${med.genericName}) — `;
+              setPlan((prev) => (prev ? `${prev.trim()}\n${line}` : line));
+              markDirty();
+            }}
+            showClinicalNotice={true}
+          />
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-semibold text-[#201C1A] mb-1">
-              Plan
+              Plan / Prescribed Medications
             </label>
             <textarea
-              rows={3}
+              rows={4}
               value={plan}
               onChange={(e) => {
                 setPlan(e.target.value);
                 markDirty();
               }}
-              className="w-full rounded-lg border border-[#EAE3D9] bg-white px-3.5 py-2 text-xs text-[#201C1A] placeholder-[#7A746F] transition-all focus:border-[#DE4F3C] focus:outline-hidden focus:ring-2 focus:ring-[#DE4F3C]/20 min-h-[72px]"
+              placeholder="e.g. • Tab. Napa Extra (500mg+65mg) - 1+0+1 after meal for 3 days..."
+              className="w-full rounded-lg border border-[#EAE3D9] bg-white px-3.5 py-2 text-xs text-[#201C1A] placeholder-[#7A746F] transition-all focus:border-[#DE4F3C] focus:outline-hidden focus:ring-2 focus:ring-[#DE4F3C]/20 min-h-[96px]"
             />
           </div>
 

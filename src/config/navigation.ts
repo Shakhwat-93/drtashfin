@@ -10,6 +10,7 @@ import {
   BarChart3,
   ShieldCheck,
   Settings,
+  Pill,
   type LucideIcon,
 } from "lucide-react";
 
@@ -60,6 +61,11 @@ export const NAVIGATION_SECTIONS: NavigationSection[] = [
   {
     title: "CLINICAL",
     items: [
+      {
+        name: "Medicines",
+        href: "/medicines",
+        icon: Pill,
+      },
       {
         name: "Investigations",
         href: "/investigations",
