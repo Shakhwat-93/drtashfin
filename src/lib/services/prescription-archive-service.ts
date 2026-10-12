@@ -3,6 +3,7 @@ import { Readable } from "stream";
 import {
   getPrescriptionRepository,
   getPatientRepository,
+  getConsultationRepository,
   getClinicalDocumentRepository,
   ValidationError,
   DataError,
@@ -74,6 +75,23 @@ export class PrescriptionArchiveService {
     const patient = await patientRepo.getPatientById(prescription.patientId);
     if (!patient) {
       throw new DataError(`Patient "${prescription.patientId}" not found.`);
+    }
+
+    // Verify consultation relationship if linked to prevent cross-patient record contamination
+    if (prescription.consultationId) {
+      const consultRepo = getConsultationRepository();
+      const consult = await consultRepo.getConsultationById(
+        prescription.consultationId
+      );
+      if (
+        consult &&
+        consult.patientId !== patient.id &&
+        consult.patientId !== patient.patientId
+      ) {
+        throw new ValidationError(
+          `Consultation "${prescription.consultationId}" does not belong to patient "${patient.patientId}". Cross-patient archival rejected.`
+        );
+      }
     }
 
     // Check existing documents for this prescription
