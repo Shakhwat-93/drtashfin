@@ -28,6 +28,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePatient } from "@/features/patients";
 import { ConsultationHistoryList } from "@/features/consultations";
+import { usePrescriptions, PrescriptionCard } from "@/features/prescriptions";
 
 export default function PatientProfilePage({
   params,
@@ -38,6 +39,11 @@ export default function PatientProfilePage({
   const { patientId } = unwrappedParams;
 
   const { patient, isLoading, error } = usePatient(patientId);
+  const {
+    prescriptions: patientPrescriptions,
+    isLoading: isRxLoading,
+    deleteDraft: handleDeleteDraft,
+  } = usePrescriptions(patient?.id);
 
   if (isLoading) {
     return (
@@ -242,15 +248,16 @@ export default function PatientProfilePage({
               <span>Order Investigation</span>
             </Button>
 
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1.5 text-xs text-[#201C1A]"
-              onClick={() => alert("Prescription module will be connected in upcoming clinical phase.")}
-            >
-              <FileText className="h-3.5 w-3.5 text-[#DE4F3C]" />
-              <span>New Prescription</span>
-            </Button>
+            <Link href={`/patients/${patient.patientId}/prescriptions/new`}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 text-xs text-[#201C1A]"
+              >
+                <FileText className="h-3.5 w-3.5 text-[#DE4F3C]" />
+                <span>New Prescription</span>
+              </Button>
+            </Link>
 
             <Button
               variant="outline"
@@ -396,21 +403,56 @@ export default function PatientProfilePage({
           </TabsContent>
 
           {/* 5. Prescriptions Tab */}
-          <TabsContent value="prescriptions">
-            <EmptyState
-              icon={FileText}
-              title="No Prescriptions Issued"
-              description="Prescribed medications, dosages, treatment durations, and instructions will appear here."
-              action={
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => alert("Prescription creation will be implemented in upcoming clinical phase.")}
-                >
-                  Write Prescription
+          <TabsContent value="prescriptions" className="space-y-4 pt-2">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-1 border-b border-[#EAE3D9]/60">
+              <div>
+                <h3 className="font-serif text-base font-bold text-[#201C1A]">
+                  Prescription Records
+                </h3>
+                <p className="text-xs text-[#7A746F]">
+                  All historical medications, active treatment courses, and instructions for {patient.name}.
+                </p>
+              </div>
+
+              <Link href={`/patients/${patient.patientId}/prescriptions/new`}>
+                <Button variant="primary" size="sm" className="gap-1.5 text-xs">
+                  <FileText className="h-3.5 w-3.5" />
+                  <span>Write Prescription</span>
                 </Button>
-              }
-            />
+              </Link>
+            </div>
+
+            {isRxLoading ? (
+              <div className="space-y-3">
+                <Skeleton className="h-28 w-full rounded-2xl" />
+                <Skeleton className="h-28 w-full rounded-2xl" />
+              </div>
+            ) : patientPrescriptions.length === 0 ? (
+              <EmptyState
+                icon={FileText}
+                title="No Prescriptions Issued"
+                description={`No prescriptions have been issued for ${patient.name} yet.`}
+                action={
+                  <Link href={`/patients/${patient.patientId}/prescriptions/new`}>
+                    <Button variant="primary" size="sm" className="gap-1.5">
+                      <FileText className="h-3.5 w-3.5" />
+                      <span>Write First Prescription</span>
+                    </Button>
+                  </Link>
+                }
+              />
+            ) : (
+              <div className="space-y-4">
+                {patientPrescriptions.map((rx) => (
+                  <PrescriptionCard
+                    key={rx.id}
+                    prescription={rx}
+                    patientId={patient.patientId}
+                    onDeleteDraft={handleDeleteDraft}
+                  />
+                ))}
+              </div>
+            )}
           </TabsContent>
 
           {/* 6. Follow-ups Tab */}

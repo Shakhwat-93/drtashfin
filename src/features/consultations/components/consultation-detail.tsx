@@ -7,6 +7,7 @@ import {
   ArrowLeft,
   CalendarClock,
   Printer,
+  FileText,
 } from "lucide-react";
 import { Consultation } from "@/types/consultation";
 import { Patient } from "@/types/patient";
@@ -77,6 +78,19 @@ export function ConsultationDetail({
         </Link>
 
         <div className="flex items-center gap-2">
+          <Link
+            href={`/patients/${patient.patientId}/prescriptions/new?consultationId=${consultation.id}`}
+          >
+            <Button
+              variant="primary"
+              size="sm"
+              className="gap-1.5 h-8 text-xs font-medium"
+            >
+              <FileText className="h-3.5 w-3.5" />
+              <span>Write Prescription</span>
+            </Button>
+          </Link>
+
           <Button
             variant="outline"
             size="sm"
