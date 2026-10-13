@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import {
   Users,
   CalendarClock,
@@ -155,12 +156,14 @@ export default function DashboardPage() {
               >
                 + New Patient
               </Button>
-              <Button
-                variant="secondary"
-                leftIcon={<Stethoscope className="h-4 w-4 text-[#DE4F3C]" />}
-              >
-                New Consultation
-              </Button>
+              <Link href="/patients">
+                <Button
+                  variant="secondary"
+                  leftIcon={<Stethoscope className="h-4 w-4 text-[#DE4F3C]" />}
+                >
+                  New Consultation
+                </Button>
+              </Link>
               <Button
                 variant="secondary"
                 leftIcon={<FlaskConical className="h-4 w-4 text-[#7A746F]" />}
@@ -220,13 +223,15 @@ export default function DashboardPage() {
             <Card className="min-w-0">
               <CardHeader className="flex flex-row items-center justify-between pb-3">
                 <CardTitle>Recent Patients</CardTitle>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  rightIcon={<ChevronRight className="h-3.5 w-3.5" />}
-                >
-                  View All
-                </Button>
+                <Link href="/patients">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    rightIcon={<ChevronRight className="h-3.5 w-3.5" />}
+                  >
+                    View All
+                  </Button>
+                </Link>
               </CardHeader>
               <CardContent className="p-3 sm:p-6 sm:pt-0">
                 <TableContainer responsive="stack" className="border-0 md:border">
@@ -275,9 +280,12 @@ export default function DashboardPage() {
                           <TableRow key={patient.id}>
                             <TableCell label="Patient">
                               <div className="flex flex-col">
-                                <span className="font-serif text-sm font-medium text-[#201C1A]">
+                                <Link
+                                  href={`/patients/${patient.patientId}`}
+                                  className="font-serif text-sm font-medium text-[#201C1A] hover:text-[#DE4F3C] transition-colors"
+                                >
                                   {patient.name}
-                                </span>
+                                </Link>
                                 <span className="text-[11px] text-[#7A746F]">
                                   {patient.patientId} · {patient.age}y · {patient.gender}
                                 </span>
@@ -308,9 +316,11 @@ export default function DashboardPage() {
                               isAction
                               className="text-right"
                             >
-                              <Button variant="outline" size="sm">
-                                Open File
-                              </Button>
+                              <Link href={`/patients/${patient.patientId}`}>
+                                <Button variant="outline" size="sm">
+                                  Open File
+                                </Button>
+                              </Link>
                             </TableCell>
                           </TableRow>
                         ))
@@ -359,14 +369,16 @@ export default function DashboardPage() {
                           <span>{item.room}</span>
                         </div>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 px-2 shrink-0 ml-2"
-                        aria-label={`Open follow-up for ${item.patientName}`}
-                      >
-                        <ArrowUpRight className="h-3.5 w-3.5" />
-                      </Button>
+                      <Link href={`/patients/${item.patientId}`}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 px-2 shrink-0 ml-2"
+                          aria-label={`Open follow-up for ${item.patientName}`}
+                        >
+                          <ArrowUpRight className="h-3.5 w-3.5" />
+                        </Button>
+                      </Link>
                     </div>
                   ))
                 )}
