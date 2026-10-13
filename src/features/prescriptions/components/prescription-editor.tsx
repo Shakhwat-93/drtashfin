@@ -422,12 +422,12 @@ export function PrescriptionEditor({
           <div>
             <MedicineSearchAutocomplete
               onSelect={handleSelectCatalogueMedicine}
-              placeholder="Search 1,200+ medicines by Brand (e.g. Napa, Seclo) or Generic..."
+              placeholder="Search 20,000+ medicines by Brand (e.g. Napa, 1stCef) or Generic..."
               showClinicalNotice={false}
               limit={15}
             />
             <p className="text-[11px] text-[#7A746F] mt-1.5">
-              Type at least 2 characters to trigger fast fuzzy search across live Bangladesh MedEx catalogue.
+              Type at least 2 characters to search across 20,900+ Bangladesh pharmaceutical brands &amp; generics.
             </p>
           </div>
         ) : (
