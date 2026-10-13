@@ -10,7 +10,6 @@ import {
   ChevronRight,
   Edit2,
   Trash2,
-  AlertCircle,
   ShieldCheck,
   Download,
 } from "lucide-react";

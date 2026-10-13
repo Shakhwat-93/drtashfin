@@ -11,11 +11,6 @@ export class SupabaseClinicalRepository implements IClinicalRepository {
   public async getDashboardMetrics(): Promise<DashboardMetrics> {
     const todayStr = new Date().toISOString().split("T")[0];
 
-    // Total Patients Count
-    const { count: totalPatients } = await supabase
-      .from("patients")
-      .select("*", { count: "exact", head: true });
-
     // Consultations Conducted Today
     const { count: todayConsultations } = await supabase
       .from("consultations")

@@ -53,7 +53,7 @@ async function auditMedicines() {
       sourceIdCounts.set(m.source_id, (sourceIdCounts.get(m.source_id) || 0) + 1);
     }
   }
-  const duplicateSourceIds = Array.from(sourceIdCounts.entries()).filter(([_, count]) => count > 1);
+  const duplicateSourceIds = Array.from(sourceIdCounts.entries()).filter(([, count]) => count > 1);
 
   console.log({
     duplicateSourceIdsCount: duplicateSourceIds.length,

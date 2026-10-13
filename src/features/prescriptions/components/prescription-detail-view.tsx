@@ -10,16 +10,13 @@ import {
   Edit2,
   Calendar,
   ShieldCheck,
-  ShieldAlert,
   Download,
   ExternalLink,
   CloudUpload,
-  RefreshCw,
   Copy,
   Check,
   FileText,
   AlertTriangle,
-  Lock,
 } from "lucide-react";
 import { Patient } from "@/types/patient";
 import { Prescription } from "@/types/prescription";
@@ -286,10 +283,10 @@ export function PrescriptionDetailView({
             </div>
           </div>
 
-          {archiveError && (
+          {(archiveError || verifyError) && (
             <div className="rounded-lg bg-red-50 border border-red-200 p-2.5 text-xs text-red-800 flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 shrink-0 text-red-600" />
-              <span>{archiveError}</span>
+              <span>{archiveError || verifyError}</span>
             </div>
           )}
 

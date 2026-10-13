@@ -25,7 +25,6 @@ export interface GeneratePrescriptionPdfOptions {
 export async function generatePrescriptionPdf({
   prescription,
   patient,
-  contentHash,
   version = 1,
 }: GeneratePrescriptionPdfOptions): Promise<Buffer> {
   return new Promise<Buffer>((resolve, reject) => {

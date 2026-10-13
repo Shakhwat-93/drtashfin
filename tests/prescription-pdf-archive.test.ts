@@ -3,12 +3,9 @@ import assert from "node:assert/strict";
 import crypto from "crypto";
 import {
   setRepositoryProvider,
-  getPatientRepository,
   getPrescriptionRepository,
   getClinicalDocumentRepository,
   resetRepositoryInstances,
-  ValidationError,
-  DataError,
 } from "../src/lib/data";
 import { generatePrescriptionPdf } from "../src/lib/pdf/prescription-pdf-generator";
 import { Patient } from "../src/types/patient";
@@ -184,6 +181,7 @@ describe("Prescription PDF & Document Integrity Suite", () => {
       version: 2,
       fileSizeBytes: 13000,
     });
+    assert.ok(v2Doc.id);
 
     const updatedDocs = await docRepo.getDocumentsByPrescriptionId(syntheticFinalizedPrescription.id);
     assert.equal(updatedDocs.length, 2);

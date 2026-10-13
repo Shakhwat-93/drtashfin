@@ -4,7 +4,6 @@ import {
   getMedicineRepository,
   setRepositoryProvider,
   resetRepositoryInstances,
-  MockMedicineRepository,
 } from "../src/lib/data";
 
 describe("Bangladesh Medicine Repository & Fast Search Suite", () => {
