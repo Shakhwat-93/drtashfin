@@ -77,6 +77,13 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      if (currentPassword === newPassword) {
+        return NextResponse.json(
+          { error: "New password must be different from your current password." },
+          { status: 400, headers: CLINICAL_API_SECURITY_HEADERS }
+        );
+      }
+
       const strengthError = validateStrongPassword(newPassword);
       if (strengthError) {
         return NextResponse.json(
@@ -115,20 +122,35 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      // Invalidate all other sessions/refresh tokens for this account
+      await verifiedClient.auth.signOut({ scope: "others" }).catch(() => null);
+
+      // Issue a freshly rotated session token pair after password update
+      let rotatedSession = verifyData.session;
+      const { data: refreshedData } = await anonClient.auth.refreshSession({
+        refresh_token: verifyData.session.refresh_token,
+      });
+      if (refreshedData?.session?.access_token) {
+        rotatedSession = refreshedData.session;
+      }
+
       resetRateLimit(rateKey);
 
       const response = NextResponse.json(
         {
           success: true,
-          message: "Clinician password updated and session rotated.",
+          sessionRotated: true,
+          otherSessionsRevoked: true,
+          message:
+            "Clinician password updated, active session rotated, and other sessions revoked.",
         },
         { status: 200, headers: CLINICAL_API_SECURITY_HEADERS }
       );
 
       applySessionCookies(response, request, {
-        accessToken: verifyData.session.access_token,
-        refreshToken: verifyData.session.refresh_token,
-        expiresIn: verifyData.session.expires_in,
+        accessToken: rotatedSession.access_token,
+        refreshToken: rotatedSession.refresh_token,
+        expiresIn: rotatedSession.expires_in,
       });
 
       return response;
@@ -166,21 +188,30 @@ export async function POST(request: NextRequest) {
 
       recordFailedAttempt(rateKey, 3, 15 * 60 * 1000);
 
+      let smtpDeliveryDispatched = false;
       try {
         const anonClient = createServerSupabaseAnonClient();
         const origin = request.nextUrl.origin;
-        await anonClient.auth.resetPasswordForEmail(email, {
-          redirectTo: `${origin}/reset-password`,
-        });
+        const { error: resetErr } = await anonClient.auth.resetPasswordForEmail(
+          email,
+          {
+            redirectTo: `${origin}/reset-password`,
+          }
+        );
+        if (!resetErr) {
+          smtpDeliveryDispatched = true;
+        }
       } catch {
-        // Suppress upstream mailer error details to prevent account enumeration
+        smtpDeliveryDispatched = false;
       }
 
       return NextResponse.json(
         {
           success: true,
-          message:
-            "If the email matches the authorized clinician account and SMTP is configured, a recovery token has been dispatched.",
+          smtpDeliveryDispatched,
+          message: smtpDeliveryDispatched
+            ? "If the email matches the authorized clinician account and outbound SMTP is active, a recovery link/token has been dispatched. Otherwise, use '2. Verify Token & Reset' with an administrator-issued recovery token."
+            : "Outbound SMTP email relay is not currently active. To reset your password immediately, generate a verified recovery token on the server (`node scripts/doctor-account-recovery.mjs --generate-token`) and enter it under '2. Verify Token & Reset'.",
         },
         { status: 200, headers: CLINICAL_API_SECURITY_HEADERS }
       );
@@ -270,20 +301,33 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      await recoveryClient.auth.signOut({ scope: "others" }).catch(() => null);
+
+      let rotatedSession = otpData.session;
+      const { data: refreshedData } = await anonClient.auth.refreshSession({
+        refresh_token: otpData.session.refresh_token,
+      });
+      if (refreshedData?.session?.access_token) {
+        rotatedSession = refreshedData.session;
+      }
+
       resetRateLimit(rateKey);
 
       const response = NextResponse.json(
         {
           success: true,
-          message: "Password reset completed. You are now signed in.",
+          sessionRotated: true,
+          otherSessionsRevoked: true,
+          message:
+            "Password reset completed and prior sessions revoked. You are now signed in.",
         },
         { status: 200, headers: CLINICAL_API_SECURITY_HEADERS }
       );
 
       applySessionCookies(response, request, {
-        accessToken: otpData.session.access_token,
-        refreshToken: otpData.session.refresh_token,
-        expiresIn: otpData.session.expires_in,
+        accessToken: rotatedSession.access_token,
+        refreshToken: rotatedSession.refresh_token,
+        expiresIn: rotatedSession.expires_in,
       });
 
       return response;
