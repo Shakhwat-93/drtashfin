@@ -57,3 +57,53 @@ export interface PaginatedMedicinesResult {
   pageSize: number;
   totalPages: number;
 }
+
+export type MedicineSearchOrigin = "local" | "external";
+
+export interface UnifiedMedicineSearchResult {
+  id: string; // UUID for local; stable external slug (e.g. "ext-medex-123") for external
+  brandName: string;
+  genericName: string;
+  strength?: string;
+  dosageForm?: string; // Undefined if not in external source (never invented!)
+  manufacturer?: string;
+  medicineType: MedicineType;
+  packageContainer?: string;
+  packSizeInfo?: string;
+  price?: string; // e.g. "12.00" (BDT) from MedEx dataset
+  source: string; // 'local_catalogue' | 'medex_dataset' | 'square_dataset' | 'external_api'
+  sourceId?: string; // Stable upstream identifier (e.g. "medex-row-42")
+  sourceName: string; // e.g. "Local Supabase Catalogue" or "External MedEx Dataset"
+  sourceUrl?: string;
+  status: MedicineStatus;
+  origin: MedicineSearchOrigin; // 'local' | 'external'
+  sourceBadge: string; // "Local Catalogue" | "External Dataset (MedEx BD)"
+  isExternal: boolean;
+  searchTerms?: string;
+  dataFreshness?: string;
+  relevanceScore?: number;
+  indications?: string;
+  dosageDescription?: string;
+  sideEffects?: string;
+  contraindications?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface HybridSearchResponse {
+  results: UnifiedMedicineSearchResult[];
+  totalResults: number;
+  localCount: number;
+  externalCount: number;
+  query: string;
+  cacheHit?: boolean;
+  externalFallbackTriggered: boolean;
+  externalFallbackStatus?:
+    | "disabled"
+    | "ok"
+    | "timeout"
+    | "error"
+    | "skipped_sufficient_local";
+  fallbackWarning?: string;
+  durationMs: number;
+}

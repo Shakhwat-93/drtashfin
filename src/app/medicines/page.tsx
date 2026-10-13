@@ -71,6 +71,28 @@ export default function MedicinesPage() {
           offset,
         });
 
+        if (query.trim() && result.medicines.length === 0) {
+          try {
+            const apiRes = await fetch(
+              `/api/medicines/search?q=${encodeURIComponent(
+                query.trim()
+              )}&limit=${size}&hybrid=true`,
+              { credentials: "same-origin" }
+            );
+            if (apiRes.ok) {
+              const payload = await apiRes.json();
+              if (payload?.data?.results && payload.data.results.length > 0) {
+                setMedicines(payload.data.results);
+                setMatchingCount(payload.data.totalResults);
+                setTotalPages(1);
+                return;
+              }
+            }
+          } catch {
+            // Fall back to standard empty local state
+          }
+        }
+
         setMedicines(result.medicines);
         setMatchingCount(result.totalCount);
         setTotalPages(Math.max(result.totalPages, 1));

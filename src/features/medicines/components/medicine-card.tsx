@@ -1,19 +1,46 @@
 import * as React from "react";
-import { Medicine } from "@/types/medicine";
+import { Medicine, UnifiedMedicineSearchResult } from "@/types/medicine";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Pill, Building2, ExternalLink, Info, ShieldAlert } from "lucide-react";
+import {
+  Building2,
+  ExternalLink,
+  Info,
+  ShieldAlert,
+  ShieldCheck,
+  Globe,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface MedicineCardProps {
-  medicine: Medicine;
+  medicine: UnifiedMedicineSearchResult | Medicine;
   className?: string;
-  onSelect?: (medicine: Medicine) => void;
+  onSelect?: (medicine: UnifiedMedicineSearchResult | Medicine) => void;
 }
 
-export function MedicineCard({ medicine, className, onSelect }: MedicineCardProps) {
+export function MedicineCard({
+  medicine,
+  className,
+  onSelect,
+}: MedicineCardProps) {
+  const isExternal =
+    (medicine as UnifiedMedicineSearchResult).isExternal ||
+    (medicine as UnifiedMedicineSearchResult).origin === "external" ||
+    medicine.source === "medex_dataset" ||
+    medicine.source === "square_dataset";
+
+  const price = (medicine as UnifiedMedicineSearchResult).price;
+  const sourceBadge =
+    (medicine as UnifiedMedicineSearchResult).sourceBadge ||
+    (isExternal ? "External MedEx BD" : "Local Catalogue");
+
   return (
-    <Card className={cn("overflow-hidden border-[#EAE3D9] transition-all hover:border-[#DE4F3C]/40 hover:shadow-xs", className)}>
+    <Card
+      className={cn(
+        "overflow-hidden border-[#EAE3D9] transition-all hover:border-[#DE4F3C]/40 hover:shadow-xs",
+        className
+      )}
+    >
       <CardHeader className="bg-[#FAF8F5] pb-3 border-b border-[#EAE3D9]/60">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -22,32 +49,69 @@ export function MedicineCard({ medicine, className, onSelect }: MedicineCardProp
                 {medicine.brandName}
               </CardTitle>
               {medicine.strength && (
-                <Badge variant="neutral" className="border-[#C4BCB3] text-[#201C1A] text-xs font-semibold">
+                <Badge
+                  variant="neutral"
+                  className="border-[#C4BCB3] text-[#201C1A] text-xs font-semibold"
+                >
                   {medicine.strength}
                 </Badge>
               )}
-              {medicine.dosageForm && (
-                <Badge variant="neutral" className="bg-[#EAE3D9] text-[#201C1A] text-[10px]">
+              {medicine.dosageForm ? (
+                <Badge
+                  variant="neutral"
+                  className="bg-[#EAE3D9] text-[#201C1A] text-[10px]"
+                >
                   {medicine.dosageForm}
                 </Badge>
+              ) : (
+                isExternal && (
+                  <Badge
+                    variant="neutral"
+                    className="border-dashed border-[#C4BCB3] text-[#7A746F] text-[10px]"
+                  >
+                    Form Unspecified
+                  </Badge>
+                )
+              )}
+              {price && (
+                <span className="text-[10px] font-semibold text-[#504A45]">
+                  {price}
+                </span>
               )}
             </div>
             <p className="text-xs text-[#7A746F] mt-1">
-              Generic: <span className="font-medium text-[#201C1A] italic">{medicine.genericName}</span>
+              Generic:{" "}
+              <span className="font-medium text-[#201C1A] italic">
+                {medicine.genericName}
+              </span>
             </p>
           </div>
 
-          {medicine.sourceUrl && (
-            <a
-              href={medicine.sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[#7A746F] hover:text-[#DE4F3C] transition-colors p-1"
-              title="View on MedEx"
-            >
-              <ExternalLink className="h-3.5 w-3.5" />
-            </a>
-          )}
+          <div className="flex items-center gap-1 shrink-0">
+            {!isExternal ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[10px] font-medium text-emerald-800">
+                <ShieldCheck className="h-2.5 w-2.5" />
+                <span>Local</span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 border border-amber-200 px-2 py-0.5 text-[10px] font-medium text-amber-800">
+                <Globe className="h-2.5 w-2.5" />
+                <span>{sourceBadge}</span>
+              </span>
+            )}
+
+            {medicine.sourceUrl && (
+              <a
+                href={medicine.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#7A746F] hover:text-[#DE4F3C] transition-colors p-1"
+                title="View on MedEx"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            )}
+          </div>
         </div>
       </CardHeader>
 
@@ -86,7 +150,8 @@ export function MedicineCard({ medicine, className, onSelect }: MedicineCardProp
         <div className="flex items-start gap-1.5 text-[10px] text-[#A83D2F] pt-1">
           <ShieldAlert className="h-3 w-3 shrink-0 mt-0.5" />
           <span>
-            Professional reference only. Doctor must prescribe appropriate dosage per patient vitals and condition.
+            Professional reference only. Doctor must prescribe appropriate
+            dosage per patient vitals and condition.
           </span>
         </div>
 

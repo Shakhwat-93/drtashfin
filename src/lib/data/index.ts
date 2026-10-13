@@ -133,7 +133,12 @@ export function getConsultationRepository(
 /**
  * Factory for Medicine Repository.
  */
-export function getMedicineRepository(): IMedicineRepository {
+export function getMedicineRepository(
+  client?: import("@supabase/supabase-js").SupabaseClient
+): IMedicineRepository {
+  if (client && shouldUseSupabase()) {
+    return new SupabaseMedicineRepository(client);
+  }
   if (!medicineRepositoryInstance) {
     if (shouldUseSupabase()) {
       medicineRepositoryInstance = new SupabaseMedicineRepository();

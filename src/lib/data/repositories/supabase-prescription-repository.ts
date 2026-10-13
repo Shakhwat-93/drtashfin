@@ -8,6 +8,7 @@ import {
 } from "@/types/prescription";
 import { supabase } from "@/lib/supabase/client";
 import { DataError, ValidationError } from "../errors";
+import { isValidUUID } from "@/lib/security/api-security";
 
 function mapPrescriptionItemFromRow(row: Record<string, unknown>): PrescriptionItem {
   return {
@@ -228,7 +229,10 @@ export class SupabasePrescriptionRepository implements IPrescriptionRepository {
     if (dto.items && dto.items.length > 0) {
       const itemsPayload = dto.items.map((item, index) => ({
         prescription_id: prescriptionId,
-        medicine_id: item.medicineId || null,
+        medicine_id:
+          item.medicineId && isValidUUID(item.medicineId)
+            ? item.medicineId
+            : null,
         brand_name: item.brandName.trim(),
         generic_name: item.genericName.trim(),
         strength: item.strength?.trim() || null,
@@ -334,7 +338,10 @@ export class SupabasePrescriptionRepository implements IPrescriptionRepository {
       if (dto.items.length > 0) {
         const itemsPayload = dto.items.map((item, index) => ({
           prescription_id: id,
-          medicine_id: item.medicineId || null,
+          medicine_id:
+            item.medicineId && isValidUUID(item.medicineId)
+              ? item.medicineId
+              : null,
           brand_name: item.brandName.trim(),
           generic_name: item.genericName.trim(),
           strength: item.strength?.trim() || null,

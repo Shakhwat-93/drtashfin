@@ -10,14 +10,17 @@ import {
   AlertTriangle,
   ExternalLink,
   RotateCw,
+  ShieldCheck,
+  Globe,
+  Info,
 } from "lucide-react";
-import { Medicine } from "@/types/medicine";
+import { Medicine, UnifiedMedicineSearchResult } from "@/types/medicine";
 import { useMedicineSearch } from "../hooks/use-medicine-search";
 import { cn } from "@/lib/utils";
 
 export interface MedicineSearchAutocompleteProps {
   placeholder?: string;
-  onSelect: (medicine: Medicine) => void;
+  onSelect: (medicine: UnifiedMedicineSearchResult & Medicine) => void;
   className?: string;
   autoFocus?: boolean;
   disabled?: boolean;
@@ -26,7 +29,7 @@ export interface MedicineSearchAutocompleteProps {
 }
 
 export function MedicineSearchAutocomplete({
-  placeholder = "Search medicine by brand (e.g. Napa) or generic (e.g. Paracetamol)...",
+  placeholder = "Search medicine by brand (e.g. Napa, 1stCef) or generic (e.g. Paracetamol)...",
   onSelect,
   className,
   autoFocus = false,
@@ -34,8 +37,18 @@ export function MedicineSearchAutocomplete({
   showClinicalNotice = true,
   limit = 15,
 }: MedicineSearchAutocompleteProps) {
-  const { query, setQuery, results, isLoading, error, clear, search } =
-    useMedicineSearch({ limit });
+  const {
+    query,
+    setQuery,
+    results,
+    localCount,
+    externalCount,
+    fallbackWarning,
+    isLoading,
+    error,
+    clear,
+    search,
+  } = useMedicineSearch({ limit });
 
   const [isOpen, setIsOpen] = React.useState(false);
   const [activeIndex, setActiveIndex] = React.useState<number>(-1);
@@ -115,8 +128,16 @@ export function MedicineSearchAutocomplete({
     }
   }, [activeIndex]);
 
-  const handleSelectMedicine = (med: Medicine) => {
-    onSelect(med);
+  const handleSelectMedicine = (med: UnifiedMedicineSearchResult) => {
+    // Convert safely while preserving UnifiedMedicineSearchResult metadata
+    const normalized: UnifiedMedicineSearchResult & Medicine = {
+      ...med,
+      searchTerms:
+        `${med.brandName} ${med.genericName} ${med.strength || ""} ${med.manufacturer || ""}`.toLowerCase(),
+      createdAt: med.createdAt || new Date().toISOString(),
+      updatedAt: med.updatedAt || new Date().toISOString(),
+    };
+    onSelect(normalized);
     setQuery("");
     setIsOpen(false);
     setActiveIndex(-1);
@@ -178,7 +199,7 @@ export function MedicineSearchAutocomplete({
       {isOpen && (
         <div
           id="medicine-search-results"
-          className="absolute z-50 mt-[-1px] w-full rounded-b-xl border border-[#EAE3D9] bg-white shadow-xl backdrop-blur-md"
+          className="absolute z-50 mt-[-1px] w-full rounded-b-xl border border-[#EAE3D9] bg-white shadow-xl backdrop-blur-md overflow-hidden"
         >
           {/* Clinical Safety Notice */}
           {showClinicalNotice && (
@@ -188,6 +209,14 @@ export function MedicineSearchAutocomplete({
                 <strong>Clinical Reference:</strong> Doctor verification required.
                 Always confirm dosage & indications for individual patient.
               </span>
+            </div>
+          )}
+
+          {/* Discreet External Fallback Warning State */}
+          {fallbackWarning && (
+            <div className="flex items-center gap-2 border-b border-[#EAE3D9]/80 bg-amber-50/70 px-3.5 py-1.5 text-[11px] text-amber-800">
+              <Info className="h-3.5 w-3.5 shrink-0" />
+              <span>{fallbackWarning}</span>
             </div>
           )}
 
@@ -214,7 +243,7 @@ export function MedicineSearchAutocomplete({
                 No medicines found
               </p>
               <p className="text-[11px]">
-                No catalogue entry matching &ldquo;{query}&rdquo;. Check spelling or search by generic name.
+                No local or external reference entry matching &ldquo;{query}&rdquo;. Check spelling or search by generic name.
               </p>
             </div>
           )}
@@ -228,6 +257,7 @@ export function MedicineSearchAutocomplete({
             >
               {results.map((med, index) => {
                 const isActive = index === activeIndex;
+                const isExternal = med.isExternal || med.origin === "external";
 
                 return (
                   <li
@@ -239,46 +269,67 @@ export function MedicineSearchAutocomplete({
                     onClick={() => handleSelectMedicine(med)}
                     className={cn(
                       "flex cursor-pointer flex-col gap-1 px-4 py-2.5 transition-colors",
-                      isActive
-                        ? "bg-[#F8F5F0]"
-                        : "hover:bg-[#FAF8F5]"
+                      isActive ? "bg-[#F8F5F0]" : "hover:bg-[#FAF8F5]"
                     )}
                   >
-                    {/* Top Row: Brand name, Strength, Dosage Form */}
-                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                      <span className="font-semibold text-xs sm:text-sm text-[#201C1A]">
-                        {med.brandName}
-                      </span>
-
-                      {med.strength && (
-                        <span className="rounded-full bg-[#EAE3D9] px-2 py-0.5 text-[10px] font-semibold text-[#201C1A]">
-                          {med.strength}
+                    {/* Top Row: Brand name, Strength, Dosage Form, Provenance Badge */}
+                    <div className="flex flex-wrap items-center justify-between gap-1.5">
+                      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 min-w-0">
+                        <span className="font-semibold text-xs sm:text-sm text-[#201C1A] truncate">
+                          {med.brandName}
                         </span>
-                      )}
 
-                      {med.dosageForm && (
-                        <span className="rounded-md border border-[#EAE3D9] bg-white px-1.5 py-0.5 text-[10px] font-medium text-[#7A746F]">
-                          {med.dosageForm}
-                        </span>
-                      )}
+                        {med.strength && (
+                          <span className="rounded-full bg-[#EAE3D9] px-2 py-0.5 text-[10px] font-semibold text-[#201C1A]">
+                            {med.strength}
+                          </span>
+                        )}
 
-                      {med.medicineType === "herbal" && (
-                        <span className="rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 text-[10px] font-medium">
-                          Herbal
-                        </span>
-                      )}
+                        {med.dosageForm ? (
+                          <span className="rounded-md border border-[#EAE3D9] bg-white px-1.5 py-0.5 text-[10px] font-medium text-[#7A746F]">
+                            {med.dosageForm}
+                          </span>
+                        ) : (
+                          isExternal && (
+                            <span className="rounded-md border border-dashed border-[#C4BCB3] bg-[#FAF8F5] px-1.5 py-0.5 text-[10px] font-medium text-[#7A746F]">
+                              Form Unspecified
+                            </span>
+                          )
+                        )}
+
+                        {med.price && (
+                          <span className="text-[10px] font-medium text-[#7A746F]">
+                            ({med.price})
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Source Provenance Badge */}
+                      <div className="shrink-0">
+                        {!isExternal ? (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[10px] font-medium text-emerald-800">
+                            <ShieldCheck className="h-2.5 w-2.5" />
+                            <span>Local Catalogue</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 border border-amber-200 px-2 py-0.5 text-[10px] font-medium text-amber-800">
+                            <Globe className="h-2.5 w-2.5" />
+                            <span>{med.sourceBadge || "External MedEx"}</span>
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     {/* Bottom Row: Generic name & Manufacturer */}
                     <div className="flex flex-wrap items-center justify-between gap-1 text-[11px] text-[#7A746F]">
-                      <span className="font-medium text-[#504A45]">
+                      <span className="font-medium text-[#504A45] truncate max-w-[65%]">
                         Generic: <span className="italic">{med.genericName}</span>
                       </span>
 
                       {med.manufacturer && (
                         <span className="inline-flex items-center gap-1 text-[10px] text-[#7A746F]">
                           <Building2 className="h-3 w-3 shrink-0" />
-                          <span className="truncate max-w-[180px]">
+                          <span className="truncate max-w-[170px]">
                             {med.manufacturer}
                           </span>
                         </span>
@@ -291,15 +342,15 @@ export function MedicineSearchAutocomplete({
           )}
 
           {/* Footer with Count & Source Provenance */}
-          <div className="flex items-center justify-between border-t border-[#EAE3D9] bg-[#FAF8F5] px-3.5 py-1.5 text-[10px] text-[#7A746F]">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#EAE3D9] bg-[#FAF8F5] px-3.5 py-1.5 text-[10px] text-[#7A746F]">
             <span>
               {results.length > 0
-                ? `Showing top ${results.length} results • Navigate with ↑ ↓ Enter`
-                : "Search Bangladesh Medicine Catalogue"}
+                ? `Showing ${results.length} results (${localCount} Local • ${externalCount} External) • ↑ ↓ Enter`
+                : "Hybrid Search: Local Catalogue + 19,600+ BD Reference Index"}
             </span>
             <span className="inline-flex items-center gap-1 text-[#7A746F]">
               <ExternalLink className="h-2.5 w-2.5" />
-              <span>MedEx BD Reference</span>
+              <span>Hybrid MedEx Reference</span>
             </span>
           </div>
         </div>

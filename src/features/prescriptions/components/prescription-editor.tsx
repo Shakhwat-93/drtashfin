@@ -4,7 +4,6 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import {
   Pill,
-  Plus,
   Trash2,
   ArrowUp,
   ArrowDown,
@@ -12,7 +11,6 @@ import {
   Save,
   CheckCircle2,
   Calendar,
-  Clock,
   Sparkles,
   Info,
   ArrowLeft,
@@ -25,8 +23,9 @@ import {
   Prescription,
   CreatePrescriptionItemDTO,
 } from "@/types/prescription";
-import { Medicine } from "@/types/medicine";
+import { Medicine, UnifiedMedicineSearchResult } from "@/types/medicine";
 import { MedicineSearchAutocomplete } from "@/features/medicines";
+import { createPrescriptionItemSnapshot } from "@/lib/medicine-search/snapshot-helper";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -159,12 +158,14 @@ export function PrescriptionEditor({
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const [showFinalizeModal, setShowFinalizeModal] = React.useState(false);
-  const [isDirty, setIsDirty] = React.useState(false);
-
-  // Track dirty state
-  React.useEffect(() => {
-    setIsDirty(true);
-  }, [items, advice, followUpDate, followUpInstructions, notes, prescriptionDate]);
+  const [isSubmitted, setIsSubmitted] = React.useState(false);
+  const isDirty =
+    !isSubmitted &&
+    (items.length > 0 ||
+      advice.trim().length > 0 ||
+      followUpDate.length > 0 ||
+      followUpInstructions.trim().length > 0 ||
+      notes.trim().length > 0);
 
   // Warn on browser navigation if unsaved changes exist
   React.useEffect(() => {
@@ -191,31 +192,13 @@ export function PrescriptionEditor({
     }
   };
 
-  // Handle medicine selection from MedEx autocomplete
+  // Handle medicine selection from Hybrid Autocomplete (Local Catalogue or External Dataset)
   // Note: Catalogue provides pharmaceutical reference only.
   // Clinician explicitly enters or selects dosage, frequency, and duration.
-  const handleSelectCatalogueMedicine = (med: Medicine) => {
-    const newItem: CreatePrescriptionItemDTO = {
-      medicineId: med.id,
-      brandName: med.brandName,
-      genericName: med.genericName,
-      strength: med.strength || "",
-      dosageForm: med.dosageForm || "Tablet",
-      manufacturer: med.manufacturer || "",
-      dose: "",
-      frequency: "",
-      route: med.dosageForm?.toLowerCase().includes("drop")
-        ? "Eye Drop"
-        : med.dosageForm?.toLowerCase().includes("cream") ||
-          med.dosageForm?.toLowerCase().includes("ointment")
-        ? "Topical"
-        : "Oral",
-      duration: "",
-      timingInstructions: "After meal",
-      specialInstructions: "",
-      orderIndex: items.length,
-    };
-
+  const handleSelectCatalogueMedicine = (
+    med: UnifiedMedicineSearchResult | Medicine
+  ) => {
+    const newItem = createPrescriptionItemSnapshot(med, items.length);
     setItems((prev) => [...prev, newItem]);
     setErrorMessage(null);
   };
@@ -343,7 +326,7 @@ export function PrescriptionEditor({
         });
       }
 
-      setIsDirty(false);
+      setIsSubmitted(true);
       setShowFinalizeModal(false);
 
       if (onSuccess) {
@@ -560,9 +543,28 @@ export function PrescriptionEditor({
                         {item.strength}
                       </span>
                     )}
-                    {item.dosageForm && (
-                      <span className="rounded-md border border-[#EAE3D9] bg-[#FAF8F5] px-1.5 py-0.5 text-[10px] font-medium text-[#7A746F]">
-                        {item.dosageForm}
+                    <select
+                      value={item.dosageForm || ""}
+                      onChange={(e) =>
+                        handleUpdateItem(index, "dosageForm", e.target.value)
+                      }
+                      aria-label="Dosage Form"
+                      className="rounded-md border border-[#EAE3D9] bg-[#FAF8F5] px-1.5 py-0.5 text-[10px] font-medium text-[#201C1A] focus:border-[#DE4F3C] focus:outline-hidden"
+                    >
+                      <option value="">Form (Optional)</option>
+                      <option value="Tablet">Tablet</option>
+                      <option value="Capsule">Capsule</option>
+                      <option value="Syrup">Syrup</option>
+                      <option value="Suspension">Suspension</option>
+                      <option value="Injection">Injection</option>
+                      <option value="Eye Drop">Eye Drop</option>
+                      <option value="Ointment">Ointment</option>
+                      <option value="Inhaler">Inhaler</option>
+                      <option value="Suppository">Suppository</option>
+                    </select>
+                    {item.medicineSource === "external" && (
+                      <span className="rounded-full bg-amber-50 border border-amber-200 px-2 py-0.5 text-[10px] font-medium text-amber-800">
+                        External MedEx Snapshot
                       </span>
                     )}
                   </div>
@@ -684,7 +686,7 @@ export function PrescriptionEditor({
                     />
                     {/* Quick Duration Suggestions */}
                     <div className="flex flex-wrap gap-1 pt-0.5">
-                      {["3 days", "5 days", "7 days", "14 days"].map((d) => (
+                      {COMMON_DURATIONS.slice(0, 4).map((d) => (
                         <button
                           key={d}
                           type="button"

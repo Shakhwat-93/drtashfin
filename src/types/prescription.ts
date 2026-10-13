@@ -43,6 +43,8 @@ export interface PrescriptionItem {
   specialInstructions?: string;
 
   orderIndex: number;
+  medicineSource?: "local" | "external" | "manual";
+  externalSourceId?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -93,6 +95,8 @@ export interface CreatePrescriptionItemDTO {
   timingInstructions?: string;
   specialInstructions?: string;
   orderIndex?: number;
+  medicineSource?: "local" | "external" | "manual";
+  externalSourceId?: string;
 }
 
 export interface CreatePrescriptionDTO {
