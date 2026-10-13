@@ -74,7 +74,12 @@ function shouldUseSupabase(): boolean {
  * Factory for Patient Repository.
  * Auto-detects Supabase configuration; falls back to Mock in offline/isolated environments.
  */
-export function getPatientRepository(): IPatientRepository {
+export function getPatientRepository(
+  client?: import("@supabase/supabase-js").SupabaseClient
+): IPatientRepository {
+  if (client && shouldUseSupabase()) {
+    return new SupabasePatientRepository(client);
+  }
   if (!patientRepositoryInstance) {
     if (shouldUseSupabase()) {
       patientRepositoryInstance = new SupabasePatientRepository();
@@ -102,7 +107,15 @@ export function getClinicalRepository(): IClinicalRepository {
 /**
  * Factory for Consultation Repository.
  */
-export function getConsultationRepository(): IConsultationRepository {
+export function getConsultationRepository(
+  client?: import("@supabase/supabase-js").SupabaseClient
+): IConsultationRepository {
+  if (client && shouldUseSupabase()) {
+    return new SupabaseConsultationRepository(
+      getPatientRepository(client),
+      client
+    );
+  }
   if (!consultationRepositoryInstance) {
     if (shouldUseSupabase()) {
       consultationRepositoryInstance = new SupabaseConsultationRepository(
@@ -134,7 +147,12 @@ export function getMedicineRepository(): IMedicineRepository {
 /**
  * Factory for Prescription Repository.
  */
-export function getPrescriptionRepository(): IPrescriptionRepository {
+export function getPrescriptionRepository(
+  client?: import("@supabase/supabase-js").SupabaseClient
+): IPrescriptionRepository {
+  if (client && shouldUseSupabase()) {
+    return new SupabasePrescriptionRepository(client);
+  }
   if (!prescriptionRepositoryInstance) {
     if (shouldUseSupabase()) {
       prescriptionRepositoryInstance = new SupabasePrescriptionRepository();
@@ -148,7 +166,12 @@ export function getPrescriptionRepository(): IPrescriptionRepository {
 /**
  * Factory for Clinical Document Repository.
  */
-export function getClinicalDocumentRepository(): IClinicalDocumentRepository {
+export function getClinicalDocumentRepository(
+  client?: import("@supabase/supabase-js").SupabaseClient
+): IClinicalDocumentRepository {
+  if (client && shouldUseSupabase()) {
+    return new SupabaseClinicalDocumentRepository(client);
+  }
   if (!clinicalDocumentRepositoryInstance) {
     if (shouldUseSupabase()) {
       clinicalDocumentRepositoryInstance =

@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrescriptionArchiveService } from "@/lib/services/prescription-archive-service";
-import { getClinicalDocumentRepository, getPrescriptionRepository } from "@/lib/data";
+import {
+  getClinicalDocumentRepository,
+  getPrescriptionRepository,
+} from "@/lib/data";
+import { requireDoctorAuth, applySessionCookies } from "@/lib/auth/session";
 import {
   isValidUUID,
   CLINICAL_API_SECURITY_HEADERS,
@@ -13,6 +17,11 @@ export async function POST(
   { params }: { params: Promise<{ prescriptionId: string }> }
 ) {
   try {
+    const auth = await requireDoctorAuth(request);
+    if (!auth.authorized) {
+      return auth.response;
+    }
+
     const { prescriptionId } = await params;
 
     if (!isValidUUID(prescriptionId)) {
@@ -32,19 +41,33 @@ export async function POST(
 
     const result = await PrescriptionArchiveService.archivePrescription(
       prescriptionId,
-      { forceNewVersion }
+      {
+        forceNewVersion,
+        client: auth.supabaseClient,
+      }
     );
 
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         success: true,
         data: result,
       },
       { status: 200, headers: CLINICAL_API_SECURITY_HEADERS }
     );
+
+    if (auth.refreshed) {
+      applySessionCookies(response, request, {
+        accessToken: auth.accessToken,
+        refreshToken: auth.refreshToken,
+      });
+    }
+
+    return response;
   } catch (err: unknown) {
     const message =
-      err instanceof Error ? err.message : "Failed to archive prescription to R2.";
+      err instanceof Error
+        ? err.message
+        : "Failed to archive prescription to R2.";
     console.error("Prescription archive route error:", err);
     return NextResponse.json(
       { error: message },
@@ -54,10 +77,15 @@ export async function POST(
 }
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ prescriptionId: string }> }
 ) {
   try {
+    const auth = await requireDoctorAuth(request);
+    if (!auth.authorized) {
+      return auth.response;
+    }
+
     const { prescriptionId } = await params;
 
     if (!isValidUUID(prescriptionId)) {
@@ -67,8 +95,8 @@ export async function GET(
       );
     }
 
-    const rxRepo = getPrescriptionRepository();
-    const docRepo = getClinicalDocumentRepository();
+    const rxRepo = getPrescriptionRepository(auth.supabaseClient);
+    const docRepo = getClinicalDocumentRepository(auth.supabaseClient);
 
     const [prescription, latestDoc] = await Promise.all([
       rxRepo.getPrescriptionById(prescriptionId),
@@ -77,12 +105,12 @@ export async function GET(
 
     if (!prescription) {
       return NextResponse.json(
-        { error: `Prescription "${prescriptionId}" not found.` },
+        { error: "Requested prescription record was not found." },
         { status: 404, headers: CLINICAL_API_SECURITY_HEADERS }
       );
     }
 
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         success: true,
         data: {
@@ -95,6 +123,15 @@ export async function GET(
       },
       { status: 200, headers: CLINICAL_API_SECURITY_HEADERS }
     );
+
+    if (auth.refreshed) {
+      applySessionCookies(response, request, {
+        accessToken: auth.accessToken,
+        refreshToken: auth.refreshToken,
+      });
+    }
+
+    return response;
   } catch (err: unknown) {
     const message =
       err instanceof Error ? err.message : "Failed to fetch archive status.";

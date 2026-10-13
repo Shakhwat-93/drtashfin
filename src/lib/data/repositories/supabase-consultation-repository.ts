@@ -1,3 +1,4 @@
+import { SupabaseClient } from "@supabase/supabase-js";
 import { IConsultationRepository } from "./consultation-repository.interface";
 import { IPatientRepository } from "./patient-repository.interface";
 import {
@@ -38,9 +39,11 @@ function mapConsultationFromRow(row: Record<string, unknown>): Consultation {
 
 export class SupabaseConsultationRepository implements IConsultationRepository {
   private patientRepo: IPatientRepository;
+  private client: SupabaseClient;
 
-  constructor(patientRepo: IPatientRepository) {
+  constructor(patientRepo: IPatientRepository, client: SupabaseClient = supabase) {
     this.patientRepo = patientRepo;
+    this.client = client;
   }
 
   public async getConsultationsByPatient(
@@ -51,7 +54,7 @@ export class SupabaseConsultationRepository implements IConsultationRepository {
     const patient = await this.patientRepo.getPatientByIdentifier(patientId);
     if (!patient) return [];
 
-    const { data, error } = await supabase
+    const { data, error } = await this.client
       .from("consultations")
       .select("*")
       .or(`patient_id.eq.${patient.id},patient_code.eq.${patient.patientId}`)
@@ -68,7 +71,7 @@ export class SupabaseConsultationRepository implements IConsultationRepository {
   public async getConsultationById(id: string): Promise<Consultation | null> {
     if (!id) return null;
 
-    const { data, error } = await supabase
+    const { data, error } = await this.client
       .from("consultations")
       .select("*")
       .eq("id", id)
@@ -118,7 +121,7 @@ export class SupabaseConsultationRepository implements IConsultationRepository {
       next_follow_up: validated.nextFollowUp || null,
     };
 
-    const { data: inserted, error } = await supabase
+    const { data: inserted, error } = await this.client
       .from("consultations")
       .insert(payload)
       .select()
@@ -180,7 +183,7 @@ export class SupabaseConsultationRepository implements IConsultationRepository {
     if (validated.nextFollowUp !== undefined)
       updatePayload.next_follow_up = validated.nextFollowUp || null;
 
-    const { data: updated, error } = await supabase
+    const { data: updated, error } = await this.client
       .from("consultations")
       .update(updatePayload)
       .eq("id", id)
@@ -195,7 +198,7 @@ export class SupabaseConsultationRepository implements IConsultationRepository {
   }
 
   public async getRecentConsultations(limit = 5): Promise<Consultation[]> {
-    const { data, error } = await supabase
+    const { data, error } = await this.client
       .from("consultations")
       .select("*")
       .order("created_at", { ascending: false })
@@ -209,7 +212,7 @@ export class SupabaseConsultationRepository implements IConsultationRepository {
   }
 
   public async getTotalConsultationCount(): Promise<number> {
-    const { count, error } = await supabase
+    const { count, error } = await this.client
       .from("consultations")
       .select("*", { count: "exact", head: true });
 

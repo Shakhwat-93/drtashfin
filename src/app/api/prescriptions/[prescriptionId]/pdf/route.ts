@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrescriptionArchiveService } from "@/lib/services/prescription-archive-service";
+import { requireDoctorAuth, applySessionCookies } from "@/lib/auth/session";
 import {
   isValidUUID,
   sanitizeFilename,
@@ -13,6 +14,11 @@ export async function GET(
   { params }: { params: Promise<{ prescriptionId: string }> }
 ) {
   try {
+    const auth = await requireDoctorAuth(request);
+    if (!auth.authorized) {
+      return auth.response;
+    }
+
     const { prescriptionId } = await params;
 
     if (!isValidUUID(prescriptionId)) {
@@ -37,13 +43,17 @@ export async function GET(
 
     const result = await PrescriptionArchiveService.getPdfBuffer(
       prescriptionId,
-      { version, allowDraftPreview }
+      {
+        version,
+        allowDraftPreview,
+        client: auth.supabaseClient,
+      }
     );
 
     const disposition = download ? "attachment" : "inline";
     const safeFilename = sanitizeFilename(result.filename);
 
-    return new NextResponse(new Uint8Array(result.buffer), {
+    const response = new NextResponse(new Uint8Array(result.buffer), {
       status: 200,
       headers: {
         ...CLINICAL_API_SECURITY_HEADERS,
@@ -55,9 +65,20 @@ export async function GET(
         "X-Is-Archived": String(result.isArchived),
       },
     });
+
+    if (auth.refreshed) {
+      applySessionCookies(response, request, {
+        accessToken: auth.accessToken,
+        refreshToken: auth.refreshToken,
+      });
+    }
+
+    return response;
   } catch (err: unknown) {
     const message =
-      err instanceof Error ? err.message : "Failed to generate or retrieve PDF.";
+      err instanceof Error
+        ? err.message
+        : "Failed to generate or retrieve PDF.";
     console.error("Prescription PDF route error:", err);
     return NextResponse.json(
       { error: message },

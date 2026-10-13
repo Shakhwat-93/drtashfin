@@ -194,13 +194,15 @@ export class SupabasePrescriptionRepository implements IPrescriptionRepository {
       }
     }
 
+    const shouldFinalizeImmediately = dto.status === "finalized";
+
     const prescriptionPayload = {
       patient_id: dto.patientId,
       consultation_id: dto.consultationId || null,
       doctor_id: dto.doctorId || "dr-tashfin",
       prescription_date: dto.prescriptionDate || new Date().toISOString().split("T")[0],
-      status: dto.status || "draft",
-      finalized_at: dto.status === "finalized" ? new Date().toISOString() : null,
+      status: "draft" as const,
+      finalized_at: null,
       advice: dto.advice?.trim() || null,
       follow_up_date: dto.followUpDate || null,
       follow_up_instructions: dto.followUpInstructions?.trim() || null,
@@ -253,6 +255,10 @@ export class SupabasePrescriptionRepository implements IPrescriptionRepository {
         );
       }
       insertedItems = (itemRows as Record<string, unknown>[]) || [];
+    }
+
+    if (shouldFinalizeImmediately) {
+      return this.finalizePrescription(prescriptionId);
     }
 
     return mapPrescriptionFromRow(createdRow, insertedItems);

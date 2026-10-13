@@ -55,11 +55,15 @@ export class PrescriptionArchiveService {
    */
   public static async archivePrescription(
     prescriptionId: string,
-    options?: { forceNewVersion?: boolean }
+    options?: {
+      forceNewVersion?: boolean;
+      client?: import("@supabase/supabase-js").SupabaseClient;
+    }
   ): Promise<ArchivePrescriptionResult> {
-    const rxRepo = getPrescriptionRepository();
-    const patientRepo = getPatientRepository();
-    const docRepo = getClinicalDocumentRepository();
+    const client = options?.client;
+    const rxRepo = getPrescriptionRepository(client);
+    const patientRepo = getPatientRepository(client);
+    const docRepo = getClinicalDocumentRepository(client);
 
     const prescription = await rxRepo.getPrescriptionById(prescriptionId);
     if (!prescription) {
@@ -79,7 +83,7 @@ export class PrescriptionArchiveService {
 
     // Verify consultation relationship if linked to prevent cross-patient record contamination
     if (prescription.consultationId) {
-      const consultRepo = getConsultationRepository();
+      const consultRepo = getConsultationRepository(client);
       const consult = await consultRepo.getConsultationById(
         prescription.consultationId
       );
@@ -189,10 +193,12 @@ export class PrescriptionArchiveService {
    * Cryptographically verifies the stored R2 PDF against the database content hash.
    */
   public static async verifyPrescriptionArchive(
-    prescriptionId: string
+    prescriptionId: string,
+    options?: { client?: import("@supabase/supabase-js").SupabaseClient }
   ): Promise<DocumentIntegrityVerification> {
-    const rxRepo = getPrescriptionRepository();
-    const docRepo = getClinicalDocumentRepository();
+    const client = options?.client;
+    const rxRepo = getPrescriptionRepository(client);
+    const docRepo = getClinicalDocumentRepository(client);
 
     const prescription = await rxRepo.getPrescriptionById(prescriptionId);
     if (!prescription) {
@@ -289,7 +295,11 @@ export class PrescriptionArchiveService {
    */
   public static async getPdfBuffer(
     prescriptionId: string,
-    options?: { version?: number; allowDraftPreview?: boolean }
+    options?: {
+      version?: number;
+      allowDraftPreview?: boolean;
+      client?: import("@supabase/supabase-js").SupabaseClient;
+    }
   ): Promise<{
     buffer: Buffer;
     filename: string;
@@ -297,9 +307,10 @@ export class PrescriptionArchiveService {
     version: number;
     isArchived: boolean;
   }> {
-    const rxRepo = getPrescriptionRepository();
-    const patientRepo = getPatientRepository();
-    const docRepo = getClinicalDocumentRepository();
+    const client = options?.client;
+    const rxRepo = getPrescriptionRepository(client);
+    const patientRepo = getPatientRepository(client);
+    const docRepo = getClinicalDocumentRepository(client);
 
     const prescription = await rxRepo.getPrescriptionById(prescriptionId);
     if (!prescription) {
@@ -392,9 +403,10 @@ export class PrescriptionArchiveService {
    * Generates a temporary presigned download URL (with strict 15-minute expiry)
    */
   public static async getSignedDownloadUrl(
-    prescriptionId: string
+    prescriptionId: string,
+    options?: { client?: import("@supabase/supabase-js").SupabaseClient }
   ): Promise<string> {
-    const docRepo = getClinicalDocumentRepository();
+    const docRepo = getClinicalDocumentRepository(options?.client);
     const latestDoc = await docRepo.getLatestDocumentByPrescriptionId(prescriptionId);
     if (!latestDoc) {
       throw new DataError("Prescription has not been archived to Cloudflare R2 yet.");

@@ -1,3 +1,4 @@
+import { SupabaseClient } from "@supabase/supabase-js";
 import { IPatientRepository } from "./patient-repository.interface";
 import {
   Patient,
@@ -48,6 +49,12 @@ const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export class SupabasePatientRepository implements IPatientRepository {
+  private client: SupabaseClient;
+
+  constructor(client: SupabaseClient = supabase) {
+    this.client = client;
+  }
+
   public async getPatients(
     params: PatientQueryParams = {}
   ): Promise<PaginatedResult<Patient>> {
@@ -56,7 +63,7 @@ export class SupabasePatientRepository implements IPatientRepository {
     const from = (page - 1) * pageSize;
     const to = from + pageSize - 1;
 
-    let query = supabase.from("patients").select("*", { count: "exact" });
+    let query = this.client.from("patients").select("*", { count: "exact" });
 
     // 1. Search Filter
     if (params.search && params.search.trim() !== "") {
@@ -110,7 +117,7 @@ export class SupabasePatientRepository implements IPatientRepository {
       return null;
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await this.client
       .from("patients")
       .select("*")
       .eq("id", id)
@@ -128,7 +135,7 @@ export class SupabasePatientRepository implements IPatientRepository {
       return null;
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await this.client
       .from("patients")
       .select("*")
       .eq("patient_id", patientId)
@@ -161,7 +168,7 @@ export class SupabasePatientRepository implements IPatientRepository {
 
     if (!trimmedName) return null;
 
-    let query = supabase.from("patients").select("*").limit(1);
+    let query = this.client.from("patients").select("*").limit(1);
 
     if (trimmedPhone) {
       query = query.or(`name.ilike.${trimmedName},phone.eq.${trimmedPhone}`);
@@ -199,7 +206,7 @@ export class SupabasePatientRepository implements IPatientRepository {
       blood_group: validated.bloodGroup ?? null,
     };
 
-    const { data: inserted, error } = await supabase
+    const { data: inserted, error } = await this.client
       .from("patients")
       .insert(payload)
       .select()
@@ -248,7 +255,7 @@ export class SupabasePatientRepository implements IPatientRepository {
       updatePayload.age = validated.age;
     }
 
-    const { data: updated, error } = await supabase
+    const { data: updated, error } = await this.client
       .from("patients")
       .update(updatePayload)
       .eq("id", existing.id)
@@ -268,7 +275,7 @@ export class SupabasePatientRepository implements IPatientRepository {
       throw new PatientNotFoundError(id);
     }
 
-    const { error } = await supabase
+    const { error } = await this.client
       .from("patients")
       .delete()
       .eq("id", existing.id);
@@ -281,7 +288,7 @@ export class SupabasePatientRepository implements IPatientRepository {
   }
 
   public async getRecentPatients(limit = 5): Promise<Patient[]> {
-    const { data, error } = await supabase
+    const { data, error } = await this.client
       .from("patients")
       .select("*")
       .order("created_at", { ascending: false })
@@ -295,7 +302,7 @@ export class SupabasePatientRepository implements IPatientRepository {
   }
 
   public async getTotalPatientCount(): Promise<number> {
-    const { count, error } = await supabase
+    const { count, error } = await this.client
       .from("patients")
       .select("*", { count: "exact", head: true });
 
