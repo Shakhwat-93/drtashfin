@@ -13,10 +13,31 @@ export interface Patient {
   age: number;
   gender: Gender;
   weight?: number; // Weight in kg
-  phone?: string;
+  phone?: string; // Primary mobile number
   email?: string;
-  address?: string;
+  address?: string; // Present Address
   bloodGroup?: BloodGroup;
+
+  // Section A: Family & Guardian Identity
+  fatherName?: string;
+  motherName?: string;
+  guardianName?: string;
+  guardianRelationship?: string;
+
+  // Section B: Contact & Emergency Information
+  secondaryPhone?: string;
+  permanentAddress?: string;
+  emergencyContactName?: string;
+  emergencyContactRelationship?: string;
+  emergencyContactPhone?: string;
+
+  // Section C: Additional Clinical & Social Information
+  occupation?: string;
+  allergies?: string;
+  medicalHistory?: string;
+  currentMedications?: string;
+  patientNotes?: string;
+
   createdAt: string; // ISO timestamp
   updatedAt: string; // ISO timestamp
 }
@@ -30,8 +51,28 @@ export interface CreatePatientDTO {
   weight?: number;
   phone?: string;
   email?: string;
-  address?: string;
+  address?: string; // Present Address
   bloodGroup?: BloodGroup;
+
+  // Family & Guardian Identity
+  fatherName?: string;
+  motherName?: string;
+  guardianName?: string;
+  guardianRelationship?: string;
+
+  // Contact & Emergency Information
+  secondaryPhone?: string;
+  permanentAddress?: string;
+  emergencyContactName?: string;
+  emergencyContactRelationship?: string;
+  emergencyContactPhone?: string;
+
+  // Additional Clinical & Social Information
+  occupation?: string;
+  allergies?: string;
+  medicalHistory?: string;
+  currentMedications?: string;
+  patientNotes?: string;
 }
 
 export interface UpdatePatientDTO {
@@ -45,6 +86,26 @@ export interface UpdatePatientDTO {
   email?: string;
   address?: string;
   bloodGroup?: BloodGroup;
+
+  // Family & Guardian Identity
+  fatherName?: string;
+  motherName?: string;
+  guardianName?: string;
+  guardianRelationship?: string;
+
+  // Contact & Emergency Information
+  secondaryPhone?: string;
+  permanentAddress?: string;
+  emergencyContactName?: string;
+  emergencyContactRelationship?: string;
+  emergencyContactPhone?: string;
+
+  // Additional Clinical & Social Information
+  occupation?: string;
+  allergies?: string;
+  medicalHistory?: string;
+  currentMedications?: string;
+  patientNotes?: string;
 }
 
 export interface PatientQueryParams extends PaginationParams, SortParams {

@@ -30,6 +30,27 @@ function mapPatientFromRow(row: Record<string, unknown>): Patient {
     email: row.email ? String(row.email) : undefined,
     address: row.address ? String(row.address) : undefined,
     bloodGroup: row.blood_group ? (row.blood_group as Patient["bloodGroup"]) : undefined,
+
+    // Section A: Family & Guardian Identity
+    fatherName: row.father_name ? String(row.father_name) : undefined,
+    motherName: row.mother_name ? String(row.mother_name) : undefined,
+    guardianName: row.guardian_name ? String(row.guardian_name) : undefined,
+    guardianRelationship: row.guardian_relationship ? String(row.guardian_relationship) : undefined,
+
+    // Section B: Contact & Emergency Information
+    secondaryPhone: row.secondary_phone ? String(row.secondary_phone) : undefined,
+    permanentAddress: row.permanent_address ? String(row.permanent_address) : undefined,
+    emergencyContactName: row.emergency_contact_name ? String(row.emergency_contact_name) : undefined,
+    emergencyContactRelationship: row.emergency_contact_relationship ? String(row.emergency_contact_relationship) : undefined,
+    emergencyContactPhone: row.emergency_contact_phone ? String(row.emergency_contact_phone) : undefined,
+
+    // Section C: Additional Clinical & Social Information
+    occupation: row.occupation ? String(row.occupation) : undefined,
+    allergies: row.allergies ? String(row.allergies) : undefined,
+    medicalHistory: row.medical_history ? String(row.medical_history) : undefined,
+    currentMedications: row.current_medications ? String(row.current_medications) : undefined,
+    patientNotes: row.patient_notes ? String(row.patient_notes) : undefined,
+
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),
   };
@@ -70,7 +91,7 @@ export class SupabasePatientRepository implements IPatientRepository {
     if (params.search && params.search.trim() !== "") {
       const q = params.search.trim();
       query = query.or(
-        `name.ilike.%${q}%,patient_id.ilike.%${q}%,phone.ilike.%${q}%,email.ilike.%${q}%`
+        `name.ilike.%${q}%,patient_id.ilike.%${q}%,phone.ilike.%${q}%,secondary_phone.ilike.%${q}%,email.ilike.%${q}%,father_name.ilike.%${q}%`
       );
     }
 
@@ -181,7 +202,9 @@ export class SupabasePatientRepository implements IPatientRepository {
     let query = this.client.from("patients").select("*").limit(1);
 
     if (trimmedPhone) {
-      query = query.or(`name.ilike.${trimmedName},phone.eq.${trimmedPhone}`);
+      query = query.or(
+        `name.ilike.${trimmedName},phone.eq.${trimmedPhone},secondary_phone.eq.${trimmedPhone}`
+      );
     } else {
       query = query.ilike("name", trimmedName);
     }
@@ -213,8 +236,28 @@ export class SupabasePatientRepository implements IPatientRepository {
       phone: validated.phone?.trim() ?? null,
       email: validated.email?.trim() ?? null,
       address: validated.address?.trim() ?? null,
-      blood_group: validated.bloodGroup ?? null,
+      blood_group: validated.bloodGroup || null,
       ...(validated.chamberId ? { chamber_id: validated.chamberId } : {}),
+
+      // Section A: Family & Guardian Identity
+      father_name: validated.fatherName?.trim() || null,
+      mother_name: validated.motherName?.trim() || null,
+      guardian_name: validated.guardianName?.trim() || null,
+      guardian_relationship: validated.guardianRelationship?.trim() || null,
+
+      // Section B: Contact & Emergency Information
+      secondary_phone: validated.secondaryPhone?.trim() || null,
+      permanent_address: validated.permanentAddress?.trim() || null,
+      emergency_contact_name: validated.emergencyContactName?.trim() || null,
+      emergency_contact_relationship: validated.emergencyContactRelationship?.trim() || null,
+      emergency_contact_phone: validated.emergencyContactPhone?.trim() || null,
+
+      // Section C: Additional Clinical & Social Information
+      occupation: validated.occupation?.trim() || null,
+      allergies: validated.allergies?.trim() || null,
+      medical_history: validated.medicalHistory?.trim() || null,
+      current_medications: validated.currentMedications?.trim() || null,
+      patient_notes: validated.patientNotes?.trim() || null,
     };
 
     const { data: inserted, error } = await this.client
@@ -257,8 +300,28 @@ export class SupabasePatientRepository implements IPatientRepository {
     if (validated.phone !== undefined) updatePayload.phone = validated.phone?.trim() ?? null;
     if (validated.email !== undefined) updatePayload.email = validated.email?.trim() ?? null;
     if (validated.address !== undefined) updatePayload.address = validated.address?.trim() ?? null;
-    if (validated.bloodGroup !== undefined) updatePayload.blood_group = validated.bloodGroup;
+    if (validated.bloodGroup !== undefined) updatePayload.blood_group = validated.bloodGroup || null;
     if (validated.chamberId !== undefined) updatePayload.chamber_id = validated.chamberId || null;
+
+    // Section A: Family & Guardian Identity
+    if (validated.fatherName !== undefined) updatePayload.father_name = validated.fatherName?.trim() || null;
+    if (validated.motherName !== undefined) updatePayload.mother_name = validated.motherName?.trim() || null;
+    if (validated.guardianName !== undefined) updatePayload.guardian_name = validated.guardianName?.trim() || null;
+    if (validated.guardianRelationship !== undefined) updatePayload.guardian_relationship = validated.guardianRelationship?.trim() || null;
+
+    // Section B: Contact & Emergency Information
+    if (validated.secondaryPhone !== undefined) updatePayload.secondary_phone = validated.secondaryPhone?.trim() || null;
+    if (validated.permanentAddress !== undefined) updatePayload.permanent_address = validated.permanentAddress?.trim() || null;
+    if (validated.emergencyContactName !== undefined) updatePayload.emergency_contact_name = validated.emergencyContactName?.trim() || null;
+    if (validated.emergencyContactRelationship !== undefined) updatePayload.emergency_contact_relationship = validated.emergencyContactRelationship?.trim() || null;
+    if (validated.emergencyContactPhone !== undefined) updatePayload.emergency_contact_phone = validated.emergencyContactPhone?.trim() || null;
+
+    // Section C: Additional Clinical & Social Information
+    if (validated.occupation !== undefined) updatePayload.occupation = validated.occupation?.trim() || null;
+    if (validated.allergies !== undefined) updatePayload.allergies = validated.allergies?.trim() || null;
+    if (validated.medicalHistory !== undefined) updatePayload.medical_history = validated.medicalHistory?.trim() || null;
+    if (validated.currentMedications !== undefined) updatePayload.current_medications = validated.currentMedications?.trim() || null;
+    if (validated.patientNotes !== undefined) updatePayload.patient_notes = validated.patientNotes?.trim() || null;
 
     if (validated.dateOfBirth !== undefined) {
       updatePayload.date_of_birth = validated.dateOfBirth;

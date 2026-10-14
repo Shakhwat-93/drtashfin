@@ -60,7 +60,7 @@ export class MockPatientRepository implements IPatientRepository {
   ): Promise<PaginatedResult<Patient>> {
     let list = this.getAllInternal();
 
-    // 1. Search Filter (name, patientId, phone, email, dateOfBirth)
+    // 1. Search Filter (name, patientId, phone, secondaryPhone, email, dateOfBirth, fatherName)
     if (params.search && params.search.trim() !== "") {
       const q = params.search.trim().toLowerCase();
       list = list.filter(
@@ -68,8 +68,10 @@ export class MockPatientRepository implements IPatientRepository {
           p.name.toLowerCase().includes(q) ||
           p.patientId.toLowerCase().includes(q) ||
           (p.phone && p.phone.toLowerCase().includes(q)) ||
+          (p.secondaryPhone && p.secondaryPhone.toLowerCase().includes(q)) ||
           (p.email && p.email.toLowerCase().includes(q)) ||
-          (p.dateOfBirth && p.dateOfBirth.includes(q))
+          (p.dateOfBirth && p.dateOfBirth.includes(q)) ||
+          (p.fatherName && p.fatherName.toLowerCase().includes(q))
       );
     }
 
@@ -166,10 +168,14 @@ export class MockPatientRepository implements IPatientRepository {
     const cleanPhone = phone ? phone.replace(/[^0-9]/g, "") : "";
 
     const match = list.find((p) => {
-      // Check phone match (if provided and at least 7 digits)
-      if (cleanPhone.length >= 7 && p.phone) {
-        const pCleanPhone = p.phone.replace(/[^0-9]/g, "");
-        if (pCleanPhone === cleanPhone || (cleanPhone.length >= 10 && pCleanPhone.endsWith(cleanPhone.slice(-10)))) {
+      // Check phone match against primary or secondary phone
+      if (cleanPhone.length >= 7) {
+        const checkMatch = (targetPhone?: string) => {
+          if (!targetPhone) return false;
+          const pClean = targetPhone.replace(/[^0-9]/g, "");
+          return pClean === cleanPhone || (cleanPhone.length >= 10 && pClean.endsWith(cleanPhone.slice(-10)));
+        };
+        if (checkMatch(p.phone) || checkMatch(p.secondaryPhone)) {
           return true;
         }
       }
@@ -241,6 +247,27 @@ export class MockPatientRepository implements IPatientRepository {
       ...(validated.email ? { email: validated.email } : {}),
       ...(validated.address ? { address: validated.address } : {}),
       ...(validated.bloodGroup ? { bloodGroup: validated.bloodGroup } : {}),
+
+      // Section A: Family & Guardian Identity
+      ...(validated.fatherName ? { fatherName: validated.fatherName } : {}),
+      ...(validated.motherName ? { motherName: validated.motherName } : {}),
+      ...(validated.guardianName ? { guardianName: validated.guardianName } : {}),
+      ...(validated.guardianRelationship ? { guardianRelationship: validated.guardianRelationship } : {}),
+
+      // Section B: Contact & Emergency Information
+      ...(validated.secondaryPhone ? { secondaryPhone: validated.secondaryPhone } : {}),
+      ...(validated.permanentAddress ? { permanentAddress: validated.permanentAddress } : {}),
+      ...(validated.emergencyContactName ? { emergencyContactName: validated.emergencyContactName } : {}),
+      ...(validated.emergencyContactRelationship ? { emergencyContactRelationship: validated.emergencyContactRelationship } : {}),
+      ...(validated.emergencyContactPhone ? { emergencyContactPhone: validated.emergencyContactPhone } : {}),
+
+      // Section C: Additional Clinical & Social Information
+      ...(validated.occupation ? { occupation: validated.occupation } : {}),
+      ...(validated.allergies ? { allergies: validated.allergies } : {}),
+      ...(validated.medicalHistory ? { medicalHistory: validated.medicalHistory } : {}),
+      ...(validated.currentMedications ? { currentMedications: validated.currentMedications } : {}),
+      ...(validated.patientNotes ? { patientNotes: validated.patientNotes } : {}),
+
       createdAt: now,
       updatedAt: now,
     };

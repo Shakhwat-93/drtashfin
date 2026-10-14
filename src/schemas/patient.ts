@@ -54,9 +54,45 @@ export const createPatientSchema = z.object({
     .email("Please provide a valid email address.")
     .optional()
     .or(z.literal("")),
-  address: z.string().trim().max(250, "Address is too long.").optional(),
-  bloodGroup: bloodGroupSchema.optional(),
+  address: z.string().trim().max(250, "Address is too long.").optional().or(z.literal("")),
+  bloodGroup: bloodGroupSchema.optional().or(z.literal("")),
   chamberId: z.string().optional().or(z.literal("")),
+
+  // Section A: Family & Guardian Identity
+  fatherName: z.string().trim().max(100, "Father's name is too long.").optional().or(z.literal("")),
+  motherName: z.string().trim().max(100, "Mother's name is too long.").optional().or(z.literal("")),
+  guardianName: z.string().trim().max(100, "Guardian's name is too long.").optional().or(z.literal("")),
+  guardianRelationship: z.string().trim().max(50, "Guardian relationship is too long.").optional().or(z.literal("")),
+
+  // Section B: Contact & Emergency Information
+  secondaryPhone: z
+    .string()
+    .trim()
+    .regex(
+      /^(\+?[0-9\s\-()]{7,25})?$/,
+      "Please enter a valid alternative phone number."
+    )
+    .optional()
+    .or(z.literal("")),
+  permanentAddress: z.string().trim().max(250, "Permanent address is too long.").optional().or(z.literal("")),
+  emergencyContactName: z.string().trim().max(100, "Emergency contact name is too long.").optional().or(z.literal("")),
+  emergencyContactRelationship: z.string().trim().max(50, "Emergency contact relationship is too long.").optional().or(z.literal("")),
+  emergencyContactPhone: z
+    .string()
+    .trim()
+    .regex(
+      /^(\+?[0-9\s\-()]{7,25})?$/,
+      "Please enter a valid emergency contact phone number."
+    )
+    .optional()
+    .or(z.literal("")),
+
+  // Section C: Additional Clinical & Social Information
+  occupation: z.string().trim().max(100, "Occupation is too long.").optional().or(z.literal("")),
+  allergies: z.string().trim().max(500, "Allergies text is too long.").optional().or(z.literal("")),
+  medicalHistory: z.string().trim().max(1000, "Medical history is too long.").optional().or(z.literal("")),
+  currentMedications: z.string().trim().max(1000, "Current medications list is too long.").optional().or(z.literal("")),
+  patientNotes: z.string().trim().max(2000, "Patient notes are too long.").optional().or(z.literal("")),
 });
 
 export const updatePatientSchema = createPatientSchema.partial();
