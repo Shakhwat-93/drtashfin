@@ -7,8 +7,13 @@ import {
   ClinicalActivity,
 } from "@/types/clinical";
 import { getClinicalRepository } from "@/lib/data";
+import { useChamber } from "@/features/chamber";
 
-export function useDashboardMetrics() {
+export function useDashboardMetrics(chamberIdOverride?: string) {
+  const { activeChamber, isSwitching } = useChamber();
+  const effectiveChamberId =
+    chamberIdOverride !== undefined ? chamberIdOverride : activeChamber?.id;
+
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [followUps, setFollowUps] = useState<FollowUp[]>([]);
   const [activities, setActivities] = useState<ClinicalActivity[]>([]);
@@ -18,14 +23,15 @@ export function useDashboardMetrics() {
 
   useEffect(() => {
     let isCancelled = false;
+    setIsLoading(true);
 
     async function loadData() {
       try {
         const clinicalRepo = getClinicalRepository();
         const [m, f, a] = await Promise.all([
-          clinicalRepo.getDashboardMetrics(),
-          clinicalRepo.getTodayFollowUps(),
-          clinicalRepo.getRecentActivities(),
+          clinicalRepo.getDashboardMetrics(effectiveChamberId),
+          clinicalRepo.getTodayFollowUps(effectiveChamberId),
+          clinicalRepo.getRecentActivities(5, effectiveChamberId),
         ]);
 
         if (!isCancelled) {
@@ -50,7 +56,7 @@ export function useDashboardMetrics() {
     return () => {
       isCancelled = true;
     };
-  }, [refreshKey]);
+  }, [effectiveChamberId, refreshKey, isSwitching]);
 
   const refresh = useCallback(() => {
     setIsLoading(true);
@@ -61,7 +67,7 @@ export function useDashboardMetrics() {
     metrics,
     followUps,
     activities,
-    isLoading,
+    isLoading: isLoading || isSwitching,
     error,
     refresh,
   };

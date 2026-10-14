@@ -4,18 +4,21 @@ import { IConsultationRepository } from "./repositories/consultation-repository.
 import { IMedicineRepository } from "./repositories/medicine-repository.interface";
 import { IPrescriptionRepository } from "./repositories/prescription-repository.interface";
 import { IClinicalDocumentRepository } from "./repositories/clinical-document-repository.interface";
+import { IChamberRepository } from "./repositories/chamber-repository.interface";
 import { MockPatientRepository } from "./repositories/mock-patient-repository";
 import { MockClinicalRepository } from "./repositories/mock-clinical-repository";
 import { MockConsultationRepository } from "./repositories/mock-consultation-repository";
 import { MockMedicineRepository } from "./repositories/mock-medicine-repository";
 import { MockPrescriptionRepository } from "./repositories/mock-prescription-repository";
 import { MockClinicalDocumentRepository } from "./repositories/mock-clinical-document-repository";
+import { MockChamberRepository } from "./repositories/mock-chamber-repository";
 import { SupabasePatientRepository } from "./repositories/supabase-patient-repository";
 import { SupabaseConsultationRepository } from "./repositories/supabase-consultation-repository";
 import { SupabaseClinicalRepository } from "./repositories/supabase-clinical-repository";
 import { SupabaseMedicineRepository } from "./repositories/supabase-medicine-repository";
 import { SupabasePrescriptionRepository } from "./repositories/supabase-prescription-repository";
 import { SupabaseClinicalDocumentRepository } from "./repositories/supabase-clinical-document-repository";
+import { SupabaseChamberRepository } from "./repositories/supabase-chamber-repository";
 
 export * from "./errors";
 export * from "./id-generator";
@@ -25,18 +28,21 @@ export * from "./repositories/consultation-repository.interface";
 export * from "./repositories/medicine-repository.interface";
 export * from "./repositories/prescription-repository.interface";
 export * from "./repositories/clinical-document-repository.interface";
+export * from "./repositories/chamber-repository.interface";
 export * from "./repositories/mock-patient-repository";
 export * from "./repositories/mock-consultation-repository";
 export * from "./repositories/mock-clinical-repository";
 export * from "./repositories/mock-medicine-repository";
 export * from "./repositories/mock-prescription-repository";
 export * from "./repositories/mock-clinical-document-repository";
+export * from "./repositories/mock-chamber-repository";
 export * from "./repositories/supabase-patient-repository";
 export * from "./repositories/supabase-consultation-repository";
 export * from "./repositories/supabase-clinical-repository";
 export * from "./repositories/supabase-medicine-repository";
 export * from "./repositories/supabase-prescription-repository";
 export * from "./repositories/supabase-clinical-document-repository";
+export * from "./repositories/supabase-chamber-repository";
 
 // Singleton instances for runtime
 let patientRepositoryInstance: IPatientRepository | null = null;
@@ -45,6 +51,7 @@ let consultationRepositoryInstance: IConsultationRepository | null = null;
 let medicineRepositoryInstance: IMedicineRepository | null = null;
 let prescriptionRepositoryInstance: IPrescriptionRepository | null = null;
 let clinicalDocumentRepositoryInstance: IClinicalDocumentRepository | null = null;
+let chamberRepositoryInstance: IChamberRepository | null = null;
 
 // Configurable provider mode ("auto" detects Supabase credentials, "mock" forces mock)
 let providerMode: "auto" | "supabase" | "mock" = "auto";
@@ -190,6 +197,25 @@ export function getClinicalDocumentRepository(
 }
 
 /**
+ * Factory for Chamber Repository.
+ */
+export function getChamberRepository(
+  client?: import("@supabase/supabase-js").SupabaseClient
+): IChamberRepository {
+  if (client && shouldUseSupabase()) {
+    return new SupabaseChamberRepository(client);
+  }
+  if (!chamberRepositoryInstance) {
+    if (shouldUseSupabase()) {
+      chamberRepositoryInstance = new SupabaseChamberRepository();
+    } else {
+      chamberRepositoryInstance = new MockChamberRepository();
+    }
+  }
+  return chamberRepositoryInstance;
+}
+
+/**
  * Testing helper to reset repository instances between test runs.
  */
 export function resetRepositoryInstances(): void {
@@ -199,4 +225,5 @@ export function resetRepositoryInstances(): void {
   medicineRepositoryInstance = null;
   prescriptionRepositoryInstance = null;
   clinicalDocumentRepositoryInstance = null;
+  chamberRepositoryInstance = null;
 }

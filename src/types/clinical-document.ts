@@ -17,6 +17,7 @@ export type DocumentCategory =
 export interface ClinicalDocument {
   id: string;
   patientId: string;
+  chamberId?: string;
   consultationId?: string;
   prescriptionId?: string;
   title: string;

@@ -53,6 +53,7 @@ export interface Prescription {
   id: string; // Unique UUID
   prescriptionCode: string; // Human-readable e.g. "RX-000001"
   patientId: string; // UUID of patient
+  chamberId?: string; // UUID of chamber
   consultationId?: string; // UUID of consultation (optional)
   doctorId: string; // Authenticated clinician ID
   prescriptionDate: string; // ISO date string (YYYY-MM-DD)
@@ -101,6 +102,7 @@ export interface CreatePrescriptionItemDTO {
 
 export interface CreatePrescriptionDTO {
   patientId: string;
+  chamberId?: string;
   consultationId?: string;
   doctorId?: string;
   prescriptionDate?: string;
@@ -113,6 +115,7 @@ export interface CreatePrescriptionDTO {
 }
 
 export interface UpdatePrescriptionDTO {
+  chamberId?: string;
   prescriptionDate?: string;
   advice?: string;
   followUpDate?: string;

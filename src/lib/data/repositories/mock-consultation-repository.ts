@@ -110,6 +110,7 @@ export class MockConsultationRepository implements IConsultationRepository {
     const newConsultation: Consultation = {
       id: generateInternalUUID(),
       patientId: patient.patientId, // Store canonical patientId
+      chamberId: validated.chamberId || patient.chamberId,
       consultationDate: validated.consultationDate,
       chiefComplaint: validated.chiefComplaint,
       birthHistory: validated.birthHistory,

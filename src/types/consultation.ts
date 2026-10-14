@@ -10,6 +10,7 @@ export type ConsanguinityOption = "yes" | "no";
 export interface Consultation {
   id: string; // Unique UUID
   patientId: string; // Internal UUID or human-readable PT-XXXXXX
+  chamberId?: string; // UUID of chamber where consultation occurred
   consultationDate: string; // ISO date string (YYYY-MM-DD)
 
   // Clinical History

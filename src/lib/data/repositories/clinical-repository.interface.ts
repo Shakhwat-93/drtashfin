@@ -6,8 +6,8 @@ import {
 } from "@/types/clinical";
 
 export interface IClinicalRepository {
-  getDashboardMetrics(): Promise<DashboardMetrics>;
-  getTodayFollowUps(): Promise<FollowUp[]>;
-  getTodayOperations(): Promise<Operation[]>;
-  getRecentActivities(limit?: number): Promise<ClinicalActivity[]>;
+  getDashboardMetrics(chamberId?: string): Promise<DashboardMetrics>;
+  getTodayFollowUps(chamberId?: string): Promise<FollowUp[]>;
+  getTodayOperations(chamberId?: string): Promise<Operation[]>;
+  getRecentActivities(limit?: number, chamberId?: string): Promise<ClinicalActivity[]>;
 }

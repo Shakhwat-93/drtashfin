@@ -14,6 +14,8 @@ import {
   ChevronRight,
   FileCheck2,
   AlertCircle,
+  Building2,
+  Loader2,
 } from "lucide-react";
 import { AdminShell } from "@/components/layout/admin-shell";
 import { PageContainer } from "@/components/layout/page-container";
@@ -45,9 +47,12 @@ import {
   EmptyState,
 } from "@/components/ui";
 import { usePatients, useDashboardMetrics } from "@/features/patients";
+import { useChamber } from "@/features/chamber";
 import { Gender, BloodGroup } from "@/types";
 
 export default function DashboardPage() {
+  const { activeChamber, chambers, isSwitching, switchChamber } = useChamber();
+
   const [isNewPatientModalOpen, setIsNewPatientModalOpen] = React.useState(false);
   const [formError, setFormError] = React.useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -60,7 +65,7 @@ export default function DashboardPage() {
   const [weight, setWeight] = React.useState<string>("65");
   const [bloodGroup, setBloodGroup] = React.useState<BloodGroup>("O+");
 
-  // Repository-driven Feature Hooks
+  // Repository-driven Feature Hooks (scoped to active chamber)
   const {
     patients,
     isLoading: isPatientsLoading,
@@ -91,6 +96,7 @@ export default function DashboardPage() {
         weight: weight ? parseFloat(weight) : undefined,
         phone: phone.trim() || undefined,
         bloodGroup,
+        chamberId: activeChamber.id,
       });
 
       // Reset form and close
@@ -106,16 +112,18 @@ export default function DashboardPage() {
     }
   };
 
+  const chamberShortName = activeChamber.name.replace(" Chamber", "");
+
   const statCards = [
     {
-      title: "Today's Patients",
-      value: metrics?.todayPatientsCount ?? 12,
+      title: `Today's Patients (${chamberShortName})`,
+      value: metrics?.todayPatientsCount ?? 0,
       icon: Users,
       badgeText: "Scheduled",
       badgeVariant: "info" as const,
     },
     {
-      title: "Today's Follow-ups",
+      title: `Today's Follow-ups (${chamberShortName})`,
       value: metrics?.todayFollowUpsCount ?? followUps.length,
       icon: CalendarClock,
       badgeText: "High Priority",
@@ -123,14 +131,14 @@ export default function DashboardPage() {
     },
     {
       title: "Pending Investigations",
-      value: metrics?.pendingInvestigationsCount ?? 7,
+      value: metrics?.pendingInvestigationsCount ?? 0,
       icon: FlaskConical,
       badgeText: "In Progress",
       badgeVariant: "neutral" as const,
     },
     {
       title: "Today's Operations",
-      value: metrics?.todayOperationsCount ?? 2,
+      value: metrics?.todayOperationsCount ?? 0,
       icon: Activity,
       badgeText: "OT Ready",
       badgeVariant: "success" as const,
@@ -139,7 +147,7 @@ export default function DashboardPage() {
 
   return (
     <AdminShell>
-      <PageContainer>
+      <PageContainer className="space-y-6">
         {/* Page Header */}
         <PageHeader
           label="CLINIC OVERVIEW"
@@ -179,6 +187,55 @@ export default function DashboardPage() {
             </>
           }
         />
+
+        {/* Active Chamber Context Bar */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-xl border border-[#EAE3D9] bg-white shadow-2xs">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FAF5EE] border border-[#EAE3D9] text-[#DE4F3C]">
+              <Building2 className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-sm font-bold text-[#201C1A]">
+                  {activeChamber.name}
+                </h2>
+                <Badge variant="neutral" className="font-mono text-[10px]">
+                  Prefix: {activeChamber.patientIdPrefix}
+                </Badge>
+                {isSwitching && (
+                  <span className="flex items-center gap-1 text-[11px] text-[#DE4F3C]">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    Switching...
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-[#7A746F] mt-0.5 line-clamp-1">
+                {activeChamber.address || "Standard Practice Location"}
+              </p>
+            </div>
+          </div>
+
+          {/* Quick Chamber Switch Pills */}
+          <div className="flex items-center gap-1.5 p-1 rounded-lg bg-[#FAF5EE] border border-[#EAE3D9] self-start sm:self-center">
+            {chambers.map((c) => {
+              const active = c.id === activeChamber.id;
+              return (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => switchChamber(c.code)}
+                  className={`px-3 py-1 text-xs rounded-md font-medium transition-all ${
+                    active
+                      ? "bg-white text-[#DE4F3C] font-semibold shadow-xs border border-[#EAE3D9]"
+                      : "text-[#7A746F] hover:text-[#201C1A]"
+                  }`}
+                >
+                  {c.name.replace(" Chamber", "")} ({c.patientIdPrefix})
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
         {/* Key Metrics / Stat Cards */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

@@ -20,6 +20,7 @@ function mapPatientFromRow(row: Record<string, unknown>): Patient {
   return {
     id: String(row.id),
     patientId: String(row.patient_id),
+    chamberId: row.chamber_id ? String(row.chamber_id) : undefined,
     name: String(row.name),
     dateOfBirth: String(row.date_of_birth),
     age: Number(row.age),
@@ -76,6 +77,15 @@ export class SupabasePatientRepository implements IPatientRepository {
     // 2. Gender Filter
     if (params.gender) {
       query = query.eq("gender", params.gender);
+    }
+
+    // 2b. Chamber Filter
+    if (params.chamberId) {
+      if (params.chamberId === "unassigned") {
+        query = query.is("chamber_id", null);
+      } else if (params.chamberId !== "all") {
+        query = query.eq("chamber_id", params.chamberId);
+      }
     }
 
     // 3. Sorting
@@ -204,6 +214,7 @@ export class SupabasePatientRepository implements IPatientRepository {
       email: validated.email?.trim() ?? null,
       address: validated.address?.trim() ?? null,
       blood_group: validated.bloodGroup ?? null,
+      ...(validated.chamberId ? { chamber_id: validated.chamberId } : {}),
     };
 
     const { data: inserted, error } = await this.client
@@ -247,6 +258,7 @@ export class SupabasePatientRepository implements IPatientRepository {
     if (validated.email !== undefined) updatePayload.email = validated.email?.trim() ?? null;
     if (validated.address !== undefined) updatePayload.address = validated.address?.trim() ?? null;
     if (validated.bloodGroup !== undefined) updatePayload.blood_group = validated.bloodGroup;
+    if (validated.chamberId !== undefined) updatePayload.chamber_id = validated.chamberId || null;
 
     if (validated.dateOfBirth !== undefined) {
       updatePayload.date_of_birth = validated.dateOfBirth;
@@ -287,12 +299,22 @@ export class SupabasePatientRepository implements IPatientRepository {
     return true;
   }
 
-  public async getRecentPatients(limit = 5): Promise<Patient[]> {
-    const { data, error } = await this.client
+  public async getRecentPatients(limit = 5, chamberId?: string): Promise<Patient[]> {
+    let query = this.client
       .from("patients")
       .select("*")
       .order("created_at", { ascending: false })
       .limit(limit);
+
+    if (chamberId) {
+      if (chamberId === "unassigned") {
+        query = query.is("chamber_id", null);
+      } else if (chamberId !== "all") {
+        query = query.eq("chamber_id", chamberId);
+      }
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       throw new DataError(`Failed to fetch recent patients: ${error.message}`, error.code);
@@ -301,10 +323,20 @@ export class SupabasePatientRepository implements IPatientRepository {
     return (data || []).map(mapPatientFromRow);
   }
 
-  public async getTotalPatientCount(): Promise<number> {
-    const { count, error } = await this.client
+  public async getTotalPatientCount(chamberId?: string): Promise<number> {
+    let query = this.client
       .from("patients")
       .select("*", { count: "exact", head: true });
+
+    if (chamberId) {
+      if (chamberId === "unassigned") {
+        query = query.is("chamber_id", null);
+      } else if (chamberId !== "all") {
+        query = query.eq("chamber_id", chamberId);
+      }
+    }
+
+    const { count, error } = await query;
 
     if (error) {
       throw new DataError(`Failed to count patients: ${error.message}`, error.code);

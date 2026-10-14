@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { User, Eye, Edit2, Plus, Users } from "lucide-react";
 import { Patient } from "@/types/patient";
+import { getChamberById, getChamberByPrefix } from "@/types/chamber";
 import {
   Table,
   TableHeader,
@@ -119,17 +120,32 @@ export function PatientListTable({
             }
           );
 
+          const prefix = patient.patientId.split("-")[0];
+          const chamber =
+            getChamberById(patient.chamberId) || getChamberByPrefix(prefix);
+
           return (
             <TableRow key={patient.id}>
               {/* Patient ID */}
               <TableCell label="Patient ID">
-                <Badge
-                  variant="neutral"
-                  size="sm"
-                  className="font-mono font-semibold"
-                >
-                  {patient.patientId}
-                </Badge>
+                <div className="flex flex-col items-start gap-1">
+                  <Badge
+                    variant="neutral"
+                    size="sm"
+                    className="font-mono font-semibold"
+                  >
+                    {patient.patientId}
+                  </Badge>
+                  {chamber ? (
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#FAF5EE] text-[#7A746F] border border-[#EAE3D9]">
+                      {chamber.name.replace(" Chamber", "")}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                      Unassigned
+                    </span>
+                  )}
+                </div>
               </TableCell>
 
               {/* Name & Subtitle */}

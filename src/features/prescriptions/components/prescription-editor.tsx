@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { Patient } from "@/types/patient";
 import { Consultation } from "@/types/consultation";
+import { getChamberById, getChamberByPrefix } from "@/types/chamber";
 import {
   Prescription,
   CreatePrescriptionItemDTO,
@@ -316,6 +317,7 @@ export function PrescriptionEditor({
         savedPrescription = await repo.createPrescription({
           patientId: patient.id,
           consultationId: consultation?.id,
+          chamberId: patient.chamberId,
           prescriptionDate,
           status,
           advice: advice.trim() || undefined,
@@ -346,6 +348,10 @@ export function PrescriptionEditor({
     }
   };
 
+  const prefix = patient.patientId.split("-")[0];
+  const patientChamber =
+    getChamberById(patient.chamberId) || getChamberByPrefix(prefix);
+
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       {/* Top Header Card */}
@@ -359,10 +365,22 @@ export function PrescriptionEditor({
               {existingPrescription?.prescriptionCode || "New Rx"}
             </Badge>
           </div>
-          <p className="text-xs sm:text-sm text-[#7A746F] mt-1">
-            Patient: <strong className="text-[#201C1A]">{patient.name}</strong> ({patient.patientId}, {patient.gender}, {patient.age}y)
-            {consultation && ` • Linked to Visit of ${consultation.consultationDate}`}
-          </p>
+          <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-[#7A746F]">
+            <span>
+              Patient: <strong className="text-[#201C1A]">{patient.name}</strong> ({patient.patientId}, {patient.gender}, {patient.age}y)
+            </span>
+            {patientChamber ? (
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#FAF5EE] text-[#DE4F3C] border border-[#EAE3D9]">
+                <Building2 className="h-2.5 w-2.5" />
+                <span>{patientChamber.name}</span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                Unassigned Chamber
+              </span>
+            )}
+            {consultation && <span>• Linked to Visit of {consultation.consultationDate}</span>}
+          </div>
         </div>
 
         {/* Prescription Date selector */}

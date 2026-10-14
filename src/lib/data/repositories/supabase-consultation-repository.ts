@@ -17,6 +17,7 @@ function mapConsultationFromRow(row: Record<string, unknown>): Consultation {
   return {
     id: String(row.id),
     patientId: String(row.patient_code || row.patient_id),
+    chamberId: row.chamber_id ? String(row.chamber_id) : undefined,
     consultationDate: String(row.consultation_date),
     chiefComplaint: row.chief_complaint ? String(row.chief_complaint) : undefined,
     birthHistory: row.birth_history ? String(row.birth_history) : undefined,
@@ -104,6 +105,7 @@ export class SupabaseConsultationRepository implements IConsultationRepository {
     const payload: Record<string, unknown> = {
       patient_id: patient.id,
       patient_code: patient.patientId,
+      chamber_id: validated.chamberId || patient.chamberId || null,
       consultation_date: validated.consultationDate,
       chief_complaint: validated.chiefComplaint?.trim() || null,
       birth_history: validated.birthHistory?.trim() || null,

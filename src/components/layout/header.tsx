@@ -33,6 +33,7 @@ import {
   Badge,
 } from "@/components/ui";
 import { supabase } from "@/lib/supabase/client";
+import { ChamberSelector } from "@/features/chamber";
 
 export interface HeaderProps {
   onMenuClick?: () => void;
@@ -253,7 +254,10 @@ export function Header({ onMenuClick }: HeaderProps) {
         </div>
 
         {/* Right: Notifications & Doctor Profile */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          {/* Practice Chamber Selector */}
+          <ChamberSelector variant="header" />
+
           <div className="relative">
             <IconButton
               variant="ghost"

@@ -17,6 +17,7 @@ import {
   FolderOpen,
   History,
   AlertCircle,
+  Building2,
 } from "lucide-react";
 import { AdminShell } from "@/components/layout/admin-shell";
 import { PageContainer } from "@/components/layout/page-container";
@@ -29,6 +30,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { usePatient } from "@/features/patients";
 import { ConsultationHistoryList } from "@/features/consultations";
 import { usePrescriptions, PrescriptionCard } from "@/features/prescriptions";
+import { useChamber } from "@/features/chamber";
+import { getChamberById, getChamberByPrefix } from "@/types/chamber";
 
 export default function PatientProfilePage({
   params,
@@ -38,12 +41,22 @@ export default function PatientProfilePage({
   const unwrappedParams = React.use(params);
   const { patientId } = unwrappedParams;
 
+  const { activeChamber } = useChamber();
   const { patient, isLoading, error } = usePatient(patientId);
   const {
     prescriptions: patientPrescriptions,
     isLoading: isRxLoading,
     deleteDraft: handleDeleteDraft,
   } = usePrescriptions(patient?.id);
+
+  const prefix = patient?.patientId.split("-")[0] || "";
+  const patientChamber =
+    getChamberById(patient?.chamberId) || getChamberByPrefix(prefix);
+  const isCrossChamber = Boolean(
+    activeChamber &&
+      patientChamber &&
+      activeChamber.id !== patientChamber.id
+  );
 
   if (isLoading) {
     return (
@@ -151,6 +164,18 @@ export default function PatientProfilePage({
           </div>
         </div>
 
+        {/* Cross-Chamber Context Notice */}
+        {isCrossChamber && (
+          <div className="flex items-center gap-2.5 p-3 rounded-xl border border-amber-200 bg-amber-50/70 text-xs text-amber-900 shadow-2xs">
+            <Building2 className="h-4 w-4 shrink-0 text-amber-700" />
+            <div>
+              <strong className="font-semibold">Cross-Chamber Notice:</strong> This patient is registered under{" "}
+              <strong>{patientChamber?.name}</strong>, while your currently active dashboard chamber is{" "}
+              <strong>{activeChamber?.name}</strong>. Consultations and records are linked to this patient&apos;s registered chamber.
+            </div>
+          </div>
+        )}
+
         {/* Doctor Patient Identity Header Card */}
         <div className="rounded-xl border border-[#EAE3D9] bg-white p-6 shadow-xs">
           <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
@@ -171,6 +196,16 @@ export default function PatientProfilePage({
                   >
                     {patient.patientId}
                   </Badge>
+                  {patientChamber ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[#FAF5EE] text-[#DE4F3C] border border-[#EAE3D9]">
+                      <Building2 className="h-3 w-3" />
+                      <span>{patientChamber.name}</span>
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                      Unassigned Chamber
+                    </span>
+                  )}
                 </div>
 
                 {/* Patient Demographics Badges */}

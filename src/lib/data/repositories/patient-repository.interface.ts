@@ -20,6 +20,6 @@ export interface IPatientRepository {
   createPatient(data: CreatePatientDTO): Promise<Patient>;
   updatePatient(id: string, data: UpdatePatientDTO): Promise<Patient>;
   deletePatient(id: string): Promise<boolean>;
-  getRecentPatients(limit?: number): Promise<Patient[]>;
-  getTotalPatientCount(): Promise<number>;
+  getRecentPatients(limit?: number, chamberId?: string): Promise<Patient[]>;
+  getTotalPatientCount(chamberId?: string): Promise<number>;
 }

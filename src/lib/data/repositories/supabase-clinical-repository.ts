@@ -8,20 +8,30 @@ import {
 import { supabase } from "@/lib/supabase/client";
 
 export class SupabaseClinicalRepository implements IClinicalRepository {
-  public async getDashboardMetrics(): Promise<DashboardMetrics> {
+  public async getDashboardMetrics(chamberId?: string): Promise<DashboardMetrics> {
     const todayStr = new Date().toISOString().split("T")[0];
 
     // Consultations Conducted Today
-    const { count: todayConsultations } = await supabase
+    let consultQuery = supabase
       .from("consultations")
       .select("*", { count: "exact", head: true })
       .eq("consultation_date", todayStr);
 
+    if (chamberId) {
+      consultQuery = consultQuery.eq("chamber_id", chamberId);
+    }
+    const { count: todayConsultations } = await consultQuery;
+
     // Follow-ups Scheduled for Today
-    const { count: todayFollowUps } = await supabase
+    let followUpQuery = supabase
       .from("consultations")
       .select("*", { count: "exact", head: true })
       .eq("next_follow_up", todayStr);
+
+    if (chamberId) {
+      followUpQuery = followUpQuery.eq("chamber_id", chamberId);
+    }
+    const { count: todayFollowUps } = await followUpQuery;
 
     return {
       todayPatientsCount: todayConsultations ?? 0,
@@ -31,15 +41,21 @@ export class SupabaseClinicalRepository implements IClinicalRepository {
     };
   }
 
-  public async getTodayFollowUps(): Promise<FollowUp[]> {
+  public async getTodayFollowUps(chamberId?: string): Promise<FollowUp[]> {
     const todayStr = new Date().toISOString().split("T")[0];
 
-    const { data } = await supabase
+    let query = supabase
       .from("consultations")
       .select("id, patient_id, patient_code, next_follow_up, advice, created_at")
       .gte("next_follow_up", todayStr)
       .order("next_follow_up", { ascending: true })
       .limit(10);
+
+    if (chamberId) {
+      query = query.eq("chamber_id", chamberId);
+    }
+
+    const { data } = await query;
 
     return (data || []).map((row) => ({
       id: String(row.id),
@@ -55,16 +71,22 @@ export class SupabaseClinicalRepository implements IClinicalRepository {
     }));
   }
 
-  public async getTodayOperations(): Promise<Operation[]> {
+  public async getTodayOperations(_chamberId?: string): Promise<Operation[]> {
     return [];
   }
 
-  public async getRecentActivities(limit = 5): Promise<ClinicalActivity[]> {
-    const { data } = await supabase
+  public async getRecentActivities(limit = 5, chamberId?: string): Promise<ClinicalActivity[]> {
+    let query = supabase
       .from("consultations")
       .select("id, patient_code, consultation_date, chief_complaint, created_at")
       .order("created_at", { ascending: false })
       .limit(limit);
+
+    if (chamberId) {
+      query = query.eq("chamber_id", chamberId);
+    }
+
+    const { data } = await query;
 
     return (data || []).map((row) => ({
       id: String(row.id),

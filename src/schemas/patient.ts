@@ -56,6 +56,7 @@ export const createPatientSchema = z.object({
     .or(z.literal("")),
   address: z.string().trim().max(250, "Address is too long.").optional(),
   bloodGroup: bloodGroupSchema.optional(),
+  chamberId: z.string().optional().or(z.literal("")),
 });
 
 export const updatePatientSchema = createPatientSchema.partial();
@@ -63,6 +64,7 @@ export const updatePatientSchema = createPatientSchema.partial();
 export const patientQuerySchema = z.object({
   search: z.string().trim().optional(),
   gender: genderSchema.optional(),
+  chamberId: z.string().optional(),
   page: z.number().int().positive().default(1),
   pageSize: z.number().int().positive().max(100).default(10),
   sortBy: z.string().optional(),

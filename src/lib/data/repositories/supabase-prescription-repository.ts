@@ -44,6 +44,7 @@ function mapPrescriptionFromRow(
     id: String(row.id),
     prescriptionCode: String(row.prescription_code),
     patientId: String(row.patient_id),
+    chamberId: row.chamber_id ? String(row.chamber_id) : undefined,
     consultationId: row.consultation_id ? String(row.consultation_id) : undefined,
     doctorId: String(row.doctor_id || "dr-tashfin"),
     prescriptionDate: String(row.prescription_date),
@@ -199,6 +200,7 @@ export class SupabasePrescriptionRepository implements IPrescriptionRepository {
 
     const prescriptionPayload = {
       patient_id: dto.patientId,
+      chamber_id: dto.chamberId || null,
       consultation_id: dto.consultationId || null,
       doctor_id: dto.doctorId || "dr-tashfin",
       prescription_date: dto.prescriptionDate || new Date().toISOString().split("T")[0],

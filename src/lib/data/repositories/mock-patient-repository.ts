@@ -9,10 +9,12 @@ import { PaginatedResult } from "@/types/common";
 import { MockStorage } from "../mock/mock-storage";
 import { SEED_PATIENTS } from "../mock/mock-patients.data";
 import {
-  formatPatientId,
-  parsePatientSequence,
+  formatChamberPatientId,
+  parseChamberPatientSequence,
+  generateNextChamberPatientId,
   generateInternalUUID,
 } from "../id-generator";
+import { KNOWN_CHAMBERS } from "@/types/chamber";
 import {
   PatientNotFoundError,
   DuplicatePatientIdError,
@@ -74,6 +76,15 @@ export class MockPatientRepository implements IPatientRepository {
     // 2. Gender Filter
     if (params.gender) {
       list = list.filter((p) => p.gender === params.gender);
+    }
+
+    // 2b. Chamber Filter
+    if (params.chamberId) {
+      if (params.chamberId === "unassigned") {
+        list = list.filter((p) => !p.chamberId);
+      } else if (params.chamberId !== "all") {
+        list = list.filter((p) => p.chamberId === params.chamberId);
+      }
     }
 
     // 3. Sorting
@@ -191,13 +202,20 @@ export class MockPatientRepository implements IPatientRepository {
     const validated = validation.data;
     const list = this.getAllInternal();
 
-    // Determine next sequential ID
-    let maxSeq = 0;
-    for (const p of list) {
-      const seq = parsePatientSequence(p.patientId);
-      if (seq > maxSeq) maxSeq = seq;
+    // Determine chamber prefix
+    let prefix = "PT";
+    if (validated.chamberId) {
+      const chamber = KNOWN_CHAMBERS.find((c) => c.id === validated.chamberId || c.code === validated.chamberId);
+      if (chamber) {
+        prefix = chamber.patientIdPrefix;
+      }
     }
-    const newPatientId = formatPatientId(maxSeq + 1);
+
+    // Determine next sequential ID for this specific prefix
+    const newPatientId = generateNextChamberPatientId(
+      prefix,
+      list.map((p) => p.patientId)
+    );
 
     // Ensure uniqueness
     if (list.some((p) => p.patientId === newPatientId)) {
@@ -213,6 +231,7 @@ export class MockPatientRepository implements IPatientRepository {
     const newPatient: Patient = {
       id: generateInternalUUID(),
       patientId: newPatientId,
+      ...(validated.chamberId ? { chamberId: validated.chamberId } : {}),
       name: validated.name,
       dateOfBirth: validated.dateOfBirth,
       age,
@@ -284,15 +303,30 @@ export class MockPatientRepository implements IPatientRepository {
     return true;
   }
 
-  public async getRecentPatients(limit: number = 5): Promise<Patient[]> {
-    const list = this.getAllInternal();
+  public async getRecentPatients(limit: number = 5, chamberId?: string): Promise<Patient[]> {
+    let list = this.getAllInternal();
+    if (chamberId) {
+      if (chamberId === "unassigned") {
+        list = list.filter((p) => !p.chamberId);
+      } else if (chamberId !== "all") {
+        list = list.filter((p) => p.chamberId === chamberId);
+      }
+    }
     return list
       .slice()
       .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
       .slice(0, limit);
   }
 
-  public async getTotalPatientCount(): Promise<number> {
-    return this.getAllInternal().length;
+  public async getTotalPatientCount(chamberId?: string): Promise<number> {
+    const list = this.getAllInternal();
+    if (chamberId) {
+      if (chamberId === "unassigned") {
+        return list.filter((p) => !p.chamberId).length;
+      } else if (chamberId !== "all") {
+        return list.filter((p) => p.chamberId === chamberId).length;
+      }
+    }
+    return list.length;
   }
 }

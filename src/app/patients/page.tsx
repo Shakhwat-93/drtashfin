@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight, Building2 } from "lucide-react";
 import { AdminShell } from "@/components/layout/admin-shell";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/ui/page-header";
@@ -13,12 +13,20 @@ import {
   PatientListTable,
 } from "@/features/patients";
 import { Gender } from "@/types/common";
+import { useChamber } from "@/features/chamber";
 
 export default function PatientsPage() {
+  const { activeChamber, chambers } = useChamber();
   const [search, setSearch] = React.useState<string>("");
   const [gender, setGender] = React.useState<Gender | undefined>(undefined);
+  const [chamberScope, setChamberScope] = React.useState<string>("current");
   const [page, setPage] = React.useState<number>(1);
   const pageSize = 10;
+
+  const effectiveChamberId =
+    chamberScope === "current"
+      ? activeChamber?.id
+      : chamberScope; // "all", "unassigned", or specific UUID
 
   const {
     patients,
@@ -27,6 +35,7 @@ export default function PatientsPage() {
   } = usePatients({
     search,
     gender,
+    chamberId: effectiveChamberId,
     page,
     pageSize,
   });
@@ -69,6 +78,65 @@ export default function PatientsPage() {
             </Link>
           }
         />
+
+        {/* Chamber Scope Selector Bar */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-white border border-[#EAE3D9] rounded-xl shadow-xs">
+          <div className="flex items-center gap-2 text-xs text-[#7A746F]">
+            <Building2 className="h-4 w-4 text-[#DE4F3C] shrink-0" />
+            <span>Scope:</span>
+            <span className="font-semibold text-[#201C1A]">
+              {chamberScope === "current"
+                ? `${activeChamber.name} (${activeChamber.patientIdPrefix}-)`
+                : chamberScope === "all"
+                ? "All Chambers (Global)"
+                : chamberScope === "unassigned"
+                ? "Unassigned / Legacy Records"
+                : chambers.find((c) => c.id === chamberScope)?.name || "Selected Chamber"}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 sm:pb-0">
+            <button
+              onClick={() => {
+                setChamberScope("current");
+                setPage(1);
+              }}
+              className={`px-2.5 py-1 text-xs font-medium rounded-lg transition-colors cursor-pointer shrink-0 ${
+                chamberScope === "current"
+                  ? "bg-[#DE4F3C] text-white shadow-xs font-semibold"
+                  : "bg-[#FAF5EE] text-[#7A746F] hover:text-[#201C1A] border border-[#EAE3D9]"
+              }`}
+            >
+              Current ({activeChamber.patientIdPrefix})
+            </button>
+            <button
+              onClick={() => {
+                setChamberScope("all");
+                setPage(1);
+              }}
+              className={`px-2.5 py-1 text-xs font-medium rounded-lg transition-colors cursor-pointer shrink-0 ${
+                chamberScope === "all"
+                  ? "bg-[#201C1A] text-white shadow-xs font-semibold"
+                  : "bg-[#FAF5EE] text-[#7A746F] hover:text-[#201C1A] border border-[#EAE3D9]"
+              }`}
+            >
+              All Chambers
+            </button>
+            <button
+              onClick={() => {
+                setChamberScope("unassigned");
+                setPage(1);
+              }}
+              className={`px-2.5 py-1 text-xs font-medium rounded-lg transition-colors cursor-pointer shrink-0 ${
+                chamberScope === "unassigned"
+                  ? "bg-amber-600 text-white shadow-xs font-semibold"
+                  : "bg-[#FAF5EE] text-[#7A746F] hover:text-[#201C1A] border border-[#EAE3D9]"
+              }`}
+            >
+              Unassigned
+            </button>
+          </div>
+        </div>
 
         {/* Filters and Search Bar */}
         <PatientFilters

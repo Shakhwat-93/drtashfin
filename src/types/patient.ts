@@ -6,7 +6,8 @@ import { Gender, BloodGroup, PaginationParams, SortParams } from "./common";
  */
 export interface Patient {
   id: string; // Internal UUID
-  patientId: string; // Human-readable identifier (e.g., PT-000001)
+  patientId: string; // Human-readable identifier (e.g., PT-000001, DH-000001)
+  chamberId?: string; // UUID of assigned chamber (Dhaka, Rangpur, Narayanganj or unassigned)
   name: string;
   dateOfBirth: string; // ISO format (YYYY-MM-DD)
   age: number;
@@ -24,6 +25,7 @@ export interface CreatePatientDTO {
   name: string;
   dateOfBirth: string;
   gender: Gender;
+  chamberId?: string;
   age?: number;
   weight?: number;
   phone?: string;
@@ -36,6 +38,7 @@ export interface UpdatePatientDTO {
   name?: string;
   dateOfBirth?: string;
   gender?: Gender;
+  chamberId?: string;
   age?: number;
   weight?: number;
   phone?: string;
@@ -47,4 +50,5 @@ export interface UpdatePatientDTO {
 export interface PatientQueryParams extends PaginationParams, SortParams {
   search?: string;
   gender?: Gender;
+  chamberId?: string;
 }

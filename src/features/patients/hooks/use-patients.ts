@@ -3,12 +3,15 @@
 import { useState, useEffect, useCallback } from "react";
 import { Patient, CreatePatientDTO, PatientQueryParams } from "@/types/patient";
 import { getPatientRepository } from "@/lib/data";
+import { useChamber } from "@/features/chamber";
 
 export interface UsePatientsOptions extends PatientQueryParams {
   autoFetch?: boolean;
 }
 
 export function usePatients(options: UsePatientsOptions = {}) {
+  const { activeChamber, isSwitching } = useChamber();
+
   const {
     search,
     gender,
@@ -18,6 +21,10 @@ export function usePatients(options: UsePatientsOptions = {}) {
     sortOrder,
     autoFetch = true,
   } = options;
+
+  // If options.chamberId is explicitly provided, use it; otherwise scope to activeChamber
+  const effectiveChamberId =
+    options.chamberId !== undefined ? options.chamberId : activeChamber?.id;
 
   const [patients, setPatients] = useState<Patient[]>([]);
   const [total, setTotal] = useState<number>(0);
@@ -31,6 +38,7 @@ export function usePatients(options: UsePatientsOptions = {}) {
     }
 
     let isCancelled = false;
+    setIsLoading(true);
 
     async function fetchData() {
       try {
@@ -38,6 +46,7 @@ export function usePatients(options: UsePatientsOptions = {}) {
         const result = await repo.getPatients({
           search,
           gender,
+          chamberId: effectiveChamberId,
           page,
           pageSize,
           sortBy,
@@ -63,7 +72,18 @@ export function usePatients(options: UsePatientsOptions = {}) {
     return () => {
       isCancelled = true;
     };
-  }, [autoFetch, search, gender, page, pageSize, sortBy, sortOrder, refreshKey]);
+  }, [
+    autoFetch,
+    search,
+    gender,
+    effectiveChamberId,
+    page,
+    pageSize,
+    sortBy,
+    sortOrder,
+    refreshKey,
+    isSwitching,
+  ]);
 
   const refresh = useCallback(() => {
     setIsLoading(true);
@@ -75,22 +95,24 @@ export function usePatients(options: UsePatientsOptions = {}) {
       setIsLoading(true);
       try {
         const repo = getPatientRepository();
-        const created = await repo.createPatient(data);
+        const payload: CreatePatientDTO = {
+          ...data,
+          chamberId: data.chamberId || effectiveChamberId,
+        };
+        const created = await repo.createPatient(payload);
         setRefreshKey((prev) => prev + 1);
         return created;
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to create patient.");
+      } finally {
         setIsLoading(false);
-        throw err;
       }
     },
-    []
+    [effectiveChamberId]
   );
 
   return {
     patients,
     total,
-    isLoading,
+    isLoading: isLoading || isSwitching,
     error,
     refresh,
     createPatient,

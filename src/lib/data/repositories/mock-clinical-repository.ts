@@ -33,7 +33,7 @@ export class MockClinicalRepository implements IClinicalRepository {
     }
   }
 
-  public async getDashboardMetrics(): Promise<DashboardMetrics> {
+  public async getDashboardMetrics(chamberId?: string): Promise<DashboardMetrics> {
     const followUps = MockStorage.get<FollowUp[]>(this.followUpsKey) || [];
     const operations = MockStorage.get<Operation[]>(this.operationsKey) || [];
 
@@ -48,22 +48,28 @@ export class MockClinicalRepository implements IClinicalRepository {
     );
 
     return {
-      todayPatientsCount: 12,
+      todayPatientsCount: chamberId ? 4 : 12,
       todayFollowUpsCount: todayFollowUps.length > 0 ? todayFollowUps.length : 4,
       pendingInvestigationsCount: 7,
       todayOperationsCount: todayOperations.length > 0 ? todayOperations.length : 2,
     };
   }
 
-  public async getTodayFollowUps(): Promise<FollowUp[]> {
-    return MockStorage.get<FollowUp[]>(this.followUpsKey) || [];
+  public async getTodayFollowUps(chamberId?: string): Promise<FollowUp[]> {
+    const all = MockStorage.get<FollowUp[]>(this.followUpsKey) || [];
+    if (chamberId) {
+      // In mock mode, partition follow-ups or return subset
+      return all.slice(0, 5);
+    }
+    return all;
   }
 
-  public async getTodayOperations(): Promise<Operation[]> {
-    return MockStorage.get<Operation[]>(this.operationsKey) || [];
+  public async getTodayOperations(_chamberId?: string): Promise<Operation[]> {
+    const all = MockStorage.get<Operation[]>(this.operationsKey) || [];
+    return all;
   }
 
-  public async getRecentActivities(limit: number = 5): Promise<ClinicalActivity[]> {
+  public async getRecentActivities(limit: number = 5, _chamberId?: string): Promise<ClinicalActivity[]> {
     const list = MockStorage.get<ClinicalActivity[]>(this.activitiesKey) || [];
     return list.slice(0, limit);
   }

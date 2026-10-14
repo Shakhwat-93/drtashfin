@@ -92,6 +92,7 @@ export class MockPrescriptionRepository implements IPrescriptionRepository {
       id: prescriptionId,
       prescriptionCode: this.generateCode(),
       patientId: dto.patientId,
+      chamberId: dto.chamberId,
       consultationId: dto.consultationId,
       doctorId: dto.doctorId || "dr-tashfin",
       prescriptionDate: dto.prescriptionDate || now.split("T")[0],

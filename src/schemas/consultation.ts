@@ -11,6 +11,11 @@ export const createConsultationSchema = z.object({
     })
     .trim()
     .min(1, "Patient identifier is required."),
+  chamberId: z
+    .string()
+    .uuid("Invalid chamber ID format.")
+    .optional()
+    .nullable(),
   consultationDate: z
     .string({
       message: "Consultation date is required.",
