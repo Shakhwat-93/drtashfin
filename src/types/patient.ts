@@ -1,4 +1,5 @@
 import { Gender, BloodGroup, PaginationParams, SortParams } from "./common";
+import { SmsConsentStatus, SmsConsentSource } from "./sms";
 
 /**
  * Permanent Patient Identity Entity.
@@ -37,6 +38,9 @@ export interface Patient {
   medicalHistory?: string;
   currentMedications?: string;
   patientNotes?: string;
+  smsConsentStatus?: SmsConsentStatus;
+  smsConsentAt?: string | null;
+  smsConsentSource?: SmsConsentSource | null;
 
   createdAt: string; // ISO timestamp
   updatedAt: string; // ISO timestamp
@@ -73,6 +77,11 @@ export interface CreatePatientDTO {
   medicalHistory?: string;
   currentMedications?: string;
   patientNotes?: string;
+
+  // SMS Reminder Consent
+  smsConsentStatus?: SmsConsentStatus;
+  smsConsentAt?: string | null;
+  smsConsentSource?: SmsConsentSource | null;
 }
 
 export interface UpdatePatientDTO {
@@ -106,6 +115,11 @@ export interface UpdatePatientDTO {
   medicalHistory?: string;
   currentMedications?: string;
   patientNotes?: string;
+
+  // SMS Reminder Consent
+  smsConsentStatus?: SmsConsentStatus;
+  smsConsentAt?: string | null;
+  smsConsentSource?: SmsConsentSource | null;
 }
 
 export interface PatientQueryParams extends PaginationParams, SortParams {

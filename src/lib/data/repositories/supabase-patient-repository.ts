@@ -51,6 +51,11 @@ function mapPatientFromRow(row: Record<string, unknown>): Patient {
     currentMedications: row.current_medications ? String(row.current_medications) : undefined,
     patientNotes: row.patient_notes ? String(row.patient_notes) : undefined,
 
+    // SMS Consent
+    smsConsentStatus: (row.sms_consent_status as Patient["smsConsentStatus"]) || "unknown",
+    smsConsentAt: row.sms_consent_at ? String(row.sms_consent_at) : undefined,
+    smsConsentSource: row.sms_consent_source ? (row.sms_consent_source as Patient["smsConsentSource"]) : undefined,
+
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),
   };
@@ -258,6 +263,19 @@ export class SupabasePatientRepository implements IPatientRepository {
       medical_history: validated.medicalHistory?.trim() || null,
       current_medications: validated.currentMedications?.trim() || null,
       patient_notes: validated.patientNotes?.trim() || null,
+
+      // SMS Consent
+      sms_consent_status: validated.smsConsentStatus || "unknown",
+      sms_consent_at:
+        validated.smsConsentAt ||
+        (validated.smsConsentStatus === "opted_in" || validated.smsConsentStatus === "opted_out"
+          ? new Date().toISOString()
+          : null),
+      sms_consent_source:
+        validated.smsConsentSource ||
+        (validated.smsConsentStatus && validated.smsConsentStatus !== "unknown"
+          ? "registration"
+          : null),
     };
 
     const { data: inserted, error } = await this.client
@@ -322,6 +340,20 @@ export class SupabasePatientRepository implements IPatientRepository {
     if (validated.medicalHistory !== undefined) updatePayload.medical_history = validated.medicalHistory?.trim() || null;
     if (validated.currentMedications !== undefined) updatePayload.current_medications = validated.currentMedications?.trim() || null;
     if (validated.patientNotes !== undefined) updatePayload.patient_notes = validated.patientNotes?.trim() || null;
+
+    // SMS Consent
+    if (validated.smsConsentStatus !== undefined) {
+      updatePayload.sms_consent_status = validated.smsConsentStatus;
+      updatePayload.sms_consent_at =
+        validated.smsConsentAt ||
+        (validated.smsConsentStatus !== "unknown" ? new Date().toISOString() : null);
+      updatePayload.sms_consent_source =
+        validated.smsConsentSource ||
+        (validated.smsConsentStatus !== "unknown" ? "in_person" : null);
+    } else {
+      if (validated.smsConsentAt !== undefined) updatePayload.sms_consent_at = validated.smsConsentAt;
+      if (validated.smsConsentSource !== undefined) updatePayload.sms_consent_source = validated.smsConsentSource;
+    }
 
     if (validated.dateOfBirth !== undefined) {
       updatePayload.date_of_birth = validated.dateOfBirth;

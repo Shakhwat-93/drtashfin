@@ -93,6 +93,11 @@ export const createPatientSchema = z.object({
   medicalHistory: z.string().trim().max(1000, "Medical history is too long.").optional().or(z.literal("")),
   currentMedications: z.string().trim().max(1000, "Current medications list is too long.").optional().or(z.literal("")),
   patientNotes: z.string().trim().max(2000, "Patient notes are too long.").optional().or(z.literal("")),
+
+  // SMS Reminder Consent
+  smsConsentStatus: z.enum(["unknown", "opted_in", "opted_out"]).optional().default("unknown"),
+  smsConsentAt: z.string().optional().nullable().or(z.literal("")),
+  smsConsentSource: z.enum(["registration", "in_person", "profile_update", "opt_out_request", "system_default"]).optional().nullable().or(z.literal("")),
 });
 
 export const updatePatientSchema = createPatientSchema.partial();

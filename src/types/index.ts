@@ -16,3 +16,4 @@ export * from "./medicine";
 export * from "./chamber";
 export * from "./follow-up";
 export * from "./alert";
+export * from "./sms";

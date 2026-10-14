@@ -20,6 +20,7 @@ import {
   rescheduleFollowUpSchema,
   cancelFollowUpSchema,
 } from "@/schemas/follow-up";
+import { getSmsReminderService } from "@/lib/sms/sms-reminder-service";
 
 function mapFollowUpFromRow(row: Record<string, unknown>): FollowUp {
   const patientRel = row.patients as Record<string, unknown> | undefined;
@@ -188,7 +189,15 @@ export class SupabaseFollowUpRepository implements IFollowUpRepository {
       throw new DataError(`Failed to schedule follow-up: ${error.message}`, error.code);
     }
 
-    return mapFollowUpFromRow(inserted);
+    const mapped = mapFollowUpFromRow(inserted);
+    try {
+      const smsService = getSmsReminderService();
+      await smsService.scheduleRemindersForFollowUp(mapped, patient);
+    } catch (e) {
+      console.warn("Non-fatal: failed to schedule SMS reminders for follow-up:", e);
+    }
+
+    return mapped;
   }
 
   public async updateFollowUp(
@@ -259,12 +268,21 @@ export class SupabaseFollowUpRepository implements IFollowUpRepository {
       throw new ValidationError("Follow-up completion validation failed.", formatted);
     }
 
-    return await this.updateFollowUp(id, {
+    const updated = await this.updateFollowUp(id, {
       status: "completed",
       clinicalOutcome: parseResult.data.clinicalOutcome,
       outcomeNotes: parseResult.data.outcomeNotes?.trim() || undefined,
       followUpConsultationId: parseResult.data.followUpConsultationId || undefined,
     });
+
+    try {
+      const smsService = getSmsReminderService();
+      await smsService.invalidatePendingReminders(id, "Follow-up completed");
+    } catch (e) {
+      console.warn("Non-fatal: failed to invalidate SMS reminders:", e);
+    }
+
+    return updated;
   }
 
   public async rescheduleFollowUp(
@@ -277,12 +295,25 @@ export class SupabaseFollowUpRepository implements IFollowUpRepository {
       throw new ValidationError("Follow-up reschedule validation failed.", formatted);
     }
 
-    return await this.updateFollowUp(id, {
+    const updated = await this.updateFollowUp(id, {
       scheduledDate: parseResult.data.scheduledDate,
       scheduledTime: parseResult.data.scheduledTime,
       reason: parseResult.data.reason?.trim(),
       status: "scheduled",
     });
+
+    try {
+      const smsService = getSmsReminderService();
+      await smsService.invalidatePendingReminders(id, "Follow-up rescheduled");
+      const patient = await this.patientRepo.getPatientByIdentifier(updated.patientId);
+      if (patient) {
+        await smsService.scheduleRemindersForFollowUp(updated, patient);
+      }
+    } catch (e) {
+      console.warn("Non-fatal: failed to reschedule SMS reminders:", e);
+    }
+
+    return updated;
   }
 
   public async cancelFollowUp(
@@ -295,10 +326,19 @@ export class SupabaseFollowUpRepository implements IFollowUpRepository {
       throw new ValidationError("Follow-up cancellation validation failed.", formatted);
     }
 
-    return await this.updateFollowUp(id, {
+    const updated = await this.updateFollowUp(id, {
       status: "cancelled",
       cancellationReason: parseResult.data.cancellationReason.trim(),
     });
+
+    try {
+      const smsService = getSmsReminderService();
+      await smsService.invalidatePendingReminders(id, "Follow-up cancelled");
+    } catch (e) {
+      console.warn("Non-fatal: failed to invalidate SMS reminders:", e);
+    }
+
+    return updated;
   }
 
   public async deleteFollowUp(id: string): Promise<boolean> {

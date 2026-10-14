@@ -6,6 +6,7 @@ import { IPrescriptionRepository } from "./repositories/prescription-repository.
 import { IClinicalDocumentRepository } from "./repositories/clinical-document-repository.interface";
 import { IChamberRepository } from "./repositories/chamber-repository.interface";
 import { IFollowUpRepository } from "./repositories/follow-up-repository.interface";
+import { ISmsReminderRepository } from "./repositories/sms-reminder-repository.interface";
 import { MockPatientRepository } from "./repositories/mock-patient-repository";
 import { MockClinicalRepository } from "./repositories/mock-clinical-repository";
 import { MockConsultationRepository } from "./repositories/mock-consultation-repository";
@@ -14,6 +15,7 @@ import { MockPrescriptionRepository } from "./repositories/mock-prescription-rep
 import { MockClinicalDocumentRepository } from "./repositories/mock-clinical-document-repository";
 import { MockChamberRepository } from "./repositories/mock-chamber-repository";
 import { MockFollowUpRepository } from "./repositories/mock-follow-up-repository";
+import { MockSmsReminderRepository } from "./repositories/mock-sms-reminder-repository";
 import { SupabasePatientRepository } from "./repositories/supabase-patient-repository";
 import { SupabaseConsultationRepository } from "./repositories/supabase-consultation-repository";
 import { SupabaseClinicalRepository } from "./repositories/supabase-clinical-repository";
@@ -22,6 +24,7 @@ import { SupabasePrescriptionRepository } from "./repositories/supabase-prescrip
 import { SupabaseClinicalDocumentRepository } from "./repositories/supabase-clinical-document-repository";
 import { SupabaseChamberRepository } from "./repositories/supabase-chamber-repository";
 import { SupabaseFollowUpRepository } from "./repositories/supabase-follow-up-repository";
+import { SupabaseSmsReminderRepository } from "./repositories/supabase-sms-reminder-repository";
 
 export * from "./errors";
 export * from "./id-generator";
@@ -33,6 +36,7 @@ export * from "./repositories/prescription-repository.interface";
 export * from "./repositories/clinical-document-repository.interface";
 export * from "./repositories/chamber-repository.interface";
 export * from "./repositories/follow-up-repository.interface";
+export * from "./repositories/sms-reminder-repository.interface";
 export * from "./repositories/mock-patient-repository";
 export * from "./repositories/mock-consultation-repository";
 export * from "./repositories/mock-clinical-repository";
@@ -41,6 +45,7 @@ export * from "./repositories/mock-prescription-repository";
 export * from "./repositories/mock-clinical-document-repository";
 export * from "./repositories/mock-chamber-repository";
 export * from "./repositories/mock-follow-up-repository";
+export * from "./repositories/mock-sms-reminder-repository";
 export * from "./repositories/supabase-patient-repository";
 export * from "./repositories/supabase-consultation-repository";
 export * from "./repositories/supabase-clinical-repository";
@@ -49,6 +54,7 @@ export * from "./repositories/supabase-prescription-repository";
 export * from "./repositories/supabase-clinical-document-repository";
 export * from "./repositories/supabase-chamber-repository";
 export * from "./repositories/supabase-follow-up-repository";
+export * from "./repositories/supabase-sms-reminder-repository";
 
 // Singleton instances for runtime
 let patientRepositoryInstance: IPatientRepository | null = null;
@@ -59,6 +65,7 @@ let prescriptionRepositoryInstance: IPrescriptionRepository | null = null;
 let clinicalDocumentRepositoryInstance: IClinicalDocumentRepository | null = null;
 let chamberRepositoryInstance: IChamberRepository | null = null;
 let followUpRepositoryInstance: IFollowUpRepository | null = null;
+let smsReminderRepositoryInstance: ISmsReminderRepository | null = null;
 
 // Configurable provider mode ("auto" detects Supabase credentials, "mock" forces mock)
 let providerMode: "auto" | "supabase" | "mock" = "auto";
@@ -249,6 +256,25 @@ export function getFollowUpRepository(
 }
 
 /**
+ * Factory for SMS Reminder Repository.
+ */
+export function getSmsReminderRepository(
+  client?: import("@supabase/supabase-js").SupabaseClient
+): ISmsReminderRepository {
+  if (client && shouldUseSupabase()) {
+    return new SupabaseSmsReminderRepository(client);
+  }
+  if (!smsReminderRepositoryInstance) {
+    if (shouldUseSupabase()) {
+      smsReminderRepositoryInstance = new SupabaseSmsReminderRepository();
+    } else {
+      smsReminderRepositoryInstance = new MockSmsReminderRepository();
+    }
+  }
+  return smsReminderRepositoryInstance;
+}
+
+/**
  * Testing helper to reset repository instances between test runs.
  */
 export function resetRepositoryInstances(): void {
@@ -260,4 +286,5 @@ export function resetRepositoryInstances(): void {
   clinicalDocumentRepositoryInstance = null;
   chamberRepositoryInstance = null;
   followUpRepositoryInstance = null;
+  smsReminderRepositoryInstance = null;
 }

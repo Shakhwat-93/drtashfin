@@ -268,6 +268,19 @@ export class MockPatientRepository implements IPatientRepository {
       ...(validated.currentMedications ? { currentMedications: validated.currentMedications } : {}),
       ...(validated.patientNotes ? { patientNotes: validated.patientNotes } : {}),
 
+      // SMS Consent
+      smsConsentStatus: validated.smsConsentStatus || "unknown",
+      ...(validated.smsConsentAt
+        ? { smsConsentAt: validated.smsConsentAt }
+        : validated.smsConsentStatus && validated.smsConsentStatus !== "unknown"
+        ? { smsConsentAt: now }
+        : {}),
+      ...(validated.smsConsentSource
+        ? { smsConsentSource: validated.smsConsentSource }
+        : validated.smsConsentStatus && validated.smsConsentStatus !== "unknown"
+        ? { smsConsentSource: "registration" }
+        : {}),
+
       createdAt: now,
       updatedAt: now,
     };
@@ -304,9 +317,17 @@ export class MockPatientRepository implements IPatientRepository {
       computedAge = data.age;
     }
 
+    let consentAt = data.smsConsentAt ?? existing.smsConsentAt;
+    let consentSource = data.smsConsentSource ?? existing.smsConsentSource;
+    if (data.smsConsentStatus !== undefined && data.smsConsentStatus !== existing.smsConsentStatus) {
+      consentAt = data.smsConsentAt || now;
+      consentSource = data.smsConsentSource || "in_person";
+    }
+
     const updated: Patient = {
       ...existing,
       ...data,
+      ...(data.smsConsentStatus !== undefined ? { smsConsentStatus: data.smsConsentStatus, smsConsentAt: consentAt, smsConsentSource: consentSource } : {}),
       age: computedAge,
       updatedAt: now,
     };

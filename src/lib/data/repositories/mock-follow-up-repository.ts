@@ -22,6 +22,7 @@ import {
 } from "@/schemas/follow-up";
 import { KNOWN_CHAMBERS } from "@/types/chamber";
 import { getClinicToday } from "@/lib/date-utils";
+import { getSmsReminderService } from "@/lib/sms/sms-reminder-service";
 
 export class MockFollowUpRepository implements IFollowUpRepository {
   private storageKey = "follow_ups_list";
@@ -161,6 +162,13 @@ export class MockFollowUpRepository implements IFollowUpRepository {
     list.unshift(newFollowUp);
     this.saveAllInternal(list);
 
+    try {
+      const smsService = getSmsReminderService();
+      await smsService.scheduleRemindersForFollowUp(newFollowUp, patient);
+    } catch (e) {
+      console.warn("Non-fatal: failed to schedule SMS reminders for follow-up:", e);
+    }
+
     return newFollowUp;
   }
 
@@ -204,12 +212,21 @@ export class MockFollowUpRepository implements IFollowUpRepository {
       throw new ValidationError("Invalid completion data provided.");
     }
 
-    return await this.updateFollowUp(id, {
+    const updated = await this.updateFollowUp(id, {
       status: "completed",
       clinicalOutcome: validation.data.clinicalOutcome,
       outcomeNotes: validation.data.outcomeNotes || undefined,
       followUpConsultationId: validation.data.followUpConsultationId || undefined,
     });
+
+    try {
+      const smsService = getSmsReminderService();
+      await smsService.invalidatePendingReminders(id, "Follow-up completed");
+    } catch (e) {
+      console.warn("Non-fatal: failed to invalidate SMS reminders:", e);
+    }
+
+    return updated;
   }
 
   public async rescheduleFollowUp(
@@ -221,12 +238,25 @@ export class MockFollowUpRepository implements IFollowUpRepository {
       throw new ValidationError("Invalid reschedule data provided.");
     }
 
-    return await this.updateFollowUp(id, {
+    const updated = await this.updateFollowUp(id, {
       scheduledDate: validation.data.scheduledDate,
       scheduledTime: validation.data.scheduledTime || undefined,
       reason: validation.data.reason || undefined,
       status: "scheduled",
     });
+
+    try {
+      const smsService = getSmsReminderService();
+      await smsService.invalidatePendingReminders(id, "Follow-up rescheduled");
+      const patient = await this.patientRepo.getPatientByIdentifier(updated.patientId);
+      if (patient) {
+        await smsService.scheduleRemindersForFollowUp(updated, patient);
+      }
+    } catch (e) {
+      console.warn("Non-fatal: failed to reschedule SMS reminders:", e);
+    }
+
+    return updated;
   }
 
   public async cancelFollowUp(
@@ -238,10 +268,19 @@ export class MockFollowUpRepository implements IFollowUpRepository {
       throw new ValidationError("Invalid cancellation data provided.");
     }
 
-    return await this.updateFollowUp(id, {
+    const updated = await this.updateFollowUp(id, {
       status: "cancelled",
       cancellationReason: validation.data.cancellationReason,
     });
+
+    try {
+      const smsService = getSmsReminderService();
+      await smsService.invalidatePendingReminders(id, "Follow-up cancelled");
+    } catch (e) {
+      console.warn("Non-fatal: failed to invalidate SMS reminders:", e);
+    }
+
+    return updated;
   }
 
   public async deleteFollowUp(id: string): Promise<boolean> {

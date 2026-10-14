@@ -11,8 +11,10 @@ import {
   Stethoscope,
   CheckCircle2,
   Calendar,
+  MessageSquare,
 } from "lucide-react";
 import { FollowUp } from "@/types/follow-up";
+import { SmsReminder } from "@/types/sms";
 import {
   Modal,
   ModalHeader,
@@ -45,6 +47,29 @@ export function FollowUpDetailModal({
   const [rescheduleTarget, setRescheduleTarget] = React.useState<FollowUp | null>(null);
   const [cancelTarget, setCancelTarget] = React.useState<FollowUp | null>(null);
   const [completeTarget, setCompleteTarget] = React.useState<FollowUp | null>(null);
+  const [smsReminders, setSmsReminders] = React.useState<SmsReminder[]>([]);
+
+  React.useEffect(() => {
+    if (!followUp?.id) {
+      setSmsReminders([]);
+      return;
+    }
+    let isCancelled = false;
+    fetch(`/api/sms/reminders?followUpId=${followUp.id}`)
+      .then((res) => (res.ok ? res.json() : { reminders: [] }))
+      .then((data) => {
+        if (!isCancelled) {
+          setSmsReminders(data.reminders || []);
+        }
+      })
+      .catch(() => {
+        if (!isCancelled) setSmsReminders([]);
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [followUp?.id]);
 
   if (!followUp) return null;
 
@@ -233,6 +258,59 @@ export function FollowUpDetailModal({
               <p className="text-xs text-[#59534E] leading-relaxed">
                 {followUp.cancellationReason}
               </p>
+            </div>
+          )}
+
+          {/* SMS Follow-up Reminder Details */}
+          {smsReminders.length > 0 && (
+            <div className="p-3.5 rounded-xl border border-[#EAE3D9] bg-white space-y-2">
+              <div className="flex items-center justify-between text-xs font-semibold text-[#201C1A]">
+                <div className="flex items-center gap-1.5">
+                  <MessageSquare className="h-4 w-4 text-[#DE4F3C]" />
+                  <span>Automated SMS Follow-up Reminders</span>
+                </div>
+                <span className="text-[11px] text-[#7A746F] font-mono">
+                  {smsReminders.length} reminder{smsReminders.length > 1 ? "s" : ""}
+                </span>
+              </div>
+
+              <div className="space-y-1.5 pt-1">
+                {smsReminders.map((rem) => {
+                  const isSent = rem.status === "sent";
+                  const isFailed = rem.status === "failed";
+                  const isSkipped = rem.status === "skipped";
+
+                  return (
+                    <div
+                      key={rem.id}
+                      className="flex items-center justify-between gap-2 p-2 rounded-lg bg-[#FAF5EE] text-xs"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Badge
+                          variant="neutral"
+                          className="text-[10px] uppercase font-bold tracking-wider shrink-0 bg-white"
+                        >
+                          {rem.reminderType.replace("_", " ")}
+                        </Badge>
+                        <span className="text-[11px] text-[#59534E] truncate">
+                          {rem.recipientPhoneMasked || rem.recipientPhone} &bull; Target:{" "}
+                          {new Date(rem.scheduledFor).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                      </div>
+
+                      <Badge
+                        variant={isSent ? "success" : isFailed ? "danger" : isSkipped ? "warning" : "info"}
+                        className="text-[10px]"
+                      >
+                        {rem.status}
+                      </Badge>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
         </ModalBody>

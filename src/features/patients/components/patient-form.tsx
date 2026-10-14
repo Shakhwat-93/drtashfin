@@ -10,6 +10,7 @@ import {
   Phone,
   Activity,
   ShieldAlert,
+  MessageSquare,
 } from "lucide-react";
 import { Patient, CreatePatientDTO, UpdatePatientDTO } from "@/types/patient";
 import { Gender, BloodGroup } from "@/types/common";
@@ -95,6 +96,9 @@ export function PatientForm({
   const [secondaryPhone, setSecondaryPhone] = React.useState(
     initialData?.secondaryPhone || ""
   );
+  const [smsConsentStatus, setSmsConsentStatus] = React.useState<
+    "opted_in" | "opted_out" | "unknown"
+  >(initialData?.smsConsentStatus || "unknown");
   const [email, setEmail] = React.useState(initialData?.email || "");
   const [address, setAddress] = React.useState(initialData?.address || "");
   const [permanentAddress, setPermanentAddress] = React.useState(
@@ -177,13 +181,15 @@ export function PatientForm({
       allergies !== (initialData?.allergies || "") ||
       medicalHistory !== (initialData?.medicalHistory || "") ||
       currentMedications !== (initialData?.currentMedications || "") ||
-      patientNotes !== (initialData?.patientNotes || "")
+      patientNotes !== (initialData?.patientNotes || "") ||
+      smsConsentStatus !== (initialData?.smsConsentStatus || "unknown")
     );
   }, [
     mode,
     name,
     phone,
     secondaryPhone,
+    smsConsentStatus,
     dateOfBirth,
     age,
     gender,
@@ -340,6 +346,15 @@ export function PatientForm({
       phone: phone.trim() !== "" ? phone.trim() : undefined,
       secondaryPhone:
         secondaryPhone.trim() !== "" ? secondaryPhone.trim() : undefined,
+      smsConsentStatus,
+      smsConsentAt:
+        smsConsentStatus !== (initialData?.smsConsentStatus || "unknown")
+          ? new Date().toISOString()
+          : initialData?.smsConsentAt,
+      smsConsentSource:
+        smsConsentStatus !== (initialData?.smsConsentStatus || "unknown")
+          ? (mode === "create" ? "registration" : "in_person")
+          : initialData?.smsConsentSource,
       email: email.trim() !== "" ? email.trim() : undefined,
       address: address.trim() !== "" ? address.trim() : undefined,
       permanentAddress:
@@ -839,6 +854,88 @@ export function PatientForm({
             {errors.email && (
               <p className="mt-1 text-[11px] text-rose-600 font-medium">
                 {errors.email}
+              </p>
+            )}
+          </div>
+
+          {/* SMS Follow-up Reminder Consent */}
+          <div className="sm:col-span-2 rounded-lg border border-[#EAE3D9] bg-white p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <MessageSquare className="h-4 w-4 text-[#DE4F3C]" />
+                <label className="text-xs font-bold text-[#201C1A]">
+                  SMS Follow-up Reminder Consent
+                </label>
+              </div>
+              <Badge
+                variant={
+                  smsConsentStatus === "opted_in"
+                    ? "success"
+                    : smsConsentStatus === "opted_out"
+                    ? "danger"
+                    : "warning"
+                }
+                className="text-[10px] uppercase font-bold tracking-wider"
+              >
+                {smsConsentStatus === "opted_in"
+                  ? "Consent Granted"
+                  : smsConsentStatus === "opted_out"
+                  ? "Consent Refused"
+                  : "Consent Pending"}
+              </Badge>
+            </div>
+
+            <p className="text-[11px] text-[#7A746F] leading-relaxed">
+              Automated reminders are scheduled 24h before (and 3h before) scheduled appointments.
+              To maintain complete patient privacy, SMS messages contain only appointment date, time, and chamber name.
+              <strong> Medical diagnoses, prescriptions, and clinical history are strictly never included.</strong>
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => setSmsConsentStatus("opted_in")}
+                className={cn(
+                  "flex items-center justify-center gap-2 rounded-lg border py-2 px-3 text-xs font-medium transition-all cursor-pointer",
+                  smsConsentStatus === "opted_in"
+                    ? "border-emerald-600 bg-emerald-50 text-emerald-800 font-bold shadow-xs"
+                    : "border-[#EAE3D9] bg-white text-[#7A746F] hover:border-[#201C1A]"
+                )}
+              >
+                <Check className="h-3.5 w-3.5 text-emerald-600" />
+                <span>Opted In (Send SMS)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSmsConsentStatus("opted_out")}
+                className={cn(
+                  "flex items-center justify-center gap-2 rounded-lg border py-2 px-3 text-xs font-medium transition-all cursor-pointer",
+                  smsConsentStatus === "opted_out"
+                    ? "border-rose-600 bg-rose-50 text-rose-800 font-bold shadow-xs"
+                    : "border-[#EAE3D9] bg-white text-[#7A746F] hover:border-[#201C1A]"
+                )}
+              >
+                <span className="text-rose-600 font-bold">&times;</span>
+                <span>Opted Out (No SMS)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSmsConsentStatus("unknown")}
+                className={cn(
+                  "flex items-center justify-center gap-2 rounded-lg border py-2 px-3 text-xs font-medium transition-all cursor-pointer",
+                  smsConsentStatus === "unknown"
+                    ? "border-amber-600 bg-amber-50 text-amber-800 font-bold shadow-xs"
+                    : "border-[#EAE3D9] bg-white text-[#7A746F] hover:border-[#201C1A]"
+                )}
+              >
+                <span>Unknown / Not Asked</span>
+              </button>
+            </div>
+            {initialData?.smsConsentAt && (
+              <p className="text-[10px] text-[#7A746F] italic">
+                Last recorded: {new Date(initialData.smsConsentAt).toLocaleString()} ({initialData.smsConsentSource || "registration"})
               </p>
             )}
           </div>
