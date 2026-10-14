@@ -7,11 +7,21 @@
 
 export type ConsanguinityOption = "yes" | "no";
 
+export type ConsultationStatus =
+  | "scheduled"
+  | "in-progress"
+  | "completed"
+  | "cancelled";
+
+export type ClinicalOutcome = "improved" | "unchanged" | "worsened";
+
 export interface Consultation {
   id: string; // Unique UUID
   patientId: string; // Internal UUID or human-readable PT-XXXXXX
   chamberId?: string; // UUID of chamber where consultation occurred
   consultationDate: string; // ISO date string (YYYY-MM-DD)
+  consultationTime?: string; // Time string e.g. "10:30 AM"
+  status?: ConsultationStatus; // Default: 'completed'
 
   // Clinical History
   chiefComplaint?: string;
@@ -21,8 +31,9 @@ export interface Consultation {
   drugHistory?: string;
   others?: string;
 
-  // Clinical Examination
+  // Clinical Examination & Notes
   clinicalExamination?: string;
+  clinicalNotes?: string;
 
   // Investigations
   investigationAdvised?: string;
@@ -32,10 +43,21 @@ export interface Consultation {
   provisionalDiagnosis?: string;
   differentialDiagnosis?: string;
 
-  // Management
+  // Management & Treatment Plan
   plan?: string;
   advice?: string;
+  treatmentInstructions?: string;
+  lifestyleInstructions?: string;
+  treatmentStartDate?: string; // ISO date string (YYYY-MM-DD)
+  treatmentReviewDate?: string; // ISO date string (YYYY-MM-DD)
   nextFollowUp?: string; // ISO date string (YYYY-MM-DD)
+  followUpReason?: string;
+
+  // Longitudinal Tracking & Outcomes
+  clinicalOutcome?: ClinicalOutcome;
+  progressNotes?: string;
+  isFollowUp?: boolean;
+  originatingConsultationId?: string; // Links follow-up consultation to the original visit
 
   // Audit Timestamps
   createdAt: string;

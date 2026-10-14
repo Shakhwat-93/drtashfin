@@ -8,6 +8,8 @@ import {
   CreateConsultationDTO,
   UpdateConsultationDTO,
   ConsanguinityOption,
+  ConsultationStatus,
+  ClinicalOutcome,
 } from "@/types/consultation";
 import { Medicine } from "@/types/medicine";
 import { MedicineSearchAutocomplete } from "@/features/medicines";
@@ -29,6 +31,8 @@ export interface ConsultationFormProps {
   ) => Promise<void>;
   onCancel: () => void;
   className?: string;
+  defaultIsFollowUp?: boolean;
+  defaultOriginatingConsultationId?: string;
 }
 
 const DRAFT_KEY_PREFIX = "pms_draft_consultation_";
@@ -41,6 +45,8 @@ export function ConsultationForm({
   onSubmit,
   onCancel,
   className,
+  defaultIsFollowUp = false,
+  defaultOriginatingConsultationId,
 }: ConsultationFormProps) {
   const draftStorageKey = `${DRAFT_KEY_PREFIX}${patient.patientId}`;
 
@@ -48,6 +54,27 @@ export function ConsultationForm({
   const [consultationDate, setConsultationDate] = React.useState<string>(
     initialData?.consultationDate || new Date().toISOString().split("T")[0]
   );
+  const [consultationTime, setConsultationTime] = React.useState<string>(
+    initialData?.consultationTime || "10:00 AM"
+  );
+  const [status, setStatus] = React.useState<ConsultationStatus>(
+    initialData?.status || "completed"
+  );
+  const [isFollowUp, setIsFollowUp] = React.useState<boolean>(
+    initialData?.isFollowUp ?? defaultIsFollowUp
+  );
+  const [clinicalOutcome, setClinicalOutcome] = React.useState<
+    ClinicalOutcome | undefined
+  >(initialData?.clinicalOutcome);
+  const [progressNotes, setProgressNotes] = React.useState<string>(
+    initialData?.progressNotes || ""
+  );
+  const [originatingConsultationId, setOriginatingConsultationId] =
+    React.useState<string>(
+      initialData?.originatingConsultationId ||
+        defaultOriginatingConsultationId ||
+        ""
+    );
   const [chiefComplaint, setChiefComplaint] = React.useState<string>(
     initialData?.chiefComplaint || ""
   );
@@ -69,6 +96,9 @@ export function ConsultationForm({
   const [clinicalExamination, setClinicalExamination] = React.useState<string>(
     initialData?.clinicalExamination || ""
   );
+  const [clinicalNotes, setClinicalNotes] = React.useState<string>(
+    initialData?.clinicalNotes || ""
+  );
   const [investigationAdvised, setInvestigationAdvised] = React.useState<string>(
     initialData?.investigationAdvised || ""
   );
@@ -84,8 +114,21 @@ export function ConsultationForm({
   const [advice, setAdvice] = React.useState<string>(
     initialData?.advice || ""
   );
+  const [treatmentInstructions, setTreatmentInstructions] =
+    React.useState<string>(initialData?.treatmentInstructions || "");
+  const [lifestyleInstructions, setLifestyleInstructions] =
+    React.useState<string>(initialData?.lifestyleInstructions || "");
+  const [treatmentStartDate, setTreatmentStartDate] = React.useState<string>(
+    initialData?.treatmentStartDate || new Date().toISOString().split("T")[0]
+  );
+  const [treatmentReviewDate, setTreatmentReviewDate] = React.useState<string>(
+    initialData?.treatmentReviewDate || ""
+  );
   const [nextFollowUp, setNextFollowUp] = React.useState<string>(
     initialData?.nextFollowUp || ""
+  );
+  const [followUpReason, setFollowUpReason] = React.useState<string>(
+    initialData?.followUpReason || ""
   );
 
   const [errors, setErrors] = React.useState<Record<string, string>>({});
@@ -101,6 +144,13 @@ export function ConsultationForm({
         if (savedDraft) {
           const parsed = JSON.parse(savedDraft);
           if (parsed.consultationDate) setConsultationDate(parsed.consultationDate);
+          if (parsed.consultationTime) setConsultationTime(parsed.consultationTime);
+          if (parsed.status) setStatus(parsed.status);
+          if (parsed.isFollowUp !== undefined) setIsFollowUp(parsed.isFollowUp);
+          if (parsed.clinicalOutcome) setClinicalOutcome(parsed.clinicalOutcome);
+          if (parsed.progressNotes) setProgressNotes(parsed.progressNotes);
+          if (parsed.originatingConsultationId)
+            setOriginatingConsultationId(parsed.originatingConsultationId);
           if (parsed.chiefComplaint) setChiefComplaint(parsed.chiefComplaint);
           if (parsed.birthHistory) setBirthHistory(parsed.birthHistory);
           if (parsed.familyHistory) setFamilyHistory(parsed.familyHistory);
@@ -109,6 +159,7 @@ export function ConsultationForm({
           if (parsed.others) setOthers(parsed.others);
           if (parsed.clinicalExamination)
             setClinicalExamination(parsed.clinicalExamination);
+          if (parsed.clinicalNotes) setClinicalNotes(parsed.clinicalNotes);
           if (parsed.investigationAdvised)
             setInvestigationAdvised(parsed.investigationAdvised);
           if (parsed.currentInvestigation)
@@ -119,7 +170,16 @@ export function ConsultationForm({
             setDifferentialDiagnosis(parsed.differentialDiagnosis);
           if (parsed.plan) setPlan(parsed.plan);
           if (parsed.advice) setAdvice(parsed.advice);
+          if (parsed.treatmentInstructions)
+            setTreatmentInstructions(parsed.treatmentInstructions);
+          if (parsed.lifestyleInstructions)
+            setLifestyleInstructions(parsed.lifestyleInstructions);
+          if (parsed.treatmentStartDate)
+            setTreatmentStartDate(parsed.treatmentStartDate);
+          if (parsed.treatmentReviewDate)
+            setTreatmentReviewDate(parsed.treatmentReviewDate);
           if (parsed.nextFollowUp) setNextFollowUp(parsed.nextFollowUp);
+          if (parsed.followUpReason) setFollowUpReason(parsed.followUpReason);
           setHasRestoredDraft(true);
         }
       } catch {
@@ -137,6 +197,12 @@ export function ConsultationForm({
 
     const draftData = {
       consultationDate,
+      consultationTime,
+      status,
+      isFollowUp,
+      clinicalOutcome,
+      progressNotes,
+      originatingConsultationId,
       chiefComplaint,
       birthHistory,
       familyHistory,
@@ -144,13 +210,19 @@ export function ConsultationForm({
       drugHistory,
       others,
       clinicalExamination,
+      clinicalNotes,
       investigationAdvised,
       currentInvestigation,
       provisionalDiagnosis,
       differentialDiagnosis,
       plan,
       advice,
+      treatmentInstructions,
+      lifestyleInstructions,
+      treatmentStartDate,
+      treatmentReviewDate,
       nextFollowUp,
+      followUpReason,
     };
 
     try {
@@ -163,6 +235,12 @@ export function ConsultationForm({
     hasUnsavedChanges,
     draftStorageKey,
     consultationDate,
+    consultationTime,
+    status,
+    isFollowUp,
+    clinicalOutcome,
+    progressNotes,
+    originatingConsultationId,
     chiefComplaint,
     birthHistory,
     familyHistory,
@@ -170,13 +248,19 @@ export function ConsultationForm({
     drugHistory,
     others,
     clinicalExamination,
+    clinicalNotes,
     investigationAdvised,
     currentInvestigation,
     provisionalDiagnosis,
     differentialDiagnosis,
     plan,
     advice,
+    treatmentInstructions,
+    lifestyleInstructions,
+    treatmentStartDate,
+    treatmentReviewDate,
     nextFollowUp,
+    followUpReason,
   ]);
 
   // Warn before browser unload if unsaved changes exist
@@ -207,13 +291,20 @@ export function ConsultationForm({
       setDrugHistory("");
       setOthers("");
       setClinicalExamination("");
+      setClinicalNotes("");
       setInvestigationAdvised("");
       setCurrentInvestigation("");
       setProvisionalDiagnosis("");
       setDifferentialDiagnosis("");
       setPlan("");
       setAdvice("");
+      setTreatmentInstructions("");
+      setLifestyleInstructions("");
       setNextFollowUp("");
+      setFollowUpReason("");
+      setProgressNotes("");
+      setClinicalOutcome(undefined);
+      setIsFollowUp(false);
       setHasUnsavedChanges(false);
     } catch {
       // Ignore
@@ -241,7 +332,17 @@ export function ConsultationForm({
 
     const rawData = {
       patientId: patient.patientId,
+      chamberId: patient.chamberId || undefined,
       consultationDate,
+      consultationTime: consultationTime.trim() || undefined,
+      status,
+      isFollowUp,
+      clinicalOutcome: isFollowUp ? clinicalOutcome || undefined : undefined,
+      progressNotes: isFollowUp ? progressNotes.trim() || undefined : undefined,
+      originatingConsultationId:
+        isFollowUp && originatingConsultationId.trim()
+          ? originatingConsultationId.trim()
+          : undefined,
       chiefComplaint: chiefComplaint.trim() || undefined,
       birthHistory: birthHistory.trim() || undefined,
       familyHistory: familyHistory.trim() || undefined,
@@ -249,13 +350,19 @@ export function ConsultationForm({
       drugHistory: drugHistory.trim() || undefined,
       others: others.trim() || undefined,
       clinicalExamination: clinicalExamination.trim() || undefined,
+      clinicalNotes: clinicalNotes.trim() || undefined,
       investigationAdvised: investigationAdvised.trim() || undefined,
       currentInvestigation: currentInvestigation.trim() || undefined,
       provisionalDiagnosis: provisionalDiagnosis.trim() || undefined,
       differentialDiagnosis: differentialDiagnosis.trim() || undefined,
       plan: plan.trim() || undefined,
       advice: advice.trim() || undefined,
+      treatmentInstructions: treatmentInstructions.trim() || undefined,
+      lifestyleInstructions: lifestyleInstructions.trim() || undefined,
+      treatmentStartDate: treatmentStartDate.trim() || undefined,
+      treatmentReviewDate: treatmentReviewDate.trim() || undefined,
       nextFollowUp: nextFollowUp.trim() || undefined,
+      followUpReason: followUpReason.trim() || undefined,
     };
 
     const schema =
@@ -372,33 +479,144 @@ export function ConsultationForm({
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4 text-[#DE4F3C]" />
           <h3 className="font-serif text-base font-semibold text-[#201C1A]">
-            Consultation
+            Consultation Visit
           </h3>
         </div>
 
-        <div className="max-w-xs">
-          <label className="block text-xs font-semibold text-[#201C1A] mb-1">
-            Consultation Date <span className="text-[#DE4F3C]">*</span>
-          </label>
-          <input
-            type="date"
-            value={consultationDate}
-            onChange={(e) => {
-              setConsultationDate(e.target.value);
-              markDirty();
-            }}
-            className={cn(
-              "w-full rounded-lg border bg-white px-3.5 py-2 text-xs text-[#201C1A] transition-all focus:outline-hidden focus:ring-2",
-              errors.consultationDate
-                ? "border-rose-400 focus:ring-rose-200"
-                : "border-[#EAE3D9] focus:border-[#DE4F3C] focus:ring-[#DE4F3C]/20"
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-xs font-semibold text-[#201C1A] mb-1">
+              Consultation Date <span className="text-[#DE4F3C]">*</span>
+            </label>
+            <input
+              type="date"
+              value={consultationDate}
+              onChange={(e) => {
+                setConsultationDate(e.target.value);
+                markDirty();
+              }}
+              className={cn(
+                "w-full rounded-lg border bg-white px-3.5 py-2 text-xs text-[#201C1A] transition-all focus:outline-hidden focus:ring-2",
+                errors.consultationDate
+                  ? "border-rose-400 focus:ring-rose-200"
+                  : "border-[#EAE3D9] focus:border-[#DE4F3C] focus:ring-[#DE4F3C]/20"
+              )}
+              required
+            />
+            {errors.consultationDate && (
+              <p className="mt-1 text-[11px] text-rose-600 font-medium">
+                {errors.consultationDate}
+              </p>
             )}
-            required
-          />
-          {errors.consultationDate && (
-            <p className="mt-1 text-[11px] text-rose-600 font-medium">
-              {errors.consultationDate}
-            </p>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-[#201C1A] mb-1">
+              Consultation Time
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. 10:30 AM"
+              value={consultationTime}
+              onChange={(e) => {
+                setConsultationTime(e.target.value);
+                markDirty();
+              }}
+              className="w-full rounded-lg border border-[#EAE3D9] bg-white px-3.5 py-2 text-xs text-[#201C1A] transition-all focus:border-[#DE4F3C] focus:outline-hidden focus:ring-2 focus:ring-[#DE4F3C]/20"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-[#201C1A] mb-1">
+              Status
+            </label>
+            <select
+              value={status}
+              onChange={(e) => {
+                setStatus(e.target.value as ConsultationStatus);
+                markDirty();
+              }}
+              className="w-full rounded-lg border border-[#EAE3D9] bg-white px-3.5 py-2 text-xs text-[#201C1A] transition-all focus:border-[#DE4F3C] focus:outline-hidden focus:ring-2 focus:ring-[#DE4F3C]/20"
+            >
+              <option value="completed">Completed</option>
+              <option value="in-progress">In-Progress</option>
+              <option value="scheduled">Scheduled</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Follow-up Visit Toggle & Longitudinal Outcome */}
+        <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF8F5] p-4 space-y-3">
+          <label className="flex items-center gap-2 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={isFollowUp}
+              onChange={(e) => {
+                setIsFollowUp(e.target.checked);
+                markDirty();
+              }}
+              className="rounded border-[#EAE3D9] text-[#DE4F3C] focus:ring-[#DE4F3C]/20 h-4 w-4"
+            />
+            <span className="text-xs font-semibold text-[#201C1A]">
+              This is a follow-up review consultation
+            </span>
+          </label>
+
+          {isFollowUp && (
+            <div className="pt-2 border-t border-[#EAE3D9]/60 space-y-3">
+              <div>
+                <label className="block text-xs font-semibold text-[#201C1A] mb-1.5">
+                  Clinical Progress Outcome Compared to Prior Visit
+                </label>
+                <div className="grid grid-cols-3 gap-2 max-w-md">
+                  {(
+                    [
+                      { value: "improved", label: "Improved" },
+                      { value: "unchanged", label: "Unchanged" },
+                      { value: "worsened", label: "Worsened" },
+                    ] as const
+                  ).map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => {
+                        setClinicalOutcome(opt.value);
+                        markDirty();
+                      }}
+                      className={cn(
+                        "py-1.5 px-3 rounded-lg border text-xs font-medium transition-all",
+                        clinicalOutcome === opt.value
+                          ? opt.value === "improved"
+                            ? "border-emerald-500 bg-emerald-50 text-emerald-800 font-semibold shadow-2xs"
+                            : opt.value === "worsened"
+                            ? "border-rose-500 bg-rose-50 text-rose-800 font-semibold shadow-2xs"
+                            : "border-sky-500 bg-sky-50 text-sky-800 font-semibold shadow-2xs"
+                          : "border-[#EAE3D9] bg-white text-[#7A746F] hover:text-[#201C1A]"
+                      )}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#201C1A] mb-1">
+                  Progress Notes (Comparison Against Previous Visits)
+                </label>
+                <textarea
+                  rows={2}
+                  value={progressNotes}
+                  onChange={(e) => {
+                    setProgressNotes(e.target.value);
+                    markDirty();
+                  }}
+                  placeholder="e.g. Seizure count dropped from 4/week to 0 in past month; tolerating Levetiracetam without mood changes."
+                  className="w-full rounded-lg border border-[#EAE3D9] bg-white px-3.5 py-2 text-xs text-[#201C1A] placeholder-[#7A746F] transition-all focus:border-[#DE4F3C] focus:outline-hidden focus:ring-2 focus:ring-[#DE4F3C]/20 min-h-[60px]"
+                />
+              </div>
+            </div>
           )}
         </div>
       </section>
@@ -570,7 +788,23 @@ export function ConsultationForm({
               markDirty();
             }}
             placeholder="Vitals, systemic examination, local inspection findings..."
-            className="w-full rounded-lg border border-[#EAE3D9] bg-white px-3.5 py-2 text-xs text-[#201C1A] placeholder-[#7A746F] transition-all focus:border-[#DE4F3C] focus:outline-hidden focus:ring-2 focus:ring-[#DE4F3C]/20 min-h-[96px]"
+            className="w-full rounded-lg border border-[#EAE3D9] bg-white px-3.5 py-2 text-xs text-[#201C1A] placeholder-[#7A746F] transition-all focus:border-[#DE4F3C] focus:outline-hidden focus:ring-2 focus:ring-[#DE4F3C]/20 min-h-[80px]"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-[#201C1A] mb-1">
+            Doctor&apos;s Assessment & Clinical Notes
+          </label>
+          <textarea
+            rows={3}
+            value={clinicalNotes}
+            onChange={(e) => {
+              setClinicalNotes(e.target.value);
+              markDirty();
+            }}
+            placeholder="Detailed assessment notes, diagnostic reasoning, clinical impression..."
+            className="w-full rounded-lg border border-[#EAE3D9] bg-white px-3.5 py-2 text-xs text-[#201C1A] placeholder-[#7A746F] transition-all focus:border-[#DE4F3C] focus:outline-hidden focus:ring-2 focus:ring-[#DE4F3C]/20 min-h-[72px]"
           />
         </div>
       </section>
@@ -705,34 +939,128 @@ export function ConsultationForm({
 
           <div>
             <label className="block text-xs font-semibold text-[#201C1A] mb-1">
-              Advice
+              General Advice
             </label>
             <textarea
-              rows={3}
+              rows={4}
               value={advice}
               onChange={(e) => {
                 setAdvice(e.target.value);
                 markDirty();
               }}
+              placeholder="General health instructions and warnings..."
+              className="w-full rounded-lg border border-[#EAE3D9] bg-white px-3.5 py-2 text-xs text-[#201C1A] placeholder-[#7A746F] transition-all focus:border-[#DE4F3C] focus:outline-hidden focus:ring-2 focus:ring-[#DE4F3C]/20 min-h-[96px]"
+            />
+          </div>
+
+          {/* Specific Treatment Instructions */}
+          <div>
+            <label className="block text-xs font-semibold text-[#201C1A] mb-1">
+              Specific Treatment & Dosing Instructions
+            </label>
+            <textarea
+              rows={3}
+              value={treatmentInstructions}
+              onChange={(e) => {
+                setTreatmentInstructions(e.target.value);
+                markDirty();
+              }}
+              placeholder="Titration schedule, taper directions, administration rules, emergency protocol..."
+              className="w-full rounded-lg border border-[#EAE3D9] bg-white px-3.5 py-2 text-xs text-[#201C1A] placeholder-[#7A746F] transition-all focus:border-[#DE4F3C] focus:outline-hidden focus:ring-2 focus:ring-[#DE4F3C]/20 min-h-[72px]"
+            />
+          </div>
+
+          {/* Lifestyle & Dietary Recommendations */}
+          <div>
+            <label className="block text-xs font-semibold text-[#201C1A] mb-1">
+              Lifestyle & Dietary Recommendations
+            </label>
+            <textarea
+              rows={3}
+              value={lifestyleInstructions}
+              onChange={(e) => {
+                setLifestyleInstructions(e.target.value);
+                markDirty();
+              }}
+              placeholder="Dietary precautions, fluid intake, physical activity restrictions, sleep hygiene..."
               className="w-full rounded-lg border border-[#EAE3D9] bg-white px-3.5 py-2 text-xs text-[#201C1A] placeholder-[#7A746F] transition-all focus:border-[#DE4F3C] focus:outline-hidden focus:ring-2 focus:ring-[#DE4F3C]/20 min-h-[72px]"
             />
           </div>
         </div>
 
-        {/* Next Follow-up Date */}
-        <div className="max-w-xs pt-1">
-          <label className="block text-xs font-semibold text-[#201C1A] mb-1">
-            Next Follow-up
-          </label>
-          <input
-            type="date"
-            value={nextFollowUp}
-            onChange={(e) => {
-              setNextFollowUp(e.target.value);
-              markDirty();
-            }}
-            className="w-full rounded-lg border border-[#EAE3D9] bg-white px-3.5 py-2 text-xs text-[#201C1A] transition-all focus:border-[#DE4F3C] focus:outline-hidden focus:ring-2 focus:ring-[#DE4F3C]/20"
-          />
+        {/* Treatment Start & Review Dates */}
+        <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF8F5] p-3.5 space-y-3">
+          <div className="text-xs font-semibold text-[#201C1A]">
+            Treatment Course & Planned Review
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs text-[#7A746F] mb-1">
+                Treatment Start Date
+              </label>
+              <input
+                type="date"
+                value={treatmentStartDate}
+                onChange={(e) => {
+                  setTreatmentStartDate(e.target.value);
+                  markDirty();
+                }}
+                className="w-full rounded-lg border border-[#EAE3D9] bg-white px-3 py-1.5 text-xs text-[#201C1A] transition-all focus:border-[#DE4F3C] focus:outline-hidden focus:ring-2 focus:ring-[#DE4F3C]/20"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-[#7A746F] mb-1">
+                Planned Treatment Review Date
+              </label>
+              <input
+                type="date"
+                value={treatmentReviewDate}
+                onChange={(e) => {
+                  setTreatmentReviewDate(e.target.value);
+                  markDirty();
+                }}
+                className="w-full rounded-lg border border-[#EAE3D9] bg-white px-3 py-1.5 text-xs text-[#201C1A] transition-all focus:border-[#DE4F3C] focus:outline-hidden focus:ring-2 focus:ring-[#DE4F3C]/20"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Recommended Next Follow-up & Reason */}
+        <div className="rounded-xl border border-[#EAE3D9] bg-white p-3.5 space-y-3">
+          <div className="text-xs font-semibold text-[#201C1A]">
+            Recommended Follow-up Schedule
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs text-[#7A746F] mb-1">
+                Next Follow-up Date
+              </label>
+              <input
+                type="date"
+                value={nextFollowUp}
+                onChange={(e) => {
+                  setNextFollowUp(e.target.value);
+                  markDirty();
+                }}
+                className="w-full rounded-lg border border-[#EAE3D9] bg-white px-3 py-1.5 text-xs text-[#201C1A] transition-all focus:border-[#DE4F3C] focus:outline-hidden focus:ring-2 focus:ring-[#DE4F3C]/20"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-[#7A746F] mb-1">
+                Clinical Reason for Follow-up
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Drug tolerance check, review repeat CBC / EEG"
+                value={followUpReason}
+                onChange={(e) => {
+                  setFollowUpReason(e.target.value);
+                  markDirty();
+                }}
+                className="w-full rounded-lg border border-[#EAE3D9] bg-white px-3 py-1.5 text-xs text-[#201C1A] transition-all focus:border-[#DE4F3C] focus:outline-hidden focus:ring-2 focus:ring-[#DE4F3C]/20"
+              />
+            </div>
+          </div>
         </div>
       </section>
 

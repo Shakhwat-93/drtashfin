@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, AlertCircle } from "lucide-react";
 import { AdminShell } from "@/components/layout/admin-shell";
 import { PageContainer } from "@/components/layout/page-container";
@@ -23,6 +23,10 @@ export default function NewConsultationPage({
   const unwrappedParams = React.use(params);
   const { patientId } = unwrappedParams;
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isFollowUpParam = searchParams.get("isFollowUp") === "true";
+  const originatingConsultationIdParam =
+    searchParams.get("originatingConsultationId") || undefined;
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const { patient, isLoading, error } = usePatient(patientId);
@@ -112,6 +116,8 @@ export default function NewConsultationPage({
             isSubmitting={isSubmitting}
             onSubmit={handleCreateConsultation}
             onCancel={() => router.push(`/patients/${patient.patientId}`)}
+            defaultIsFollowUp={isFollowUpParam}
+            defaultOriginatingConsultationId={originatingConsultationIdParam}
           />
         </Card>
       </PageContainer>

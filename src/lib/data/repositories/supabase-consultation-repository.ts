@@ -19,6 +19,8 @@ function mapConsultationFromRow(row: Record<string, unknown>): Consultation {
     patientId: String(row.patient_code || row.patient_id),
     chamberId: row.chamber_id ? String(row.chamber_id) : undefined,
     consultationDate: String(row.consultation_date),
+    consultationTime: row.consultation_time ? String(row.consultation_time) : undefined,
+    status: row.status as Consultation["status"],
     chiefComplaint: row.chief_complaint ? String(row.chief_complaint) : undefined,
     birthHistory: row.birth_history ? String(row.birth_history) : undefined,
     familyHistory: row.family_history ? String(row.family_history) : undefined,
@@ -26,13 +28,23 @@ function mapConsultationFromRow(row: Record<string, unknown>): Consultation {
     drugHistory: row.drug_history ? String(row.drug_history) : undefined,
     others: row.others ? String(row.others) : undefined,
     clinicalExamination: row.clinical_examination ? String(row.clinical_examination) : undefined,
+    clinicalNotes: row.clinical_notes ? String(row.clinical_notes) : undefined,
     investigationAdvised: row.investigation_advised ? String(row.investigation_advised) : undefined,
     currentInvestigation: row.current_investigation ? String(row.current_investigation) : undefined,
     provisionalDiagnosis: row.provisional_diagnosis ? String(row.provisional_diagnosis) : undefined,
     differentialDiagnosis: row.differential_diagnosis ? String(row.differential_diagnosis) : undefined,
     plan: row.plan ? String(row.plan) : undefined,
     advice: row.advice ? String(row.advice) : undefined,
+    treatmentInstructions: row.treatment_instructions ? String(row.treatment_instructions) : undefined,
+    lifestyleInstructions: row.lifestyle_instructions ? String(row.lifestyle_instructions) : undefined,
+    treatmentStartDate: row.treatment_start_date ? String(row.treatment_start_date) : undefined,
+    treatmentReviewDate: row.treatment_review_date ? String(row.treatment_review_date) : undefined,
     nextFollowUp: row.next_follow_up ? String(row.next_follow_up) : undefined,
+    followUpReason: row.follow_up_reason ? String(row.follow_up_reason) : undefined,
+    clinicalOutcome: row.clinical_outcome as Consultation["clinicalOutcome"],
+    progressNotes: row.progress_notes ? String(row.progress_notes) : undefined,
+    isFollowUp: Boolean(row.is_follow_up),
+    originatingConsultationId: row.originating_consultation_id ? String(row.originating_consultation_id) : undefined,
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),
   };
@@ -107,20 +119,32 @@ export class SupabaseConsultationRepository implements IConsultationRepository {
       patient_code: patient.patientId,
       chamber_id: validated.chamberId || patient.chamberId || null,
       consultation_date: validated.consultationDate,
+      consultation_time: validated.consultationTime || "10:00 AM",
+      status: validated.status || "completed",
       chief_complaint: validated.chiefComplaint?.trim() || null,
       birth_history: validated.birthHistory?.trim() || null,
       family_history: validated.familyHistory?.trim() || null,
       consanguinity: validated.consanguinity || null,
-      drug_history: validated.drugHistory?.trim() || null,
+      drugHistory: validated.drugHistory?.trim() || null,
       others: validated.others?.trim() || null,
       clinical_examination: validated.clinicalExamination?.trim() || null,
+      clinical_notes: validated.clinicalNotes?.trim() || null,
       investigation_advised: validated.investigationAdvised?.trim() || null,
       current_investigation: validated.currentInvestigation?.trim() || null,
       provisional_diagnosis: validated.provisionalDiagnosis?.trim() || null,
       differential_diagnosis: validated.differentialDiagnosis?.trim() || null,
       plan: validated.plan?.trim() || null,
       advice: validated.advice?.trim() || null,
+      treatment_instructions: validated.treatmentInstructions?.trim() || null,
+      lifestyle_instructions: validated.lifestyleInstructions?.trim() || null,
+      treatment_start_date: validated.treatmentStartDate || validated.consultationDate,
+      treatment_review_date: validated.treatmentReviewDate || null,
       next_follow_up: validated.nextFollowUp || null,
+      follow_up_reason: validated.followUpReason?.trim() || null,
+      clinical_outcome: validated.clinicalOutcome || null,
+      progress_notes: validated.progressNotes?.trim() || null,
+      is_follow_up: Boolean(validated.isFollowUp),
+      originating_consultation_id: validated.originatingConsultationId || null,
     };
 
     const { data: inserted, error } = await this.client
@@ -156,6 +180,10 @@ export class SupabaseConsultationRepository implements IConsultationRepository {
 
     if (validated.consultationDate !== undefined)
       updatePayload.consultation_date = validated.consultationDate;
+    if (validated.consultationTime !== undefined)
+      updatePayload.consultation_time = validated.consultationTime;
+    if (validated.status !== undefined)
+      updatePayload.status = validated.status;
     if (validated.chiefComplaint !== undefined)
       updatePayload.chief_complaint = validated.chiefComplaint?.trim() || null;
     if (validated.birthHistory !== undefined)
@@ -170,6 +198,8 @@ export class SupabaseConsultationRepository implements IConsultationRepository {
       updatePayload.others = validated.others?.trim() || null;
     if (validated.clinicalExamination !== undefined)
       updatePayload.clinical_examination = validated.clinicalExamination?.trim() || null;
+    if (validated.clinicalNotes !== undefined)
+      updatePayload.clinical_notes = validated.clinicalNotes?.trim() || null;
     if (validated.investigationAdvised !== undefined)
       updatePayload.investigation_advised = validated.investigationAdvised?.trim() || null;
     if (validated.currentInvestigation !== undefined)
@@ -182,8 +212,26 @@ export class SupabaseConsultationRepository implements IConsultationRepository {
       updatePayload.plan = validated.plan?.trim() || null;
     if (validated.advice !== undefined)
       updatePayload.advice = validated.advice?.trim() || null;
+    if (validated.treatmentInstructions !== undefined)
+      updatePayload.treatment_instructions = validated.treatmentInstructions?.trim() || null;
+    if (validated.lifestyleInstructions !== undefined)
+      updatePayload.lifestyle_instructions = validated.lifestyleInstructions?.trim() || null;
+    if (validated.treatmentStartDate !== undefined)
+      updatePayload.treatment_start_date = validated.treatmentStartDate || null;
+    if (validated.treatmentReviewDate !== undefined)
+      updatePayload.treatment_review_date = validated.treatmentReviewDate || null;
     if (validated.nextFollowUp !== undefined)
       updatePayload.next_follow_up = validated.nextFollowUp || null;
+    if (validated.followUpReason !== undefined)
+      updatePayload.follow_up_reason = validated.followUpReason?.trim() || null;
+    if (validated.clinicalOutcome !== undefined)
+      updatePayload.clinical_outcome = validated.clinicalOutcome || null;
+    if (validated.progressNotes !== undefined)
+      updatePayload.progress_notes = validated.progressNotes?.trim() || null;
+    if (validated.isFollowUp !== undefined)
+      updatePayload.is_follow_up = Boolean(validated.isFollowUp);
+    if (validated.originatingConsultationId !== undefined)
+      updatePayload.originating_consultation_id = validated.originatingConsultationId || null;
 
     const { data: updated, error } = await this.client
       .from("consultations")

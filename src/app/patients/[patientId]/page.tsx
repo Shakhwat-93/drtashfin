@@ -36,6 +36,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { usePatient } from "@/features/patients";
 import { ConsultationHistoryList } from "@/features/consultations";
 import { usePrescriptions, PrescriptionCard } from "@/features/prescriptions";
+import { FollowUpManager, useFollowUps } from "@/features/follow-ups";
 import { useChamber } from "@/features/chamber";
 import { getChamberById, getChamberByPrefix } from "@/types/chamber";
 
@@ -54,6 +55,11 @@ export default function PatientProfilePage({
     isLoading: isRxLoading,
     deleteDraft: handleDeleteDraft,
   } = usePrescriptions(patient?.id);
+  const {
+    followUps,
+    upcomingFollowUps,
+    overdueFollowUps,
+  } = useFollowUps(patient?.patientId);
 
   const prefix = patient?.patientId.split("-")[0] || "";
   const patientChamber =
@@ -345,7 +351,18 @@ export default function PatientProfilePage({
               <TabsTrigger value="history">Medical History</TabsTrigger>
               <TabsTrigger value="investigations">Investigations</TabsTrigger>
               <TabsTrigger value="prescriptions">Prescriptions</TabsTrigger>
-              <TabsTrigger value="followups">Follow-ups</TabsTrigger>
+              <TabsTrigger value="followups" className="gap-1.5">
+                <span>Follow-ups</span>
+                {overdueFollowUps.length > 0 ? (
+                  <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-rose-600 text-white">
+                    {overdueFollowUps.length}
+                  </span>
+                ) : upcomingFollowUps.length > 0 ? (
+                  <span className="px-1.5 py-0.2 rounded-full text-[10px] font-semibold bg-[#EAE3D9] text-[#201C1A]">
+                    {upcomingFollowUps.length}
+                  </span>
+                ) : null}
+              </TabsTrigger>
               <TabsTrigger value="operations">Operations</TabsTrigger>
               <TabsTrigger value="documents">Documents</TabsTrigger>
             </TabsList>
@@ -499,6 +516,126 @@ export default function PatientProfilePage({
                   <Link href={`/patients/${patient.patientId}/edit`}>
                     <Button variant="outline" size="sm" className="w-full text-xs">
                       Update Full Profile
+                    </Button>
+                  </Link>
+                </div>
+              </Card>
+            </div>
+
+            {/* Longitudinal Treatment & Follow-up Overview Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-1">
+              {/* Follow-up Status Card */}
+              <Card className="border border-[#EAE3D9] bg-white p-5 shadow-xs flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <CalendarClock className="h-4 w-4 text-[#DE4F3C]" />
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-[#7A746F]">
+                        Next Recommended Follow-up
+                      </h4>
+                    </div>
+                    {overdueFollowUps.length > 0 ? (
+                      <Badge variant="danger" size="sm">
+                        {overdueFollowUps.length} Overdue
+                      </Badge>
+                    ) : upcomingFollowUps.length > 0 ? (
+                      <Badge variant="success" size="sm">
+                        Scheduled
+                      </Badge>
+                    ) : (
+                      <Badge variant="neutral" size="sm">
+                        None Scheduled
+                      </Badge>
+                    )}
+                  </div>
+
+                  {overdueFollowUps.length > 0 ? (
+                    <div className="rounded-xl border border-rose-200 bg-rose-50/60 p-3.5 space-y-1.5 text-xs text-rose-950">
+                      <div className="flex items-center gap-2 font-semibold text-rose-800">
+                        <AlertTriangle className="h-4 w-4 shrink-0 text-rose-600" />
+                        <span>Follow-up Overdue Since {overdueFollowUps[0].scheduledDate}</span>
+                      </div>
+                      <p className="text-[11px] text-rose-900 leading-relaxed">
+                        {overdueFollowUps[0].reason || "Routine clinical review pending."}
+                      </p>
+                    </div>
+                  ) : upcomingFollowUps.length > 0 ? (
+                    <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF8F5] p-3.5 space-y-1 text-xs">
+                      <div className="font-semibold text-[#201C1A]">
+                        {new Date(upcomingFollowUps[0].scheduledDate + "T00:00:00").toLocaleDateString("en-US", {
+                          weekday: "short",
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </div>
+                      <p className="text-[11px] text-[#7A746F] leading-relaxed">
+                        Reason: {upcomingFollowUps[0].reason || "Follow-up consultation"}
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-[#7A746F] leading-relaxed py-2">
+                      No future follow-up visits currently scheduled for this patient.
+                    </p>
+                  )}
+                </div>
+
+                <div className="pt-4 border-t border-[#FAF5EE] flex items-center justify-between">
+                  <span className="text-[11px] text-[#7A746F]">
+                    Total follow-up events: {followUps.length}
+                  </span>
+                </div>
+              </Card>
+
+              {/* Prescriptions & Clinical Documents Quick Access */}
+              <Card className="border border-[#EAE3D9] bg-white p-5 shadow-xs flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-[#DE4F3C]" />
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-[#7A746F]">
+                        Medications & Prescriptions
+                      </h4>
+                    </div>
+                    <Badge variant="neutral" size="sm">
+                      {patientPrescriptions.length} Records
+                    </Badge>
+                  </div>
+
+                  {patientPrescriptions.length > 0 ? (
+                    <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF8F5] p-3.5 space-y-1.5 text-xs">
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-[#201C1A]">
+                          Latest Rx: {patientPrescriptions[0].prescriptionCode}
+                        </span>
+                        <Badge
+                          variant={patientPrescriptions[0].status === "finalized" ? "success" : "warning"}
+                          size="sm"
+                          className="capitalize text-[10px]"
+                        >
+                          {patientPrescriptions[0].status}
+                        </Badge>
+                      </div>
+                      <span className="text-[11px] text-[#7A746F] block">
+                        Prescribed on {new Date(patientPrescriptions[0].prescriptionDate + "T00:00:00").toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </span>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-[#7A746F] leading-relaxed py-2">
+                      No prescriptions recorded yet.
+                    </p>
+                  )}
+                </div>
+
+                <div className="pt-4 border-t border-[#FAF5EE] flex items-center justify-end gap-2">
+                  <Link href={`/patients/${patient.patientId}/prescriptions/new`}>
+                    <Button variant="primary" size="sm" className="text-xs h-7 px-2.5 gap-1">
+                      <FileText className="h-3 w-3" />
+                      <span>Write Prescription</span>
                     </Button>
                   </Link>
                 </div>
@@ -673,20 +810,7 @@ export default function PatientProfilePage({
 
           {/* 6. Follow-ups Tab */}
           <TabsContent value="followups">
-            <EmptyState
-              icon={CalendarClock}
-              title="No Follow-up Scheduled"
-              description="Next clinic visits, review appointments, and follow-up schedules will be displayed here."
-              action={
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => alert("Follow-up scheduling will be implemented in upcoming clinical phase.")}
-                >
-                  Schedule Appointment
-                </Button>
-              }
-            />
+            <FollowUpManager patient={patient} />
           </TabsContent>
 
           {/* 7. Operations Tab */}

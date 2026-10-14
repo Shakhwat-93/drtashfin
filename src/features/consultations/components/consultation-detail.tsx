@@ -8,6 +8,11 @@ import {
   CalendarClock,
   Printer,
   FileText,
+  Clock,
+  TrendingUp,
+  Minus,
+  TrendingDown,
+  Calendar,
 } from "lucide-react";
 import { Consultation } from "@/types/consultation";
 import { Patient } from "@/types/patient";
@@ -164,12 +169,40 @@ export function ConsultationDetail({
         <div className="border-b border-[#EAE3D9] pb-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#7A746F]">
-                Clinical Consultation Record
-              </p>
-              <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#201C1A] mt-1">
+              <div className="flex flex-wrap items-center gap-2 mb-1">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#7A746F]">
+                  Clinical Consultation Record
+                </p>
+                {consultation.status && (
+                  <Badge
+                    variant={
+                      consultation.status === "completed"
+                        ? "success"
+                        : consultation.status === "in-progress"
+                        ? "warning"
+                        : "neutral"
+                    }
+                    size="sm"
+                    className="capitalize text-[10px] py-0"
+                  >
+                    {consultation.status}
+                  </Badge>
+                )}
+                {consultation.isFollowUp && (
+                  <Badge variant="warning" size="sm" className="text-[10px] py-0">
+                    Follow-up Review
+                  </Badge>
+                )}
+              </div>
+              <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#201C1A]">
                 {formattedConsultationDate}
               </h1>
+              {consultation.consultationTime && (
+                <div className="flex items-center gap-1.5 text-xs text-[#7A746F] mt-1">
+                  <Clock className="h-3.5 w-3.5 text-[#DE4F3C]" />
+                  <span>{consultation.consultationTime}</span>
+                </div>
+              )}
             </div>
 
             {/* Patient Demographic Summary Badge */}
@@ -185,6 +218,48 @@ export function ConsultationDetail({
               </div>
             </div>
           </div>
+
+          {/* Follow-up Visit Progress & Outcome Banner */}
+          {consultation.isFollowUp && (
+            <div className="mt-4 p-4 rounded-xl border border-amber-200 bg-amber-50/50 space-y-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-amber-900 flex items-center gap-1.5">
+                  <CalendarClock className="h-4 w-4 text-amber-700" />
+                  <span>Follow-up Assessment & Progress</span>
+                </span>
+                {consultation.clinicalOutcome && (
+                  <Badge
+                    variant={
+                      consultation.clinicalOutcome === "improved"
+                        ? "success"
+                        : consultation.clinicalOutcome === "worsened"
+                        ? "danger"
+                        : "neutral"
+                    }
+                    size="sm"
+                    className="capitalize gap-1 font-semibold"
+                  >
+                    {consultation.clinicalOutcome === "improved" && (
+                      <TrendingUp className="h-3 w-3" />
+                    )}
+                    {consultation.clinicalOutcome === "unchanged" && (
+                      <Minus className="h-3 w-3" />
+                    )}
+                    {consultation.clinicalOutcome === "worsened" && (
+                      <TrendingDown className="h-3 w-3" />
+                    )}
+                    Condition: {consultation.clinicalOutcome}
+                  </Badge>
+                )}
+              </div>
+
+              {consultation.progressNotes && (
+                <p className="text-xs text-amber-950 leading-relaxed pt-1 border-t border-amber-200/60 whitespace-pre-wrap">
+                  {consultation.progressNotes}
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
         {/* SECTION: HISTORY */}
@@ -269,14 +344,33 @@ export function ConsultationDetail({
         </section>
 
         {/* SECTION: CLINICAL EXAMINATION */}
-        {consultation.clinicalExamination && (
-          <section className="space-y-2">
+        {(consultation.clinicalExamination || consultation.clinicalNotes) && (
+          <section className="space-y-4">
             <h2 className="text-xs font-bold uppercase tracking-wider text-[#7A746F] border-b border-[#FAF5EE] pb-1">
-              Clinical Examination
+              Clinical Examination & Assessment
             </h2>
-            <p className="text-xs text-[#201C1A] leading-relaxed whitespace-pre-wrap bg-[#FAF5EE]/40 rounded-lg p-3.5 border border-[#EAE3D9]/60">
-              {consultation.clinicalExamination}
-            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+              {consultation.clinicalExamination && (
+                <div>
+                  <span className="font-semibold text-[#201C1A] block mb-1">
+                    Examination Findings
+                  </span>
+                  <p className="text-[#201C1A] leading-relaxed whitespace-pre-wrap bg-[#FAF5EE]/40 rounded-lg p-3.5 border border-[#EAE3D9]/60">
+                    {consultation.clinicalExamination}
+                  </p>
+                </div>
+              )}
+              {consultation.clinicalNotes && (
+                <div>
+                  <span className="font-semibold text-[#201C1A] block mb-1">
+                    Doctor&apos;s Assessment Notes
+                  </span>
+                  <p className="text-[#201C1A] leading-relaxed whitespace-pre-wrap bg-[#FAF5EE]/40 rounded-lg p-3.5 border border-[#EAE3D9]/60">
+                    {consultation.clinicalNotes}
+                  </p>
+                </div>
+              )}
+            </div>
           </section>
         )}
 
@@ -346,17 +440,22 @@ export function ConsultationDetail({
           </section>
         )}
 
-        {/* SECTION: MANAGEMENT & ADVICE */}
-        {(consultation.plan || consultation.advice) && (
+        {/* SECTION: MANAGEMENT & TREATMENT PLAN */}
+        {(consultation.plan ||
+          consultation.advice ||
+          consultation.treatmentInstructions ||
+          consultation.lifestyleInstructions ||
+          consultation.treatmentStartDate ||
+          consultation.treatmentReviewDate) && (
           <section className="space-y-4">
             <h2 className="text-xs font-bold uppercase tracking-wider text-[#7A746F] border-b border-[#FAF5EE] pb-1">
-              Management & Advice
+              Management & Longitudinal Treatment Plan
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
               {consultation.plan && (
                 <div>
                   <span className="font-semibold text-[#201C1A] block mb-1">
-                    Plan
+                    Plan / Medications
                   </span>
                   <p className="text-[#201C1A] leading-relaxed whitespace-pre-wrap">
                     {consultation.plan}
@@ -367,14 +466,71 @@ export function ConsultationDetail({
               {consultation.advice && (
                 <div>
                   <span className="font-semibold text-[#201C1A] block mb-1">
-                    Advice
+                    General Advice
                   </span>
                   <p className="text-[#201C1A] leading-relaxed whitespace-pre-wrap">
                     {consultation.advice}
                   </p>
                 </div>
               )}
+
+              {consultation.treatmentInstructions && (
+                <div>
+                  <span className="font-semibold text-[#201C1A] block mb-1">
+                    Treatment & Dosing Instructions
+                  </span>
+                  <p className="text-[#201C1A] leading-relaxed whitespace-pre-wrap">
+                    {consultation.treatmentInstructions}
+                  </p>
+                </div>
+              )}
+
+              {consultation.lifestyleInstructions && (
+                <div>
+                  <span className="font-semibold text-[#201C1A] block mb-1">
+                    Lifestyle & Dietary Recommendations
+                  </span>
+                  <p className="text-[#201C1A] leading-relaxed whitespace-pre-wrap">
+                    {consultation.lifestyleInstructions}
+                  </p>
+                </div>
+              )}
             </div>
+
+            {/* Treatment Course Duration & Review */}
+            {(consultation.treatmentStartDate ||
+              consultation.treatmentReviewDate) && (
+              <div className="flex flex-wrap items-center gap-6 p-3 rounded-lg bg-[#FAF5EE] border border-[#EAE3D9] text-xs">
+                {consultation.treatmentStartDate && (
+                  <div>
+                    <span className="text-[#7A746F]">Treatment Start: </span>
+                    <span className="font-semibold text-[#201C1A]">
+                      {new Date(
+                        consultation.treatmentStartDate + "T00:00:00"
+                      ).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </span>
+                  </div>
+                )}
+                {consultation.treatmentReviewDate && (
+                  <div>
+                    <span className="text-[#7A746F]">Planned Review: </span>
+                    <span className="font-semibold text-[#DE4F3C]">
+                      {new Date(
+                        consultation.treatmentReviewDate + "T00:00:00"
+                      ).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
           </section>
         )}
 
@@ -427,14 +583,22 @@ export function ConsultationDetail({
         {/* SECTION: NEXT FOLLOW-UP */}
         {formattedFollowUp && (
           <section className="border-t border-[#EAE3D9] pt-4">
-            <div className="flex items-center gap-3">
-              <CalendarClock className="h-4 w-4 text-[#DE4F3C]" />
-              <div className="text-xs">
-                <span className="text-[#7A746F]">Next Follow-up Scheduled: </span>
-                <span className="font-semibold text-[#201C1A]">
-                  {formattedFollowUp}
-                </span>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div className="flex items-center gap-3">
+                <CalendarClock className="h-4 w-4 text-[#DE4F3C]" />
+                <div className="text-xs">
+                  <span className="text-[#7A746F]">Next Follow-up Scheduled: </span>
+                  <span className="font-semibold text-[#201C1A]">
+                    {formattedFollowUp}
+                  </span>
+                </div>
               </div>
+              {consultation.followUpReason && (
+                <div className="text-xs text-[#7A746F]">
+                  <span className="font-medium text-[#201C1A]">Reason: </span>
+                  <span>{consultation.followUpReason}</span>
+                </div>
+              )}
             </div>
           </section>
         )}
