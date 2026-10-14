@@ -18,7 +18,11 @@ export interface FollowUp {
   id: string; // Unique UUID
   patientId: string; // Internal UUID or patientCode
   patientCode?: string; // Human-readable e.g. DH-000001
+  patientName?: string; // Human-readable patient name
+  patientPhone?: string; // Patient primary phone
   chamberId?: string; // Assigned chamber UUID
+  chamberName?: string; // Display chamber name
+  chamberCode?: string; // Chamber code (dhaka, rangpur, narayanganj)
   consultationId?: string; // Originating consultation UUID
   originatingConsultationId?: string; // Alias for consultationId
   followUpConsultationId?: string; // Subsequent consultation UUID when completed

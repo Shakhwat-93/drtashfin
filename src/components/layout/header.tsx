@@ -4,7 +4,6 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import {
   Search,
-  Bell,
   Menu,
   ChevronDown,
   ShieldCheck,
@@ -34,6 +33,7 @@ import {
 } from "@/components/ui";
 import { supabase } from "@/lib/supabase/client";
 import { ChamberSelector } from "@/features/chamber";
+import { AlertsPopover } from "@/features/alerts";
 
 export interface HeaderProps {
   onMenuClick?: () => void;
@@ -258,17 +258,8 @@ export function Header({ onMenuClick }: HeaderProps) {
           {/* Practice Chamber Selector */}
           <ChamberSelector variant="header" />
 
-          <div className="relative">
-            <IconButton
-              variant="ghost"
-              size="sm"
-              aria-label="View notifications"
-              className="text-[#7A746F] hover:text-[#201C1A]"
-            >
-              <Bell className="h-4 w-4" />
-            </IconButton>
-            <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-[#DE4F3C] ring-2 ring-white" />
-          </div>
+          {/* Clinical Alerts & Doctor Notification Center */}
+          <AlertsPopover />
 
           <div className="h-5 w-[1px] bg-[#EAE3D9] mx-0.5 hidden sm:block" />
 

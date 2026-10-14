@@ -22,11 +22,22 @@ import {
 } from "@/schemas/follow-up";
 
 function mapFollowUpFromRow(row: Record<string, unknown>): FollowUp {
+  const patientRel = row.patients as Record<string, unknown> | undefined;
+  const chamberRel = row.chambers as Record<string, unknown> | undefined;
+
   return {
     id: String(row.id),
     patientId: String(row.patient_id),
-    patientCode: row.patient_code ? String(row.patient_code) : undefined,
+    patientCode: row.patient_code
+      ? String(row.patient_code)
+      : patientRel?.patient_id
+      ? String(patientRel.patient_id)
+      : undefined,
+    patientName: patientRel?.name ? String(patientRel.name) : undefined,
+    patientPhone: patientRel?.phone ? String(patientRel.phone) : undefined,
     chamberId: row.chamber_id ? String(row.chamber_id) : undefined,
+    chamberName: chamberRel?.name ? String(chamberRel.name) : undefined,
+    chamberCode: chamberRel?.code ? String(chamberRel.code) : undefined,
     consultationId: row.consultation_id ? String(row.consultation_id) : undefined,
     originatingConsultationId: row.consultation_id ? String(row.consultation_id) : undefined,
     followUpConsultationId: row.follow_up_consultation_id
@@ -50,6 +61,9 @@ function mapFollowUpFromRow(row: Record<string, unknown>): FollowUp {
   };
 }
 
+const FOLLOW_UP_SELECT_FIELDS =
+  "*, patients(name, phone, patient_id), chambers(name, code, patient_id_prefix)";
+
 export class SupabaseFollowUpRepository implements IFollowUpRepository {
   private patientRepo: IPatientRepository;
   private client: SupabaseClient;
@@ -67,7 +81,7 @@ export class SupabaseFollowUpRepository implements IFollowUpRepository {
 
     const { data, error } = await this.client
       .from("follow_ups")
-      .select("*")
+      .select(FOLLOW_UP_SELECT_FIELDS)
       .or(`patient_id.eq.${patient.id},patient_code.eq.${patient.patientId}`)
       .order("scheduled_date", { ascending: false });
 
@@ -79,7 +93,7 @@ export class SupabaseFollowUpRepository implements IFollowUpRepository {
   }
 
   public async getFollowUps(params: FollowUpFilterParams = {}): Promise<FollowUp[]> {
-    let query = this.client.from("follow_ups").select("*");
+    let query = this.client.from("follow_ups").select(FOLLOW_UP_SELECT_FIELDS);
     const todayStr = new Date().toISOString().split("T")[0];
 
     if (params.patientId) {
@@ -124,7 +138,7 @@ export class SupabaseFollowUpRepository implements IFollowUpRepository {
 
     const { data, error } = await this.client
       .from("follow_ups")
-      .select("*")
+      .select(FOLLOW_UP_SELECT_FIELDS)
       .eq("id", id)
       .maybeSingle();
 
@@ -157,7 +171,7 @@ export class SupabaseFollowUpRepository implements IFollowUpRepository {
         validated.originatingConsultationId ||
         null,
       scheduled_date: validated.scheduledDate,
-      scheduled_time: validated.scheduledTime || "10:00 AM",
+      scheduled_time: validated.scheduledTime ? validated.scheduledTime.trim() : null,
       reason: (validated.reason || "Routine follow-up").trim(),
       notes: validated.notes ? validated.notes.trim() : null,
       status: "scheduled",
@@ -167,7 +181,7 @@ export class SupabaseFollowUpRepository implements IFollowUpRepository {
     const { data: inserted, error } = await this.client
       .from("follow_ups")
       .insert(payload)
-      .select()
+      .select(FOLLOW_UP_SELECT_FIELDS)
       .single();
 
     if (error) {
@@ -225,7 +239,7 @@ export class SupabaseFollowUpRepository implements IFollowUpRepository {
       .from("follow_ups")
       .update(updatePayload)
       .eq("id", id)
-      .select()
+      .select(FOLLOW_UP_SELECT_FIELDS)
       .single();
 
     if (error) {
@@ -305,7 +319,7 @@ export class SupabaseFollowUpRepository implements IFollowUpRepository {
 
     let query = this.client
       .from("follow_ups")
-      .select("*")
+      .select(FOLLOW_UP_SELECT_FIELDS)
       .eq("status", "scheduled")
       .gte("scheduled_date", todayStr)
       .order("scheduled_date", { ascending: true })
@@ -327,7 +341,7 @@ export class SupabaseFollowUpRepository implements IFollowUpRepository {
     const todayStr = new Date().toISOString().split("T")[0];
     let query = this.client
       .from("follow_ups")
-      .select("*")
+      .select(FOLLOW_UP_SELECT_FIELDS)
       .eq("status", "scheduled")
       .lt("scheduled_date", todayStr)
       .order("scheduled_date", { ascending: true });
@@ -347,7 +361,7 @@ export class SupabaseFollowUpRepository implements IFollowUpRepository {
   public async getCompletedFollowUps(filterId?: string): Promise<FollowUp[]> {
     let query = this.client
       .from("follow_ups")
-      .select("*")
+      .select(FOLLOW_UP_SELECT_FIELDS)
       .eq("status", "completed")
       .order("updated_at", { ascending: false });
 
@@ -361,5 +375,31 @@ export class SupabaseFollowUpRepository implements IFollowUpRepository {
     }
 
     return (data || []).map(mapFollowUpFromRow);
+  }
+
+  public async getDismissedAlertIds(): Promise<string[]> {
+    try {
+      const { data, error } = await this.client
+        .from("doctor_dismissed_alerts")
+        .select("alert_id");
+
+      if (error) {
+        return [];
+      }
+      return (data || []).map((row) => String(row.alert_id));
+    } catch {
+      return [];
+    }
+  }
+
+  public async dismissAlert(alertId: string): Promise<void> {
+    if (!alertId) return;
+    try {
+      await this.client
+        .from("doctor_dismissed_alerts")
+        .upsert({ alert_id: alertId }, { onConflict: "alert_id" });
+    } catch {
+      // Non-blocking fallback
+    }
   }
 }

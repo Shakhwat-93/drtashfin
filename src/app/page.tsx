@@ -9,8 +9,6 @@ import {
   Activity,
   Plus,
   Stethoscope,
-  Clock,
-  ArrowUpRight,
   ChevronRight,
   FileCheck2,
   AlertCircle,
@@ -49,6 +47,7 @@ import {
 import { usePatients, useDashboardMetrics } from "@/features/patients";
 import { useChamber } from "@/features/chamber";
 import { Gender, BloodGroup } from "@/types";
+import { DashboardScheduleWidget } from "@/features/calendar";
 
 export default function DashboardPage() {
   const { activeChamber, chambers, isSwitching, switchChamber } = useChamber();
@@ -119,15 +118,17 @@ export default function DashboardPage() {
       title: `Today's Patients (${chamberShortName})`,
       value: metrics?.todayPatientsCount ?? 0,
       icon: Users,
-      badgeText: "Scheduled",
+      badgeText: "Directory",
       badgeVariant: "info" as const,
+      href: "/patients",
     },
     {
       title: `Today's Follow-ups (${chamberShortName})`,
       value: metrics?.todayFollowUpsCount ?? followUps.length,
       icon: CalendarClock,
-      badgeText: "High Priority",
+      badgeText: "Schedule",
       badgeVariant: "warning" as const,
+      href: "/follow-ups",
     },
     {
       title: "Pending Investigations",
@@ -241,10 +242,9 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {statCards.map((stat) => {
             const Icon = stat.icon;
-            return (
+            const cardEl = (
               <Card
-                key={stat.title}
-                className="hover:border-[#DFD7CB] hover:shadow-[0_4px_12px_rgba(32,28,26,0.05)] transition-all duration-200 min-w-0"
+                className="hover:border-[#DFD7CB] hover:shadow-[0_4px_12px_rgba(32,28,26,0.05)] transition-all duration-200 min-w-0 h-full"
               >
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <span className="text-xs font-semibold uppercase tracking-wider text-[#7A746F]">
@@ -269,6 +269,14 @@ export default function DashboardPage() {
                   )}
                 </CardContent>
               </Card>
+            );
+
+            return stat.href ? (
+              <Link key={stat.title} href={stat.href} className="block group">
+                {cardEl}
+              </Link>
+            ) : (
+              <div key={stat.title}>{cardEl}</div>
             );
           })}
         </div>
@@ -391,56 +399,8 @@ export default function DashboardPage() {
 
           {/* Right Column: Follow-ups & Recent Activity */}
           <div className="space-y-6 min-w-0">
-            {/* Today's Follow-ups */}
-            <Card className="min-w-0">
-              <CardHeader className="flex flex-row items-center justify-between pb-3">
-                <CardTitle>Today&apos;s Follow-ups</CardTitle>
-                <Badge variant="neutral" size="sm">
-                  {followUps.length} Today
-                </Badge>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {isMetricsLoading ? (
-                  Array.from({ length: 3 }).map((_, idx) => (
-                    <Skeleton key={`fol-skel-${idx}`} className="h-16 w-full" />
-                  ))
-                ) : followUps.length === 0 ? (
-                  <EmptyState title="No follow-ups today" />
-                ) : (
-                  followUps.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex items-start justify-between p-3 rounded-lg bg-[#FAF5EE]/70 border border-[#EAE3D9] hover:bg-[#FAF5EE] transition-colors min-w-0"
-                    >
-                      <div className="space-y-1 min-w-0">
-                        <h4 className="font-serif text-sm font-medium text-[#201C1A] truncate">
-                          {item.patientName}
-                        </h4>
-                        <p className="text-xs text-[#7A746F] leading-snug line-clamp-2">
-                          {item.reason}
-                        </p>
-                        <div className="flex items-center gap-2 pt-1 text-[11px] text-[#7A746F]">
-                          <Clock className="h-3 w-3 shrink-0" />
-                          <span>{item.scheduledTime}</span>
-                          <span>•</span>
-                          <span>{item.room}</span>
-                        </div>
-                      </div>
-                      <Link href={`/patients/${item.patientId}`}>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 px-2 shrink-0 ml-2"
-                          aria-label={`Open follow-up for ${item.patientName}`}
-                        >
-                          <ArrowUpRight className="h-3.5 w-3.5" />
-                        </Button>
-                      </Link>
-                    </div>
-                  ))
-                )}
-              </CardContent>
-            </Card>
+            {/* Daily Schedule & Follow-ups Center */}
+            <DashboardScheduleWidget />
 
             {/* Recent Activity */}
             <Card className="min-w-0">

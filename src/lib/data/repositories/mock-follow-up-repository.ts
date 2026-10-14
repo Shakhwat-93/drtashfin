@@ -20,6 +20,8 @@ import {
   rescheduleFollowUpSchema,
   cancelFollowUpSchema,
 } from "@/schemas/follow-up";
+import { KNOWN_CHAMBERS } from "@/types/chamber";
+import { getClinicToday } from "@/lib/date-utils";
 
 export class MockFollowUpRepository implements IFollowUpRepository {
   private storageKey = "follow_ups_list";
@@ -124,12 +126,19 @@ export class MockFollowUpRepository implements IFollowUpRepository {
       throw new PatientNotFoundError(validated.patientId);
     }
 
+    const effectiveChamberId = validated.chamberId || patient.chamberId;
+    const matchedChamber = KNOWN_CHAMBERS.find((c) => c.id === effectiveChamberId);
+
     const now = new Date().toISOString();
     const newFollowUp: FollowUp = {
       id: generateInternalUUID(),
       patientId: patient.id,
       patientCode: patient.patientId,
-      chamberId: validated.chamberId || patient.chamberId,
+      patientName: patient.name,
+      patientPhone: patient.phone,
+      chamberId: effectiveChamberId,
+      chamberName: matchedChamber?.name,
+      chamberCode: matchedChamber?.code,
       consultationId:
         validated.consultationId ||
         validated.originatingConsultationId ||
@@ -139,7 +148,7 @@ export class MockFollowUpRepository implements IFollowUpRepository {
         validated.consultationId ||
         undefined,
       scheduledDate: validated.scheduledDate,
-      scheduledTime: validated.scheduledTime || "10:00 AM",
+      scheduledTime: validated.scheduledTime ? validated.scheduledTime.trim() : undefined,
       reason: validated.reason || "Routine follow-up",
       notes: validated.notes || undefined,
       status: "scheduled",
@@ -249,7 +258,7 @@ export class MockFollowUpRepository implements IFollowUpRepository {
     limitOrFilterId?: number | string,
     chamberId?: string
   ): Promise<FollowUp[]> {
-    const todayStr = new Date().toISOString().split("T")[0];
+    const todayStr = getClinicToday();
     let list = this.getAllInternal().filter(
       (f) => f.status === "scheduled" && f.scheduledDate >= todayStr
     );
@@ -272,7 +281,7 @@ export class MockFollowUpRepository implements IFollowUpRepository {
   }
 
   public async getOverdueFollowUps(filterId?: string): Promise<FollowUp[]> {
-    const todayStr = new Date().toISOString().split("T")[0];
+    const todayStr = getClinicToday();
     let list = this.getAllInternal().filter(
       (f) => f.status === "scheduled" && f.scheduledDate < todayStr
     );
@@ -305,4 +314,20 @@ export class MockFollowUpRepository implements IFollowUpRepository {
       (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
     );
   }
+
+  private dismissedAlertsKey = "drtashfin_mock_dismissed_alerts";
+
+  public async getDismissedAlertIds(): Promise<string[]> {
+    return MockStorage.get<string[]>(this.dismissedAlertsKey) || [];
+  }
+
+  public async dismissAlert(alertId: string): Promise<void> {
+    if (!alertId) return;
+    const list = await this.getDismissedAlertIds();
+    if (!list.includes(alertId)) {
+      list.push(alertId);
+      MockStorage.set(this.dismissedAlertsKey, list);
+    }
+  }
 }
+

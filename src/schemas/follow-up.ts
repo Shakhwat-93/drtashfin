@@ -41,7 +41,7 @@ export const createFollowUpSchema = z.object({
       const parsed = new Date(val);
       return !isNaN(parsed.getTime());
     }, "Follow-up date must be a valid date."),
-  scheduledTime: z.string().trim().max(16).optional().default("10:00 AM"),
+  scheduledTime: z.string().trim().max(16).optional().nullable().or(z.literal("")),
   reason: z
     .string()
     .trim()

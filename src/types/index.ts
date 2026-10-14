@@ -15,3 +15,4 @@ export * from "./consultation";
 export * from "./medicine";
 export * from "./chamber";
 export * from "./follow-up";
+export * from "./alert";

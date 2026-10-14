@@ -21,4 +21,6 @@ export interface IFollowUpRepository {
   getUpcomingFollowUps(limitOrFilterId?: number | string, chamberId?: string): Promise<FollowUp[]>;
   getOverdueFollowUps(filterId?: string): Promise<FollowUp[]>;
   getCompletedFollowUps(filterId?: string): Promise<FollowUp[]>;
+  getDismissedAlertIds(): Promise<string[]>;
+  dismissAlert(alertId: string): Promise<void>;
 }
