@@ -23,6 +23,7 @@ import {
   AlertTriangle,
   HeartPulse,
   Briefcase,
+  FileCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AdminShell } from "@/components/layout/admin-shell";
@@ -48,6 +49,11 @@ import {
   useProcedures,
   ProcedureModal,
 } from "@/features/procedures";
+import {
+  DischargesList,
+  useDischarges,
+  DischargeModal,
+} from "@/features/discharges";
 
 export default function PatientProfilePage({
   params,
@@ -72,8 +78,10 @@ export default function PatientProfilePage({
 
   const { reports: patientReports } = useDiagnosticReports(patient?.patientId);
   const { procedures: patientProcedures, refresh: refreshProcedures } = useProcedures(patient?.patientId);
+  const { discharges: patientDischarges, refresh: refreshDischarges } = useDischarges(patient?.patientId);
   const [activeTab, setActiveTab] = React.useState("overview");
   const [isProcedureModalOpen, setIsProcedureModalOpen] = React.useState(false);
+  const [isDischargeModalOpen, setIsDischargeModalOpen] = React.useState(false);
 
   const prefix = patient?.patientId.split("-")[0] || "";
   const patientChamber =
@@ -353,6 +361,16 @@ export default function PatientProfilePage({
               <Activity className="h-3.5 w-3.5 text-[#DE4F3C]" />
               <span>Record Procedure</span>
             </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5 text-xs text-[#201C1A]"
+              onClick={() => setIsDischargeModalOpen(true)}
+            >
+              <FileText className="h-3.5 w-3.5 text-[#DE4F3C]" />
+              <span>Discharge Patient</span>
+            </Button>
           </div>
         </div>
 
@@ -389,6 +407,14 @@ export default function PatientProfilePage({
                 {patientProcedures.length > 0 && (
                   <span className="px-1.5 py-0.2 rounded-full text-[10px] font-semibold bg-[#EAE3D9] text-[#201C1A]">
                     {patientProcedures.length}
+                  </span>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="discharges" className="gap-1.5">
+                <span>Discharges</span>
+                {patientDischarges.length > 0 && (
+                  <span className="px-1.5 py-0.2 rounded-full text-[10px] font-semibold bg-[#EAE3D9] text-[#201C1A]">
+                    {patientDischarges.length}
                   </span>
                 )}
               </TabsTrigger>
@@ -550,8 +576,8 @@ export default function PatientProfilePage({
               </Card>
             </div>
 
-            {/* Longitudinal Treatment, Follow-up & Diagnostic Overview Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pt-1">
+            {/* Longitudinal Treatment, Follow-up, Diagnostic & Discharge Overview Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 pt-1">
               {/* Follow-up Status Card */}
               <Card className="border border-[#EAE3D9] bg-white p-5 shadow-xs flex flex-col justify-between">
                 <div>
@@ -728,6 +754,88 @@ export default function PatientProfilePage({
                   </Button>
                 </div>
               </Card>
+
+              {/* Card 4: Discharges & Final Clinical Summary Quick Access */}
+              <Card className="border border-[#EAE3D9] bg-white p-5 shadow-xs flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <FileCheck className="h-4 w-4 text-[#DE4F3C]" />
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-[#7A746F]">
+                        Discharge & Final Summary
+                      </h4>
+                    </div>
+                    {patientDischarges.length > 0 ? (
+                      <Badge variant="success" size="sm">
+                        {patientDischarges.length} {patientDischarges.length === 1 ? "Record" : "Records"}
+                      </Badge>
+                    ) : (
+                      <Badge variant="neutral" size="sm">
+                        Active Care
+                      </Badge>
+                    )}
+                  </div>
+
+                  {patientDischarges.length > 0 ? (
+                    <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF8F5] p-3.5 space-y-1.5 text-xs">
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-[#201C1A] truncate max-w-[150px]">
+                          {patientDischarges[0].conditionAtDischarge}
+                        </span>
+                        <Badge
+                          variant={patientDischarges[0].status === "finalized" ? "success" : "warning"}
+                          size="sm"
+                          className="capitalize text-[10px]"
+                        >
+                          {patientDischarges[0].status}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center justify-between text-[11px] text-[#7A746F]">
+                        <span>
+                          {new Date(patientDischarges[0].dischargeDate + "T00:00:00").toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </span>
+                        {patientDischarges[0].doctorName && (
+                          <span className="truncate max-w-[110px]">
+                            {patientDischarges[0].doctorName}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-[#7A746F] leading-relaxed py-2">
+                      Patient is currently in active treatment. No formal discharge recorded.
+                    </p>
+                  )}
+                </div>
+
+                <div className="pt-4 border-t border-[#FAF5EE] flex items-center justify-end gap-2">
+                  {patientDischarges.length > 0 ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-xs h-7 px-2.5 gap-1 text-[#201C1A]"
+                      onClick={() => setActiveTab("discharges")}
+                    >
+                      <FileCheck className="h-3 w-3 text-[#DE4F3C]" />
+                      <span>View Discharges</span>
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-xs h-7 px-2.5 gap-1 text-[#201C1A]"
+                      onClick={() => setIsDischargeModalOpen(true)}
+                    >
+                      <FileCheck className="h-3 w-3 text-[#DE4F3C]" />
+                      <span>Discharge Patient</span>
+                    </Button>
+                  )}
+                </div>
+              </Card>
             </div>
           </TabsContent>
 
@@ -857,6 +965,45 @@ export default function PatientProfilePage({
                   </div>
                 </Card>
               )}
+
+              {/* Discharge & Final Reports Summary Card */}
+              {patientDischarges.length > 0 && (
+                <Card className="md:col-span-2 border border-[#EAE3D9] bg-white p-5 shadow-xs space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <FileCheck className="h-4 w-4 text-[#DE4F3C]" />
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-[#201C1A]">
+                        Discharges & Final Clinical Reports ({patientDischarges.length})
+                      </h4>
+                    </div>
+                    <button
+                      onClick={() => setActiveTab("discharges")}
+                      className="text-xs font-medium text-[#DE4F3C] hover:underline"
+                    >
+                      View All Discharges →
+                    </button>
+                  </div>
+                  <div className="divide-y divide-[#FAF5EE]">
+                    {patientDischarges.slice(0, 3).map((dis) => (
+                      <div key={dis.id} className="py-2.5 flex items-center justify-between text-xs">
+                        <div className="space-y-0.5">
+                          <span className="font-semibold text-[#201C1A]">{dis.conditionAtDischarge}</span>
+                          <span className="text-[#7A746F] block text-[11px]">
+                            Discharged: {dis.dischargeDate} {dis.doctorName ? `by ${dis.doctorName}` : ""}
+                          </span>
+                        </div>
+                        <Badge
+                          variant={dis.status === "finalized" ? "success" : "warning"}
+                          size="sm"
+                          className="capitalize text-[10px]"
+                        >
+                          {dis.status}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
             </div>
           </TabsContent>
 
@@ -928,7 +1075,12 @@ export default function PatientProfilePage({
             <ProcedureTimelineList patient={patient} />
           </TabsContent>
 
-          {/* 8. Documents Tab */}
+          {/* 8. Discharges Tab */}
+          <TabsContent value="discharges">
+            <DischargesList patient={patient} />
+          </TabsContent>
+
+          {/* 9. Documents Tab */}
           <TabsContent value="documents">
             <EmptyState
               icon={FolderOpen}
@@ -947,6 +1099,20 @@ export default function PatientProfilePage({
             onSuccess={() => {
               refreshProcedures();
               setActiveTab("operations");
+            }}
+          />
+        )}
+
+        {/* Global Patient Discharge Modal */}
+        {patient && (
+          <DischargeModal
+            isOpen={isDischargeModalOpen}
+            onClose={() => setIsDischargeModalOpen(false)}
+            patientId={patient.id}
+            chamberId={patient.chamberId || activeChamber?.id}
+            onSuccess={() => {
+              refreshDischarges();
+              setActiveTab("discharges");
             }}
           />
         )}

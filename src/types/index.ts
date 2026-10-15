@@ -20,3 +20,4 @@ export * from "./sms";
 export * from "./sms-gateway";
 export * from "./diagnostic-report";
 export * from "./procedure";
+export * from "./discharge";

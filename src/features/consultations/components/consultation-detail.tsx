@@ -35,6 +35,10 @@ import {
   useProcedures,
   ProcedureModal,
 } from "@/features/procedures";
+import {
+  useDischarges,
+  DischargeModal,
+} from "@/features/discharges";
 
 export interface ConsultationDetailProps {
   consultation: Consultation;
@@ -55,6 +59,9 @@ export function ConsultationDetail({
   const { procedures: linkedProcedures, refresh: refreshProcedures } =
     useProcedures(undefined, consultation.id);
   const [isProcedureModalOpen, setIsProcedureModalOpen] = React.useState(false);
+  const { discharges: linkedDischarges, refresh: refreshDischarges } =
+    useDischarges(undefined, consultation.id);
+  const [isDischargeModalOpen, setIsDischargeModalOpen] = React.useState(false);
 
   const handleDeleteDraft = React.useCallback(
     async (draftId: string) => {
@@ -588,6 +595,87 @@ export function ConsultationDetail({
           )}
         </section>
 
+        {/* SECTION: DISCHARGE & FINAL CLINICAL REPORT */}
+        <section className="space-y-3">
+          <div className="flex items-center justify-between border-b border-[#FAF5EE] pb-1">
+            <div className="flex items-center gap-2">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-[#7A746F]">
+                Discharge & Final Clinical Report
+              </h2>
+              {linkedDischarges.length > 0 && (
+                <Badge variant="neutral" size="sm" className="font-mono text-[10px]">
+                  {linkedDischarges.length}
+                </Badge>
+              )}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 text-xs gap-1 text-[#201C1A]"
+              onClick={() => setIsDischargeModalOpen(true)}
+            >
+              <Plus className="h-3 w-3 text-[#DE4F3C]" />
+              <span>Link / Record Discharge</span>
+            </Button>
+          </div>
+
+          {linkedDischarges.length === 0 ? (
+            <p className="text-xs text-[#7A746F] italic py-1">
+              No discharge or final summary documented for this consultation episode.
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {linkedDischarges.map((dis) => (
+                <div
+                  key={dis.id}
+                  className="rounded-xl border border-[#EAE3D9] bg-white p-3.5 space-y-2 text-xs shadow-xs"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <Badge
+                        variant={dis.status === "finalized" ? "success" : "warning"}
+                        size="sm"
+                        className="text-[10px] mb-1 font-semibold capitalize"
+                      >
+                        {dis.status}: {dis.conditionAtDischarge}
+                      </Badge>
+                      <h4 className="font-semibold text-[#201C1A] text-xs">
+                        Discharged on {dis.dischargeDate}
+                      </h4>
+                    </div>
+                  </div>
+
+                  {dis.doctorName && (
+                    <div className="text-[11px] text-[#7A746F]">
+                      Clinician: {dis.doctorName}
+                    </div>
+                  )}
+
+                  {dis.treatmentSummary && (
+                    <p className="text-[11px] text-[#201C1A] bg-[#FAF5EE]/60 p-2 rounded-md border border-[#EAE3D9]/60 line-clamp-2">
+                      {dis.treatmentSummary}
+                    </p>
+                  )}
+
+                  {dis.driveUrl && (
+                    <div className="pt-1.5 border-t border-[#FAF5EE] flex justify-end">
+                      <a
+                        href={dis.driveUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-[#DE4F3C] hover:underline"
+                      >
+                        <span>Open in Google Drive</span>
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
         {/* SECTION: DIAGNOSIS */}
         {(consultation.provisionalDiagnosis ||
           consultation.differentialDiagnosis) && (
@@ -820,6 +908,24 @@ export function ConsultationDetail({
           patientId={patient.id}
           consultationId={consultation.id}
           onSuccess={refreshProcedures}
+          consultations={[
+            {
+              id: consultation.id,
+              consultationDate: consultation.consultationDate,
+              provisionalDiagnosis: consultation.provisionalDiagnosis,
+              chiefComplaint: consultation.chiefComplaint,
+            },
+          ]}
+        />
+
+        {/* Link Discharge Modal */}
+        <DischargeModal
+          isOpen={isDischargeModalOpen}
+          onClose={() => setIsDischargeModalOpen(false)}
+          patientId={patient.id}
+          consultationId={consultation.id}
+          chamberId={consultation.chamberId || patient.chamberId}
+          onSuccess={refreshDischarges}
           consultations={[
             {
               id: consultation.id,
