@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   Settings,
   Pill,
+  Award,
   type LucideIcon,
 } from "lucide-react";
 
@@ -105,6 +106,11 @@ export const NAVIGATION_SECTIONS: NavigationSection[] = [
         name: "Audit Logs",
         href: "/audit-logs",
         icon: ShieldCheck,
+      },
+      {
+        name: "Achievements",
+        href: "/achievements",
+        icon: Award,
       },
       {
         name: "Settings",

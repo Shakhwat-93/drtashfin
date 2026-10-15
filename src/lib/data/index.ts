@@ -11,6 +11,7 @@ import { IDiagnosticReportRepository } from "./repositories/diagnostic-report-re
 import { ISmsGatewaySettingsRepository } from "./repositories/sms-gateway-settings-repository.interface";
 import { IProcedureRepository } from "./repositories/procedure-repository.interface";
 import { IDischargeRepository } from "./repositories/discharge-repository.interface";
+import { IDoctorAchievementRepository } from "./repositories/achievement-repository.interface";
 import { MockPatientRepository } from "./repositories/mock-patient-repository";
 import { MockClinicalRepository } from "./repositories/mock-clinical-repository";
 import { MockConsultationRepository } from "./repositories/mock-consultation-repository";
@@ -24,6 +25,7 @@ import { MockDiagnosticReportRepository } from "./repositories/mock-diagnostic-r
 import { MockSmsGatewaySettingsRepository } from "./repositories/mock-sms-gateway-settings-repository";
 import { MockProcedureRepository } from "./repositories/mock-procedure-repository";
 import { MockDischargeRepository } from "./repositories/mock-discharge-repository";
+import { MockDoctorAchievementRepository } from "./repositories/mock-achievement-repository";
 import { SupabasePatientRepository } from "./repositories/supabase-patient-repository";
 import { SupabaseConsultationRepository } from "./repositories/supabase-consultation-repository";
 import { SupabaseClinicalRepository } from "./repositories/supabase-clinical-repository";
@@ -37,6 +39,7 @@ import { SupabaseDiagnosticReportRepository } from "./repositories/supabase-diag
 import { SupabaseSmsGatewaySettingsRepository } from "./repositories/supabase-sms-gateway-settings-repository";
 import { SupabaseProcedureRepository } from "./repositories/supabase-procedure-repository";
 import { SupabaseDischargeRepository } from "./repositories/supabase-discharge-repository";
+import { SupabaseDoctorAchievementRepository } from "./repositories/supabase-achievement-repository";
 
 export * from "./errors";
 export * from "./id-generator";
@@ -53,6 +56,7 @@ export * from "./repositories/diagnostic-report-repository.interface";
 export * from "./repositories/sms-gateway-settings-repository.interface";
 export * from "./repositories/procedure-repository.interface";
 export * from "./repositories/discharge-repository.interface";
+export * from "./repositories/achievement-repository.interface";
 export * from "./repositories/mock-patient-repository";
 export * from "./repositories/mock-consultation-repository";
 export * from "./repositories/mock-clinical-repository";
@@ -66,6 +70,7 @@ export * from "./repositories/mock-diagnostic-report-repository";
 export * from "./repositories/mock-sms-gateway-settings-repository";
 export * from "./repositories/mock-procedure-repository";
 export * from "./repositories/mock-discharge-repository";
+export * from "./repositories/mock-achievement-repository";
 export * from "./repositories/supabase-patient-repository";
 export * from "./repositories/supabase-consultation-repository";
 export * from "./repositories/supabase-clinical-repository";
@@ -79,6 +84,7 @@ export * from "./repositories/supabase-diagnostic-report-repository";
 export * from "./repositories/supabase-sms-gateway-settings-repository";
 export * from "./repositories/supabase-procedure-repository";
 export * from "./repositories/supabase-discharge-repository";
+export * from "./repositories/supabase-achievement-repository";
 
 // Singleton instances for runtime
 let patientRepositoryInstance: IPatientRepository | null = null;
@@ -94,6 +100,7 @@ let diagnosticReportRepositoryInstance: IDiagnosticReportRepository | null = nul
 let smsGatewaySettingsRepositoryInstance: ISmsGatewaySettingsRepository | null = null;
 let procedureRepositoryInstance: IProcedureRepository | null = null;
 let dischargeRepositoryInstance: IDischargeRepository | null = null;
+let doctorAchievementRepositoryInstance: IDoctorAchievementRepository | null = null;
 
 // Configurable provider mode ("auto" detects Supabase credentials, "mock" forces mock)
 let providerMode: "auto" | "supabase" | "mock" = "auto";
@@ -393,6 +400,27 @@ export function getDischargeRepository(
 }
 
 /**
+ * Factory for Doctor Achievement Repository.
+ */
+export function getDoctorAchievementRepository(
+  client?: import("@supabase/supabase-js").SupabaseClient
+): IDoctorAchievementRepository {
+  if (client && shouldUseSupabase()) {
+    return new SupabaseDoctorAchievementRepository(client);
+  }
+  if (!doctorAchievementRepositoryInstance) {
+    if (shouldUseSupabase()) {
+      doctorAchievementRepositoryInstance =
+        new SupabaseDoctorAchievementRepository();
+    } else {
+      doctorAchievementRepositoryInstance =
+        new MockDoctorAchievementRepository();
+    }
+  }
+  return doctorAchievementRepositoryInstance;
+}
+
+/**
  * Testing helper to reset repository instances between test runs.
  */
 export function resetRepositoryInstances(): void {
@@ -409,4 +437,5 @@ export function resetRepositoryInstances(): void {
   smsGatewaySettingsRepositoryInstance = null;
   procedureRepositoryInstance = null;
   dischargeRepositoryInstance = null;
+  doctorAchievementRepositoryInstance = null;
 }
