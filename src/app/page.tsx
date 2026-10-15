@@ -14,6 +14,7 @@ import {
   AlertCircle,
   Building2,
   Loader2,
+  BarChart3,
 } from "lucide-react";
 import { AdminShell } from "@/components/layout/admin-shell";
 import { PageContainer } from "@/components/layout/page-container";
@@ -171,6 +172,14 @@ export default function DashboardPage() {
                   leftIcon={<Stethoscope className="h-4 w-4 text-[#DE4F3C]" />}
                 >
                   New Consultation
+                </Button>
+              </Link>
+              <Link href="/reports">
+                <Button
+                  variant="outline"
+                  leftIcon={<BarChart3 className="h-4 w-4 text-[#DE4F3C]" />}
+                >
+                  Reports & Analytics
                 </Button>
               </Link>
               <Button

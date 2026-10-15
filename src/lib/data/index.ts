@@ -12,6 +12,7 @@ import { ISmsGatewaySettingsRepository } from "./repositories/sms-gateway-settin
 import { IProcedureRepository } from "./repositories/procedure-repository.interface";
 import { IDischargeRepository } from "./repositories/discharge-repository.interface";
 import { IDoctorAchievementRepository } from "./repositories/achievement-repository.interface";
+import { IReportRepository } from "./repositories/report-repository.interface";
 import { MockPatientRepository } from "./repositories/mock-patient-repository";
 import { MockClinicalRepository } from "./repositories/mock-clinical-repository";
 import { MockConsultationRepository } from "./repositories/mock-consultation-repository";
@@ -26,6 +27,7 @@ import { MockSmsGatewaySettingsRepository } from "./repositories/mock-sms-gatewa
 import { MockProcedureRepository } from "./repositories/mock-procedure-repository";
 import { MockDischargeRepository } from "./repositories/mock-discharge-repository";
 import { MockDoctorAchievementRepository } from "./repositories/mock-achievement-repository";
+import { MockReportRepository } from "./repositories/mock-report-repository";
 import { SupabasePatientRepository } from "./repositories/supabase-patient-repository";
 import { SupabaseConsultationRepository } from "./repositories/supabase-consultation-repository";
 import { SupabaseClinicalRepository } from "./repositories/supabase-clinical-repository";
@@ -40,6 +42,7 @@ import { SupabaseSmsGatewaySettingsRepository } from "./repositories/supabase-sm
 import { SupabaseProcedureRepository } from "./repositories/supabase-procedure-repository";
 import { SupabaseDischargeRepository } from "./repositories/supabase-discharge-repository";
 import { SupabaseDoctorAchievementRepository } from "./repositories/supabase-achievement-repository";
+import { SupabaseReportRepository } from "./repositories/supabase-report-repository";
 
 export * from "./errors";
 export * from "./id-generator";
@@ -57,6 +60,7 @@ export * from "./repositories/sms-gateway-settings-repository.interface";
 export * from "./repositories/procedure-repository.interface";
 export * from "./repositories/discharge-repository.interface";
 export * from "./repositories/achievement-repository.interface";
+export * from "./repositories/report-repository.interface";
 export * from "./repositories/mock-patient-repository";
 export * from "./repositories/mock-consultation-repository";
 export * from "./repositories/mock-clinical-repository";
@@ -71,6 +75,7 @@ export * from "./repositories/mock-sms-gateway-settings-repository";
 export * from "./repositories/mock-procedure-repository";
 export * from "./repositories/mock-discharge-repository";
 export * from "./repositories/mock-achievement-repository";
+export * from "./repositories/mock-report-repository";
 export * from "./repositories/supabase-patient-repository";
 export * from "./repositories/supabase-consultation-repository";
 export * from "./repositories/supabase-clinical-repository";
@@ -85,6 +90,7 @@ export * from "./repositories/supabase-sms-gateway-settings-repository";
 export * from "./repositories/supabase-procedure-repository";
 export * from "./repositories/supabase-discharge-repository";
 export * from "./repositories/supabase-achievement-repository";
+export * from "./repositories/supabase-report-repository";
 
 // Singleton instances for runtime
 let patientRepositoryInstance: IPatientRepository | null = null;
@@ -101,6 +107,7 @@ let smsGatewaySettingsRepositoryInstance: ISmsGatewaySettingsRepository | null =
 let procedureRepositoryInstance: IProcedureRepository | null = null;
 let dischargeRepositoryInstance: IDischargeRepository | null = null;
 let doctorAchievementRepositoryInstance: IDoctorAchievementRepository | null = null;
+let reportRepositoryInstance: IReportRepository | null = null;
 
 // Configurable provider mode ("auto" detects Supabase credentials, "mock" forces mock)
 let providerMode: "auto" | "supabase" | "mock" = "auto";
@@ -421,6 +428,26 @@ export function getDoctorAchievementRepository(
 }
 
 /**
+ * Factory for Report Repository.
+ * Handles cross-table clinical metrics aggregation, daily trends, and paginated report queries.
+ */
+export function getReportRepository(
+  client?: import("@supabase/supabase-js").SupabaseClient
+): IReportRepository {
+  if (client && shouldUseSupabase()) {
+    return new SupabaseReportRepository(client);
+  }
+  if (!reportRepositoryInstance) {
+    if (shouldUseSupabase()) {
+      reportRepositoryInstance = new SupabaseReportRepository();
+    } else {
+      reportRepositoryInstance = new MockReportRepository();
+    }
+  }
+  return reportRepositoryInstance;
+}
+
+/**
  * Testing helper to reset repository instances between test runs.
  */
 export function resetRepositoryInstances(): void {
@@ -438,4 +465,6 @@ export function resetRepositoryInstances(): void {
   procedureRepositoryInstance = null;
   dischargeRepositoryInstance = null;
   doctorAchievementRepositoryInstance = null;
+  reportRepositoryInstance = null;
 }
+

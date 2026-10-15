@@ -41,7 +41,7 @@ export default function SettingsPage() {
                     Doctor Lifetime Achievements & Evidence
                   </h3>
                   <p className="text-xs text-[#7A746F] mt-0.5 max-w-xl">
-                    Manage Dr. Tashfin's qualifications, clinical certifications, awards, workshops, research publications, and verified Google Drive evidence records.
+                    Manage Dr. Tashfin&apos;s qualifications, clinical certifications, awards, workshops, research publications, and verified Google Drive evidence records.
                   </p>
                 </div>
               </div>

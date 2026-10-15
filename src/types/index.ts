@@ -22,3 +22,4 @@ export * from "./diagnostic-report";
 export * from "./procedure";
 export * from "./discharge";
 export * from "./achievement";
+export * from "./reports";

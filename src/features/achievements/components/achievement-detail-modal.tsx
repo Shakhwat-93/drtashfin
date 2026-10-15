@@ -44,7 +44,6 @@ export function AchievementDetailModal({
 }: AchievementDetailModalProps) {
   if (!achievement) return null;
 
-  const Icon = getCategoryIcon(achievement.category);
   const badgeClass = getCategoryBadgeClass(achievement.category);
 
   const isExpired = Boolean(
@@ -61,7 +60,9 @@ export function AchievementDetailModal({
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white border border-[#EAE3D9] text-[#DE4F3C] shadow-2xs">
-                <Icon className="h-5 w-5" />
+                {React.createElement(getCategoryIcon(achievement.category), {
+                  className: "h-5 w-5",
+                })}
               </div>
               <div>
                 <div className="flex flex-wrap items-center gap-2 mb-1">

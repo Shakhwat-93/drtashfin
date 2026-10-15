@@ -83,7 +83,6 @@ export function AchievementCard({
   onEdit,
   onDelete,
 }: AchievementCardProps) {
-  const Icon = getCategoryIcon(achievement.category);
   const badgeClass = getCategoryBadgeClass(achievement.category);
 
   // Expiration check
@@ -104,7 +103,9 @@ export function AchievementCard({
               badgeClass
             )}
           >
-            <Icon className="h-3 w-3 shrink-0" />
+            {React.createElement(getCategoryIcon(achievement.category), {
+              className: "h-3 w-3 shrink-0",
+            })}
             <span>{achievement.category}</span>
           </span>
 

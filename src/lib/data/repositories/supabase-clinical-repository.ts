@@ -22,22 +22,44 @@ export class SupabaseClinicalRepository implements IClinicalRepository {
     }
     const { count: todayConsultations } = await consultQuery;
 
-    // Follow-ups Scheduled for Today
+    // Follow-ups Scheduled for Today from follow_ups table
     let followUpQuery = supabase
-      .from("consultations")
+      .from("follow_ups")
       .select("*", { count: "exact", head: true })
-      .eq("next_follow_up", todayStr);
+      .eq("scheduled_date", todayStr);
 
     if (chamberId) {
       followUpQuery = followUpQuery.eq("chamber_id", chamberId);
     }
     const { count: todayFollowUps } = await followUpQuery;
 
+    // Diagnostic Reports Count for Today
+    let diagQuery = supabase
+      .from("diagnostic_reports")
+      .select("*", { count: "exact", head: true })
+      .eq("test_date", todayStr);
+
+    if (chamberId) {
+      diagQuery = diagQuery.eq("chamber_id", chamberId);
+    }
+    const { count: todayDiagnostics } = await diagQuery;
+
+    // Operations / Procedures Scheduled for Today
+    let procQuery = supabase
+      .from("patient_procedures")
+      .select("*", { count: "exact", head: true })
+      .eq("procedure_date", todayStr);
+
+    if (chamberId) {
+      procQuery = procQuery.eq("chamber_id", chamberId);
+    }
+    const { count: todayProcedures } = await procQuery;
+
     return {
       todayPatientsCount: todayConsultations ?? 0,
       todayFollowUpsCount: todayFollowUps ?? 0,
-      pendingInvestigationsCount: 0,
-      todayOperationsCount: 0,
+      pendingInvestigationsCount: todayDiagnostics ?? 0,
+      todayOperationsCount: todayProcedures ?? 0,
     };
   }
 
