@@ -13,6 +13,9 @@ import {
   Minus,
   TrendingDown,
   Calendar,
+  FlaskConical,
+  ExternalLink,
+  Plus,
 } from "lucide-react";
 import { Consultation } from "@/types/consultation";
 import { Patient } from "@/types/patient";
@@ -24,6 +27,10 @@ import {
   PrescriptionCard,
 } from "@/features/prescriptions";
 import { getPrescriptionRepository } from "@/lib/data";
+import {
+  useDiagnosticReports,
+  DiagnosticReportModal,
+} from "@/features/diagnostic-reports";
 
 export interface ConsultationDetailProps {
   consultation: Consultation;
@@ -38,6 +45,9 @@ export function ConsultationDetail({
 }: ConsultationDetailProps) {
   const { prescription, refresh: refreshPrescription } =
     useConsultationPrescription(consultation.id);
+  const { reports: linkedReports, refresh: refreshReports } =
+    useDiagnosticReports(undefined, consultation.id);
+  const [isReportModalOpen, setIsReportModalOpen] = React.useState(false);
 
   const handleDeleteDraft = React.useCallback(
     async (draftId: string) => {
@@ -407,6 +417,78 @@ export function ConsultationDetail({
           </section>
         )}
 
+        {/* SECTION: LINKED DIAGNOSTIC TEST REPORTS */}
+        <section className="space-y-4">
+          <div className="flex items-center justify-between border-b border-[#FAF5EE] pb-1">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-[#7A746F] flex items-center gap-1.5">
+              <FlaskConical className="h-3.5 w-3.5 text-[#DE4F3C]" />
+              <span>Linked Diagnostic Reports ({linkedReports.length})</span>
+            </h2>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 text-xs gap-1 text-[#201C1A]"
+              onClick={() => setIsReportModalOpen(true)}
+            >
+              <Plus className="h-3 w-3" />
+              <span>Link New Report</span>
+            </Button>
+          </div>
+
+          {linkedReports.length === 0 ? (
+            <p className="text-xs text-[#7A746F] italic py-1">
+              No diagnostic test reports or scans currently linked to this clinical consultation.
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {linkedReports.map((report) => (
+                <div
+                  key={report.id}
+                  className="rounded-xl border border-[#EAE3D9] bg-white p-3.5 space-y-2 text-xs shadow-xs"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <Badge variant="neutral" size="sm" className="text-[10px] mb-1 font-semibold">
+                        {report.category}
+                      </Badge>
+                      <h4 className="font-semibold text-[#201C1A] text-xs">
+                        {report.testName}
+                      </h4>
+                    </div>
+                    <span className="text-[11px] text-[#7A746F] shrink-0">
+                      {report.testDate}
+                    </span>
+                  </div>
+
+                  {report.diagnosticCenter && (
+                    <div className="text-[11px] text-[#7A746F]">
+                      Lab: {report.diagnosticCenter}
+                    </div>
+                  )}
+
+                  {report.doctorNotes && (
+                    <p className="text-[11px] text-[#201C1A] bg-[#FAF5EE]/60 p-2 rounded-md border border-[#EAE3D9]/60 line-clamp-2">
+                      {report.doctorNotes}
+                    </p>
+                  )}
+
+                  <div className="pt-1.5 border-t border-[#FAF5EE] flex justify-end">
+                    <a
+                      href={report.driveUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-[#DE4F3C] hover:underline"
+                    >
+                      <span>Open in Google Drive</span>
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
         {/* SECTION: DIAGNOSIS */}
         {(consultation.provisionalDiagnosis ||
           consultation.differentialDiagnosis) && (
@@ -614,6 +696,23 @@ export function ConsultationDetail({
             <span>Modified: {formattedUpdated}</span>
           </div>
         </div>
+
+        {/* Link Diagnostic Report Modal */}
+        <DiagnosticReportModal
+          isOpen={isReportModalOpen}
+          onClose={() => setIsReportModalOpen(false)}
+          patientId={patient.id}
+          consultationId={consultation.id}
+          onSuccess={refreshReports}
+          consultations={[
+            {
+              id: consultation.id,
+              consultationDate: consultation.consultationDate,
+              provisionalDiagnosis: consultation.provisionalDiagnosis,
+              chiefComplaint: consultation.chiefComplaint,
+            },
+          ]}
+        />
       </div>
     </div>
   );

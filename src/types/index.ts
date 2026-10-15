@@ -17,3 +17,4 @@ export * from "./chamber";
 export * from "./follow-up";
 export * from "./alert";
 export * from "./sms";
+export * from "./diagnostic-report";

@@ -39,6 +39,10 @@ import { usePrescriptions, PrescriptionCard } from "@/features/prescriptions";
 import { FollowUpManager, useFollowUps } from "@/features/follow-ups";
 import { useChamber } from "@/features/chamber";
 import { getChamberById, getChamberByPrefix } from "@/types/chamber";
+import {
+  DiagnosticReportsList,
+  useDiagnosticReports,
+} from "@/features/diagnostic-reports";
 
 export default function PatientProfilePage({
   params,
@@ -60,6 +64,9 @@ export default function PatientProfilePage({
     upcomingFollowUps,
     overdueFollowUps,
   } = useFollowUps(patient?.patientId);
+
+  const { reports: patientReports } = useDiagnosticReports(patient?.patientId);
+  const [activeTab, setActiveTab] = React.useState("overview");
 
   const prefix = patient?.patientId.split("-")[0] || "";
   const patientChamber =
@@ -303,10 +310,10 @@ export default function PatientProfilePage({
               variant="outline"
               size="sm"
               className="gap-1.5 text-xs text-[#201C1A]"
-              onClick={() => alert("Investigation module will be connected in upcoming clinical phase.")}
+              onClick={() => setActiveTab("investigations")}
             >
               <FlaskConical className="h-3.5 w-3.5 text-[#DE4F3C]" />
-              <span>Order Investigation</span>
+              <span>Diagnostic Reports</span>
             </Button>
 
             <Link href={`/patients/${patient.patientId}/prescriptions/new`}>
@@ -324,7 +331,7 @@ export default function PatientProfilePage({
               variant="outline"
               size="sm"
               className="gap-1.5 text-xs text-[#201C1A]"
-              onClick={() => alert("Follow-up module will be connected in upcoming clinical phase.")}
+              onClick={() => setActiveTab("followups")}
             >
               <CalendarClock className="h-3.5 w-3.5 text-[#DE4F3C]" />
               <span>Schedule Follow-up</span>
@@ -343,13 +350,20 @@ export default function PatientProfilePage({
         </div>
 
         {/* Clinical Workspace Tabs */}
-        <Tabs defaultValue="overview" className="w-full">
+        <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="overflow-x-auto pb-1">
             <TabsList className="bg-[#FAF5EE] border border-[#EAE3D9] p-1 gap-1">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="visits">Visits</TabsTrigger>
               <TabsTrigger value="history">Medical History</TabsTrigger>
-              <TabsTrigger value="investigations">Investigations</TabsTrigger>
+              <TabsTrigger value="investigations" className="gap-1.5">
+                <span>Diagnostic Reports</span>
+                {patientReports.length > 0 && (
+                  <span className="px-1.5 py-0.2 rounded-full text-[10px] font-semibold bg-[#EAE3D9] text-[#201C1A]">
+                    {patientReports.length}
+                  </span>
+                )}
+              </TabsTrigger>
               <TabsTrigger value="prescriptions">Prescriptions</TabsTrigger>
               <TabsTrigger value="followups" className="gap-1.5">
                 <span>Follow-ups</span>
@@ -522,8 +536,8 @@ export default function PatientProfilePage({
               </Card>
             </div>
 
-            {/* Longitudinal Treatment & Follow-up Overview Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-1">
+            {/* Longitudinal Treatment, Follow-up & Diagnostic Overview Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pt-1">
               {/* Follow-up Status Card */}
               <Card className="border border-[#EAE3D9] bg-white p-5 shadow-xs flex flex-col justify-between">
                 <div>
@@ -640,6 +654,66 @@ export default function PatientProfilePage({
                   </Link>
                 </div>
               </Card>
+
+              {/* Card 3: Diagnostic Reports Quick Access */}
+              <Card className="border border-[#EAE3D9] bg-white p-5 shadow-xs flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <FlaskConical className="h-4 w-4 text-[#DE4F3C]" />
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-[#7A746F]">
+                        Diagnostic Reports
+                      </h4>
+                    </div>
+                    <Badge variant="neutral" size="sm">
+                      {patientReports.length} {patientReports.length === 1 ? "Report" : "Reports"}
+                    </Badge>
+                  </div>
+
+                  {patientReports.length > 0 ? (
+                    <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF8F5] p-3.5 space-y-1.5 text-xs">
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-[#201C1A] truncate max-w-[160px]">
+                          {patientReports[0].testName}
+                        </span>
+                        <Badge variant="neutral" size="sm" className="text-[10px]">
+                          {patientReports[0].category}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center justify-between text-[11px] text-[#7A746F]">
+                        <span>
+                          {new Date(patientReports[0].testDate + "T00:00:00").toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </span>
+                        {patientReports[0].diagnosticCenter && (
+                          <span className="truncate max-w-[120px]">
+                            {patientReports[0].diagnosticCenter}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-[#7A746F] leading-relaxed py-2">
+                      No laboratory or scan reports registered yet.
+                    </p>
+                  )}
+                </div>
+
+                <div className="pt-4 border-t border-[#FAF5EE] flex items-center justify-end gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs h-7 px-2.5 gap-1 text-[#201C1A]"
+                    onClick={() => setActiveTab("investigations")}
+                  >
+                    <FlaskConical className="h-3 w-3 text-[#DE4F3C]" />
+                    <span>View All Reports</span>
+                  </Button>
+                </div>
+              </Card>
             </div>
           </TabsContent>
 
@@ -737,22 +811,9 @@ export default function PatientProfilePage({
             </div>
           </TabsContent>
 
-          {/* 4. Investigations Tab */}
+          {/* 4. Diagnostic Reports Tab */}
           <TabsContent value="investigations">
-            <EmptyState
-              icon={FlaskConical}
-              title="No Investigations Ordered"
-              description="Pathology tests, laboratory orders, and imaging requests will be tracked here."
-              action={
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => alert("Investigation orders will be implemented in upcoming clinical phase.")}
-                >
-                  Order Investigation
-                </Button>
-              }
-            />
+            <DiagnosticReportsList patient={patient} />
           </TabsContent>
 
           {/* 5. Prescriptions Tab */}
