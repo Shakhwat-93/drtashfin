@@ -13,6 +13,7 @@ import {
   RotateCcw,
   ShieldCheck,
   Radio,
+  Settings,
 } from "lucide-react";
 import { SmsReminder, SmsReminderStatus, SmsReminderType } from "@/types/sms";
 import { Badge } from "@/components/ui/badge";
@@ -164,6 +165,16 @@ export function SmsRemindersPanel({
         </div>
 
         <div className="flex items-center gap-2">
+          <Link href="/settings">
+            <Button
+              variant="ghost"
+              size="sm"
+              leftIcon={<Settings className="h-3.5 w-3.5" />}
+            >
+              Gateway Settings
+            </Button>
+          </Link>
+
           <Button
             variant="outline"
             size="sm"

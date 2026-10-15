@@ -1,35 +1,45 @@
 import { ISmsProvider } from "./sms-provider.interface";
 import { MockSmsProvider } from "./mock-sms-provider";
 import { GenericHttpSmsProvider } from "./generic-http-sms-provider";
+import { BulkSmsDhakaProvider } from "./bulk-sms-dhaka-provider";
 
 export * from "./sms-provider.interface";
 export * from "./mock-sms-provider";
 export * from "./generic-http-sms-provider";
+export * from "./bulk-sms-dhaka-provider";
 
 let currentProvider: ISmsProvider | null = null;
 const singletonMockProvider = new MockSmsProvider();
+let singletonBulkSmsDhakaProvider: BulkSmsDhakaProvider | null = null;
 
 /**
- * Resolves the active SMS provider based on environment configuration.
- * By default, returns MockSmsProvider with live sending disabled unless
- * SMS_ENABLED="true" and valid provider credentials are provided.
+ * Resolves the active SMS provider based on configuration.
+ * When in test environment or SMS_PROVIDER="mock", uses MockSmsProvider.
+ * In live mode or when configured via SMS Gateway Settings, uses BulkSmsDhakaProvider
+ * which dynamically resolves encrypted credentials at runtime.
  */
 export function getSmsProvider(): ISmsProvider {
   if (currentProvider) {
     return currentProvider;
   }
 
-  const isLiveEnabled = process.env.SMS_ENABLED === "true";
-  const providerType = (process.env.SMS_PROVIDER || "mock").toLowerCase();
+  const providerType = (process.env.SMS_PROVIDER || "bulksmsdhaka").toLowerCase();
 
-  if (isLiveEnabled && providerType === "generic_http") {
+  if (providerType === "mock") {
+    currentProvider = singletonMockProvider;
+    return currentProvider;
+  }
+
+  if (providerType === "generic_http") {
     currentProvider = new GenericHttpSmsProvider();
     return currentProvider;
   }
 
-  // Safe fallback to mock provider
-  currentProvider = singletonMockProvider;
-  return currentProvider;
+  // Default primary provider: Bulk SMS Dhaka with dynamic runtime credentials
+  if (!singletonBulkSmsDhakaProvider) {
+    singletonBulkSmsDhakaProvider = new BulkSmsDhakaProvider();
+  }
+  return singletonBulkSmsDhakaProvider;
 }
 
 /**

@@ -1,8 +1,9 @@
 import { SendSmsParams, SendSmsResult, SmsProviderConfigStatus } from "@/types/sms";
+import { ValidateGatewayResult, DeliveryStatusResult } from "@/types/sms-gateway";
 
 export interface ISmsProvider {
   /**
-   * Unique identifier of the provider adapter (e.g. "mock", "generic_http", "greenweb")
+   * Unique identifier of the provider adapter (e.g. "mock", "generic_http", "bulksmsdhaka")
    */
   readonly name: string;
 
@@ -21,4 +22,14 @@ export interface ISmsProvider {
    * Returns current configuration readiness status without leaking credentials.
    */
   getConfigStatus(): SmsProviderConfigStatus;
+
+  /**
+   * Non-billable verification of provider credentials (e.g. balance check).
+   */
+  checkBalance?(): Promise<ValidateGatewayResult>;
+
+  /**
+   * Queries delivery status of a previously dispatched SMS using provider message ID.
+   */
+  getDeliveryStatus?(messageId: string): Promise<DeliveryStatusResult>;
 }
