@@ -31,6 +31,10 @@ import {
   useDiagnosticReports,
   DiagnosticReportModal,
 } from "@/features/diagnostic-reports";
+import {
+  useProcedures,
+  ProcedureModal,
+} from "@/features/procedures";
 
 export interface ConsultationDetailProps {
   consultation: Consultation;
@@ -48,6 +52,9 @@ export function ConsultationDetail({
   const { reports: linkedReports, refresh: refreshReports } =
     useDiagnosticReports(undefined, consultation.id);
   const [isReportModalOpen, setIsReportModalOpen] = React.useState(false);
+  const { procedures: linkedProcedures, refresh: refreshProcedures } =
+    useProcedures(undefined, consultation.id);
+  const [isProcedureModalOpen, setIsProcedureModalOpen] = React.useState(false);
 
   const handleDeleteDraft = React.useCallback(
     async (draftId: string) => {
@@ -489,6 +496,98 @@ export function ConsultationDetail({
           )}
         </section>
 
+        {/* SECTION: PROCEDURES & OPERATIONS */}
+        <section className="space-y-3">
+          <div className="flex items-center justify-between border-b border-[#FAF5EE] pb-1">
+            <div className="flex items-center gap-2">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-[#7A746F]">
+                Procedures & Operations
+              </h2>
+              {linkedProcedures.length > 0 && (
+                <Badge variant="neutral" size="sm" className="font-mono text-[10px]">
+                  {linkedProcedures.length}
+                </Badge>
+              )}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 text-xs gap-1 text-[#201C1A]"
+              onClick={() => setIsProcedureModalOpen(true)}
+            >
+              <Plus className="h-3 w-3 text-[#DE4F3C]" />
+              <span>Link / Record Procedure</span>
+            </Button>
+          </div>
+
+          {linkedProcedures.length === 0 ? (
+            <p className="text-xs text-[#7A746F] italic py-1">
+              No surgical operations or medical procedures currently linked to this visit.
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {linkedProcedures.map((proc) => (
+                <div
+                  key={proc.id}
+                  className="rounded-xl border border-[#EAE3D9] bg-white p-3.5 space-y-2 text-xs shadow-xs"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <Badge variant="neutral" size="sm" className="text-[10px] mb-1 font-semibold">
+                        {proc.category}
+                      </Badge>
+                      <h4 className="font-semibold text-[#201C1A] text-xs">
+                        {proc.procedureName}
+                      </h4>
+                    </div>
+                    <span className="text-[11px] text-[#7A746F] shrink-0">
+                      {proc.procedureDate}
+                    </span>
+                  </div>
+
+                  {proc.hospitalFacility && (
+                    <div className="text-[11px] text-[#7A746F]">
+                      Hospital: {proc.hospitalFacility}
+                    </div>
+                  )}
+
+                  {proc.performingDoctor && (
+                    <div className="text-[11px] text-[#7A746F]">
+                      Surgeon: {proc.performingDoctor}
+                    </div>
+                  )}
+
+                  {proc.clinicalIndication && (
+                    <p className="text-[11px] text-[#201C1A]">
+                      <span className="font-semibold">Indication:</span> {proc.clinicalIndication}
+                    </p>
+                  )}
+
+                  {proc.doctorNotes && (
+                    <p className="text-[11px] text-[#201C1A] bg-[#FAF5EE]/60 p-2 rounded-md border border-[#EAE3D9]/60 line-clamp-2">
+                      {proc.doctorNotes}
+                    </p>
+                  )}
+
+                  {proc.driveUrl && (
+                    <div className="pt-1.5 border-t border-[#FAF5EE] flex justify-end">
+                      <a
+                        href={proc.driveUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-[#DE4F3C] hover:underline"
+                      >
+                        <span>Open in Google Drive</span>
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
         {/* SECTION: DIAGNOSIS */}
         {(consultation.provisionalDiagnosis ||
           consultation.differentialDiagnosis) && (
@@ -704,6 +803,23 @@ export function ConsultationDetail({
           patientId={patient.id}
           consultationId={consultation.id}
           onSuccess={refreshReports}
+          consultations={[
+            {
+              id: consultation.id,
+              consultationDate: consultation.consultationDate,
+              provisionalDiagnosis: consultation.provisionalDiagnosis,
+              chiefComplaint: consultation.chiefComplaint,
+            },
+          ]}
+        />
+
+        {/* Link Procedure Modal */}
+        <ProcedureModal
+          isOpen={isProcedureModalOpen}
+          onClose={() => setIsProcedureModalOpen(false)}
+          patientId={patient.id}
+          consultationId={consultation.id}
+          onSuccess={refreshProcedures}
           consultations={[
             {
               id: consultation.id,

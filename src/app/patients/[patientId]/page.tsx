@@ -43,6 +43,11 @@ import {
   DiagnosticReportsList,
   useDiagnosticReports,
 } from "@/features/diagnostic-reports";
+import {
+  ProcedureTimelineList,
+  useProcedures,
+  ProcedureModal,
+} from "@/features/procedures";
 
 export default function PatientProfilePage({
   params,
@@ -66,7 +71,9 @@ export default function PatientProfilePage({
   } = useFollowUps(patient?.patientId);
 
   const { reports: patientReports } = useDiagnosticReports(patient?.patientId);
+  const { procedures: patientProcedures, refresh: refreshProcedures } = useProcedures(patient?.patientId);
   const [activeTab, setActiveTab] = React.useState("overview");
+  const [isProcedureModalOpen, setIsProcedureModalOpen] = React.useState(false);
 
   const prefix = patient?.patientId.split("-")[0] || "";
   const patientChamber =
@@ -341,10 +348,10 @@ export default function PatientProfilePage({
               variant="outline"
               size="sm"
               className="gap-1.5 text-xs text-[#201C1A]"
-              onClick={() => alert("Operation planning will be connected in upcoming clinical phase.")}
+              onClick={() => setIsProcedureModalOpen(true)}
             >
               <Activity className="h-3.5 w-3.5 text-[#DE4F3C]" />
-              <span>Plan Operation</span>
+              <span>Record Procedure</span>
             </Button>
           </div>
         </div>
@@ -377,7 +384,14 @@ export default function PatientProfilePage({
                   </span>
                 ) : null}
               </TabsTrigger>
-              <TabsTrigger value="operations">Operations</TabsTrigger>
+              <TabsTrigger value="operations" className="gap-1.5">
+                <span>Operations</span>
+                {patientProcedures.length > 0 && (
+                  <span className="px-1.5 py-0.2 rounded-full text-[10px] font-semibold bg-[#EAE3D9] text-[#201C1A]">
+                    {patientProcedures.length}
+                  </span>
+                )}
+              </TabsTrigger>
               <TabsTrigger value="documents">Documents</TabsTrigger>
             </TabsList>
           </div>
@@ -808,6 +822,41 @@ export default function PatientProfilePage({
                   {patient.patientNotes || "No patient-level clinical notes recorded."}
                 </div>
               </Card>
+
+              {/* Procedure & Surgical History Summary Card */}
+              {patientProcedures.length > 0 && (
+                <Card className="md:col-span-2 border border-[#EAE3D9] bg-white p-5 shadow-xs space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Activity className="h-4 w-4 text-[#DE4F3C]" />
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-[#201C1A]">
+                        Operations & Procedures History ({patientProcedures.length})
+                      </h4>
+                    </div>
+                    <button
+                      onClick={() => setActiveTab("operations")}
+                      className="text-xs font-medium text-[#DE4F3C] hover:underline"
+                    >
+                      View All Operations →
+                    </button>
+                  </div>
+                  <div className="divide-y divide-[#FAF5EE]">
+                    {patientProcedures.slice(0, 3).map((proc) => (
+                      <div key={proc.id} className="py-2.5 flex items-center justify-between text-xs">
+                        <div className="space-y-0.5">
+                          <span className="font-semibold text-[#201C1A]">{proc.procedureName}</span>
+                          <span className="text-[#7A746F] block text-[11px]">
+                            {proc.category} • {proc.procedureDate} {proc.hospitalFacility ? `at ${proc.hospitalFacility}` : ""}
+                          </span>
+                        </div>
+                        <Badge variant="neutral" size="sm" className="text-[10px]">
+                          {proc.outcome || "Recorded"}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
             </div>
           </TabsContent>
 
@@ -876,20 +925,7 @@ export default function PatientProfilePage({
 
           {/* 7. Operations Tab */}
           <TabsContent value="operations">
-            <EmptyState
-              icon={Activity}
-              title="No Operations Scheduled"
-              description="Surgical procedures, operation theater schedules, and post-op summaries will be tracked here."
-              action={
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => alert("Operation planning will be implemented in upcoming clinical phase.")}
-                >
-                  Plan Surgical Procedure
-                </Button>
-              }
-            />
+            <ProcedureTimelineList patient={patient} />
           </TabsContent>
 
           {/* 8. Documents Tab */}
@@ -901,6 +937,19 @@ export default function PatientProfilePage({
             />
           </TabsContent>
         </Tabs>
+
+        {/* Global Record Procedure Modal */}
+        {patient && (
+          <ProcedureModal
+            isOpen={isProcedureModalOpen}
+            onClose={() => setIsProcedureModalOpen(false)}
+            patientId={patient.id}
+            onSuccess={() => {
+              refreshProcedures();
+              setActiveTab("operations");
+            }}
+          />
+        )}
       </PageContainer>
     </AdminShell>
   );

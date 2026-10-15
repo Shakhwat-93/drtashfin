@@ -9,6 +9,7 @@ import { IFollowUpRepository } from "./repositories/follow-up-repository.interfa
 import { ISmsReminderRepository } from "./repositories/sms-reminder-repository.interface";
 import { IDiagnosticReportRepository } from "./repositories/diagnostic-report-repository.interface";
 import { ISmsGatewaySettingsRepository } from "./repositories/sms-gateway-settings-repository.interface";
+import { IProcedureRepository } from "./repositories/procedure-repository.interface";
 import { MockPatientRepository } from "./repositories/mock-patient-repository";
 import { MockClinicalRepository } from "./repositories/mock-clinical-repository";
 import { MockConsultationRepository } from "./repositories/mock-consultation-repository";
@@ -20,6 +21,7 @@ import { MockFollowUpRepository } from "./repositories/mock-follow-up-repository
 import { MockSmsReminderRepository } from "./repositories/mock-sms-reminder-repository";
 import { MockDiagnosticReportRepository } from "./repositories/mock-diagnostic-report-repository";
 import { MockSmsGatewaySettingsRepository } from "./repositories/mock-sms-gateway-settings-repository";
+import { MockProcedureRepository } from "./repositories/mock-procedure-repository";
 import { SupabasePatientRepository } from "./repositories/supabase-patient-repository";
 import { SupabaseConsultationRepository } from "./repositories/supabase-consultation-repository";
 import { SupabaseClinicalRepository } from "./repositories/supabase-clinical-repository";
@@ -31,6 +33,7 @@ import { SupabaseFollowUpRepository } from "./repositories/supabase-follow-up-re
 import { SupabaseSmsReminderRepository } from "./repositories/supabase-sms-reminder-repository";
 import { SupabaseDiagnosticReportRepository } from "./repositories/supabase-diagnostic-report-repository";
 import { SupabaseSmsGatewaySettingsRepository } from "./repositories/supabase-sms-gateway-settings-repository";
+import { SupabaseProcedureRepository } from "./repositories/supabase-procedure-repository";
 
 export * from "./errors";
 export * from "./id-generator";
@@ -45,6 +48,7 @@ export * from "./repositories/follow-up-repository.interface";
 export * from "./repositories/sms-reminder-repository.interface";
 export * from "./repositories/diagnostic-report-repository.interface";
 export * from "./repositories/sms-gateway-settings-repository.interface";
+export * from "./repositories/procedure-repository.interface";
 export * from "./repositories/mock-patient-repository";
 export * from "./repositories/mock-consultation-repository";
 export * from "./repositories/mock-clinical-repository";
@@ -56,6 +60,7 @@ export * from "./repositories/mock-follow-up-repository";
 export * from "./repositories/mock-sms-reminder-repository";
 export * from "./repositories/mock-diagnostic-report-repository";
 export * from "./repositories/mock-sms-gateway-settings-repository";
+export * from "./repositories/mock-procedure-repository";
 export * from "./repositories/supabase-patient-repository";
 export * from "./repositories/supabase-consultation-repository";
 export * from "./repositories/supabase-clinical-repository";
@@ -67,6 +72,7 @@ export * from "./repositories/supabase-follow-up-repository";
 export * from "./repositories/supabase-sms-reminder-repository";
 export * from "./repositories/supabase-diagnostic-report-repository";
 export * from "./repositories/supabase-sms-gateway-settings-repository";
+export * from "./repositories/supabase-procedure-repository";
 
 // Singleton instances for runtime
 let patientRepositoryInstance: IPatientRepository | null = null;
@@ -80,6 +86,7 @@ let followUpRepositoryInstance: IFollowUpRepository | null = null;
 let smsReminderRepositoryInstance: ISmsReminderRepository | null = null;
 let diagnosticReportRepositoryInstance: IDiagnosticReportRepository | null = null;
 let smsGatewaySettingsRepositoryInstance: ISmsGatewaySettingsRepository | null = null;
+let procedureRepositoryInstance: IProcedureRepository | null = null;
 
 // Configurable provider mode ("auto" detects Supabase credentials, "mock" forces mock)
 let providerMode: "auto" | "supabase" | "mock" = "auto";
@@ -332,6 +339,29 @@ export function getSmsGatewaySettingsRepository(
 }
 
 /**
+ * Factory for Procedure & Operation Repository.
+ * Handles surgical operations and medical procedures with optional Google Drive URLs.
+ */
+export function getProcedureRepository(
+  client?: import("@supabase/supabase-js").SupabaseClient
+): IProcedureRepository {
+  if (client && shouldUseSupabase()) {
+    return new SupabaseProcedureRepository(client);
+  }
+  if (!procedureRepositoryInstance) {
+    if (shouldUseSupabase()) {
+      procedureRepositoryInstance = new SupabaseProcedureRepository();
+    } else {
+      procedureRepositoryInstance = new MockProcedureRepository(
+        getPatientRepository(),
+        getConsultationRepository()
+      );
+    }
+  }
+  return procedureRepositoryInstance;
+}
+
+/**
  * Testing helper to reset repository instances between test runs.
  */
 export function resetRepositoryInstances(): void {
@@ -346,4 +376,5 @@ export function resetRepositoryInstances(): void {
   smsReminderRepositoryInstance = null;
   diagnosticReportRepositoryInstance = null;
   smsGatewaySettingsRepositoryInstance = null;
+  procedureRepositoryInstance = null;
 }
