@@ -21,6 +21,7 @@ import {
   ValidationError,
 } from "../errors";
 import { createPatientSchema, updatePatientSchema } from "@/schemas/patient";
+import { calculateAgeFromDob } from "@/lib/date-utils";
 
 export class MockPatientRepository implements IPatientRepository {
   private storageKey = "patients_list";
@@ -45,14 +46,8 @@ export class MockPatientRepository implements IPatientRepository {
   }
 
   private calculateAge(dob: string): number {
-    const birthDate = new Date(dob);
-    const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const m = today.getMonth() - birthDate.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-    return Math.max(0, age);
+    const calculated = calculateAgeFromDob(dob);
+    return calculated ?? 0;
   }
 
   public async getPatients(

@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useSearchParams } from "next/navigation";
 import { BarChart3 } from "lucide-react";
 import { AdminShell } from "@/components/layout/admin-shell";
 import { PageContainer } from "@/components/layout/page-container";
@@ -17,8 +18,21 @@ import {
   ReportsTable,
 } from "@/features/reports";
 
-export default function MedicalReportsPage() {
+const VALID_TABS: ReportType[] = [
+  "patient-activity",
+  "consultations",
+  "prescriptions",
+  "follow-ups",
+  "diagnostic-procedures",
+  "diagnostics-procedures",
+  "discharges",
+  "sms-delivery",
+];
+
+function MedicalReportsContent() {
   const { chambers } = useChamber();
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get("tab") as ReportType | null;
 
   // Filters State
   const [selectedChamberId, setSelectedChamberId] = React.useState<string>("all");
@@ -28,9 +42,20 @@ export default function MedicalReportsPage() {
   const [searchQuery, setSearchQuery] = React.useState<string>("");
 
   // Table State
-  const [activeTab, setActiveTab] = React.useState<ReportType>("patient-activity");
+  const [activeTab, setActiveTab] = React.useState<ReportType>(() => {
+    if (tabParam && VALID_TABS.includes(tabParam)) {
+      return tabParam;
+    }
+    return "patient-activity";
+  });
   const [page, setPage] = React.useState<number>(1);
   const [isExporting, setIsExporting] = React.useState<boolean>(false);
+
+  React.useEffect(() => {
+    if (tabParam && VALID_TABS.includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, [tabParam]);
 
   // When changing filters or tab, reset to page 1
   const handleChamberChange = (chamberId: string) => {
@@ -191,5 +216,25 @@ export default function MedicalReportsPage() {
         </div>
       </PageContainer>
     </AdminShell>
+  );
+}
+
+export default function MedicalReportsPage() {
+  return (
+    <React.Suspense
+      fallback={
+        <AdminShell>
+          <PageContainer className="space-y-6">
+            <PageHeader
+              label="CLINICAL ANALYTICS"
+              title="Clinical Dashboard & Reports"
+              description="Loading clinical analytics..."
+            />
+          </PageContainer>
+        </AdminShell>
+      }
+    >
+      <MedicalReportsContent />
+    </React.Suspense>
   );
 }

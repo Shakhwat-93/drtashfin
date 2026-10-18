@@ -81,7 +81,7 @@ export class SupabaseProcedureRepository implements IProcedureRepository {
       return patientIdentifier;
     }
 
-    const patient = await this.patientRepo.getPatientById(patientIdentifier);
+    const patient = await this.patientRepo.getPatientByIdentifier(patientIdentifier);
     if (!patient) {
       throw new DataError(
         `Patient with identifier "${patientIdentifier}" does not exist`,

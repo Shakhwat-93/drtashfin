@@ -16,6 +16,7 @@ import { Patient, CreatePatientDTO, UpdatePatientDTO } from "@/types/patient";
 import { Gender, BloodGroup } from "@/types/common";
 import { createPatientSchema, updatePatientSchema } from "@/schemas/patient";
 import { getPatientRepository } from "@/lib/data";
+import { calculateAgeFromDob } from "@/lib/date-utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -69,9 +70,14 @@ export function PatientForm({
   const [dateOfBirth, setDateOfBirth] = React.useState(
     initialData?.dateOfBirth || ""
   );
-  const [age, setAge] = React.useState<string>(
-    initialData?.age !== undefined ? String(initialData.age) : ""
-  );
+  const [age, setAge] = React.useState<string>(() => {
+    if (initialData?.age !== undefined) return String(initialData.age);
+    if (initialData?.dateOfBirth) {
+      const calc = calculateAgeFromDob(initialData.dateOfBirth);
+      return calc !== null ? String(calc) : "";
+    }
+    return "";
+  });
   const [gender, setGender] = React.useState<Gender>(
     initialData?.gender || "male"
   );
@@ -239,22 +245,37 @@ export function PatientForm({
     }
   };
 
-  // Auto-calculate Age when Date of Birth changes
+  // Ensure age is synced if initialData changes
+  React.useEffect(() => {
+    if (initialData?.dateOfBirth) {
+      const calc = calculateAgeFromDob(initialData.dateOfBirth);
+      if (calc !== null) {
+        setAge(String(calc));
+      }
+    }
+  }, [initialData?.dateOfBirth]);
+
+  // Auto-calculate Age immediately when Date of Birth changes
   const handleDobChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const dob = e.target.value;
     setDateOfBirth(dob);
 
     if (dob) {
-      const birthDate = new Date(dob);
-      const today = new Date();
-      if (!isNaN(birthDate.getTime()) && birthDate <= today) {
-        let calculatedAge = today.getFullYear() - birthDate.getFullYear();
-        const m = today.getMonth() - birthDate.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-          calculatedAge--;
-        }
-        setAge(String(Math.max(0, calculatedAge)));
+      const calculatedAge = calculateAgeFromDob(dob);
+      if (calculatedAge !== null) {
+        setAge(String(calculatedAge));
+        setErrors((prev) => {
+          if (!prev.dateOfBirth && !prev.age) return prev;
+          const updated = { ...prev };
+          delete updated.dateOfBirth;
+          delete updated.age;
+          return updated;
+        });
+      } else {
+        setAge("");
       }
+    } else {
+      setAge("");
     }
   };
 
@@ -627,27 +648,34 @@ export function PatientForm({
 
           {/* Age */}
           <div>
-            <label className="block text-xs font-semibold text-[#201C1A] mb-1">
-              Age (Years)
-            </label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-xs font-semibold text-[#201C1A]">
+                Age (Years)
+              </label>
+              <span className="text-[10px] text-[#7A746F]">Auto-calculated</span>
+            </div>
             <input
-              type="number"
+              type="text"
               name="age"
               value={age}
-              min={0}
-              max={130}
-              onChange={(e) => setAge(e.target.value)}
-              placeholder="Auto-calculated from DOB"
+              readOnly
+              placeholder="Auto from DOB"
               className={cn(
-                "w-full rounded-lg border bg-white px-3.5 py-2.5 text-xs text-[#201C1A] placeholder-[#7A746F] transition-all focus:outline-hidden focus:ring-2",
+                "w-full rounded-lg border bg-[#FAF5EE]/60 px-3.5 py-2.5 text-xs font-medium text-[#201C1A] placeholder-[#7A746F] cursor-not-allowed transition-all focus:outline-hidden",
                 errors.age
-                  ? "border-rose-400 focus:border-rose-500 focus:ring-rose-200"
-                  : "border-[#EAE3D9] focus:border-[#DE4F3C] focus:ring-[#DE4F3C]/20"
+                  ? "border-rose-400 focus:border-rose-500"
+                  : "border-[#EAE3D9]"
               )}
             />
-            {errors.age && (
+            {errors.age ? (
               <p className="mt-1 text-[11px] text-rose-600 font-medium">
                 {errors.age}
+              </p>
+            ) : (
+              <p className="mt-1 text-[10px] text-[#7A746F]">
+                {age !== ""
+                  ? `Calculated age: ${age} yr${Number(age) === 1 ? "" : "s"}`
+                  : "Select a valid Date of Birth"}
               </p>
             )}
           </div>

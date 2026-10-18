@@ -6,10 +6,11 @@ import {
   DashboardMetrics,
 } from "@/types/clinical";
 import { supabase } from "@/lib/supabase/client";
+import { getClinicToday } from "@/lib/date-utils";
 
 export class SupabaseClinicalRepository implements IClinicalRepository {
   public async getDashboardMetrics(chamberId?: string): Promise<DashboardMetrics> {
-    const todayStr = new Date().toISOString().split("T")[0];
+    const todayStr = getClinicToday();
 
     // Consultations Conducted Today
     let consultQuery = supabase
@@ -33,25 +34,35 @@ export class SupabaseClinicalRepository implements IClinicalRepository {
     }
     const { count: todayFollowUps } = await followUpQuery;
 
-    // Diagnostic Reports Count for Today
-    let diagQuery = supabase
-      .from("diagnostic_reports")
-      .select("*", { count: "exact", head: true })
-      .eq("test_date", todayStr);
-
+    // Diagnostic Reports Count for Today (chamber scoped via patients join)
+    let diagQuery;
     if (chamberId) {
-      diagQuery = diagQuery.eq("chamber_id", chamberId);
+      diagQuery = supabase
+        .from("diagnostic_reports")
+        .select("id, patients!inner(chamber_id)", { count: "exact", head: true })
+        .eq("test_date", todayStr)
+        .eq("patients.chamber_id", chamberId);
+    } else {
+      diagQuery = supabase
+        .from("diagnostic_reports")
+        .select("id", { count: "exact", head: true })
+        .eq("test_date", todayStr);
     }
     const { count: todayDiagnostics } = await diagQuery;
 
-    // Operations / Procedures Scheduled for Today
-    let procQuery = supabase
-      .from("patient_procedures")
-      .select("*", { count: "exact", head: true })
-      .eq("procedure_date", todayStr);
-
+    // Operations / Procedures Scheduled for Today (chamber scoped via patients join)
+    let procQuery;
     if (chamberId) {
-      procQuery = procQuery.eq("chamber_id", chamberId);
+      procQuery = supabase
+        .from("patient_procedures")
+        .select("id, patients!inner(chamber_id)", { count: "exact", head: true })
+        .eq("procedure_date", todayStr)
+        .eq("patients.chamber_id", chamberId);
+    } else {
+      procQuery = supabase
+        .from("patient_procedures")
+        .select("id", { count: "exact", head: true })
+        .eq("procedure_date", todayStr);
     }
     const { count: todayProcedures } = await procQuery;
 
@@ -64,7 +75,7 @@ export class SupabaseClinicalRepository implements IClinicalRepository {
   }
 
   public async getTodayFollowUps(chamberId?: string): Promise<FollowUp[]> {
-    const todayStr = new Date().toISOString().split("T")[0];
+    const todayStr = getClinicToday();
 
     let query = supabase
       .from("consultations")

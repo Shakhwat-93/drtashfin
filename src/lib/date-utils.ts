@@ -236,3 +236,58 @@ export function addDays(ymdStr: string, days: number): string {
   const d = new Date(Date.UTC(year, month - 1, day + days));
   return formatDateToYMD(d, "UTC");
 }
+
+/**
+ * Calculates completed years of age from a YYYY-MM-DD birthdate string.
+ * - Timezone-shift immune (uses direct calendar parts arithmetic).
+ * - Correctly handles whether the birthday has occurred yet this year.
+ * - Handles leap year birthdays (Feb 29 turns a year older on March 1 in non-leap years).
+ * - Returns null if dob is empty, invalid, or in the future.
+ */
+export function calculateAgeFromDob(
+  dobStr?: string | null,
+  baseDateStr?: string
+): number | null {
+  if (!dobStr || typeof dobStr !== "string" || !dobStr.trim()) {
+    return null;
+  }
+
+  const cleanDob = dobStr.trim();
+  const ymdMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(cleanDob);
+  if (!ymdMatch) {
+    return null;
+  }
+
+  const birthYear = parseInt(ymdMatch[1], 10);
+  const birthMonth = parseInt(ymdMatch[2], 10);
+  const birthDay = parseInt(ymdMatch[3], 10);
+
+  if (birthMonth < 1 || birthMonth > 12 || birthDay < 1 || birthDay > 31) {
+    return null;
+  }
+
+  // Validate real calendar date (e.g. Feb 30, April 31)
+  const testDate = new Date(Date.UTC(birthYear, birthMonth - 1, birthDay));
+  if (
+    testDate.getUTCFullYear() !== birthYear ||
+    testDate.getUTCMonth() !== birthMonth - 1 ||
+    testDate.getUTCDate() !== birthDay
+  ) {
+    return null;
+  }
+
+  const todayStr = baseDateStr || getClinicToday();
+  if (cleanDob > todayStr) {
+    // Birthdate is in the future
+    return null;
+  }
+
+  const { year: curYear, month: curMonth, day: curDay } = parseYMD(todayStr);
+
+  let age = curYear - birthYear;
+  if (curMonth < birthMonth || (curMonth === birthMonth && curDay < birthDay)) {
+    age--;
+  }
+
+  return Math.max(0, age);
+}

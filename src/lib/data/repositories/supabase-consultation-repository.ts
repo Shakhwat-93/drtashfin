@@ -125,7 +125,7 @@ export class SupabaseConsultationRepository implements IConsultationRepository {
       birth_history: validated.birthHistory?.trim() || null,
       family_history: validated.familyHistory?.trim() || null,
       consanguinity: validated.consanguinity || null,
-      drugHistory: validated.drugHistory?.trim() || null,
+      drug_history: validated.drugHistory?.trim() || null,
       others: validated.others?.trim() || null,
       clinical_examination: validated.clinicalExamination?.trim() || null,
       clinical_notes: validated.clinicalNotes?.trim() || null,
