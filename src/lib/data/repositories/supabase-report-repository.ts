@@ -93,18 +93,34 @@ export class SupabaseReportRepository implements IReportRepository {
       .eq("status", "finalized");
     if (chamberId) rxLifeQuery = rxLifeQuery.eq("chamber_id", chamberId);
 
-    const procLifeQuery = this.client
-      .from("patient_procedures")
-      .select("*", { count: "exact", head: true });
+    const procLifeQuery = chamberId
+      ? this.client
+          .from("patient_procedures")
+          .select("id, patients!inner(chamber_id)", { count: "exact", head: true })
+          .eq("patients.chamber_id", chamberId)
+      : this.client
+          .from("patient_procedures")
+          .select("*", { count: "exact", head: true });
 
-    const disLifeQuery = this.client
-      .from("patient_discharges")
-      .select("*", { count: "exact", head: true })
-      .eq("status", "finalized");
+    const disLifeQuery = chamberId
+      ? this.client
+          .from("patient_discharges")
+          .select("id, patients!inner(chamber_id)", { count: "exact", head: true })
+          .eq("status", "finalized")
+          .eq("patients.chamber_id", chamberId)
+      : this.client
+          .from("patient_discharges")
+          .select("*", { count: "exact", head: true })
+          .eq("status", "finalized");
 
-    const diagLifeQuery = this.client
-      .from("diagnostic_reports")
-      .select("*", { count: "exact", head: true });
+    const diagLifeQuery = chamberId
+      ? this.client
+          .from("diagnostic_reports")
+          .select("id, patients!inner(chamber_id)", { count: "exact", head: true })
+          .eq("patients.chamber_id", chamberId)
+      : this.client
+          .from("diagnostic_reports")
+          .select("*", { count: "exact", head: true });
 
     const [
       { count: totalPatients },
@@ -194,31 +210,61 @@ export class SupabaseReportRepository implements IReportRepository {
     if (chamberId) fuCancelledQuery = fuCancelledQuery.eq("chamber_id", chamberId);
 
     // Diagnostics & Procedures & Discharges in range
-    const diagRangeQuery = this.client
-      .from("diagnostic_reports")
-      .select("*", { count: "exact", head: true })
-      .gte("test_date", dateRange.startDate)
-      .lte("test_date", dateRange.endDate);
+    const diagRangeQuery = chamberId
+      ? this.client
+          .from("diagnostic_reports")
+          .select("id, patients!inner(chamber_id)", { count: "exact", head: true })
+          .gte("test_date", dateRange.startDate)
+          .lte("test_date", dateRange.endDate)
+          .eq("patients.chamber_id", chamberId)
+      : this.client
+          .from("diagnostic_reports")
+          .select("*", { count: "exact", head: true })
+          .gte("test_date", dateRange.startDate)
+          .lte("test_date", dateRange.endDate);
 
-    const procRangeQuery = this.client
-      .from("patient_procedures")
-      .select("*", { count: "exact", head: true })
-      .gte("procedure_date", dateRange.startDate)
-      .lte("procedure_date", dateRange.endDate);
+    const procRangeQuery = chamberId
+      ? this.client
+          .from("patient_procedures")
+          .select("id, patients!inner(chamber_id)", { count: "exact", head: true })
+          .gte("procedure_date", dateRange.startDate)
+          .lte("procedure_date", dateRange.endDate)
+          .eq("patients.chamber_id", chamberId)
+      : this.client
+          .from("patient_procedures")
+          .select("*", { count: "exact", head: true })
+          .gte("procedure_date", dateRange.startDate)
+          .lte("procedure_date", dateRange.endDate);
 
-    const disFinRangeQuery = this.client
-      .from("patient_discharges")
-      .select("*", { count: "exact", head: true })
-      .eq("status", "finalized")
-      .gte("discharge_date", dateRange.startDate)
-      .lte("discharge_date", dateRange.endDate);
+    const disFinRangeQuery = chamberId
+      ? this.client
+          .from("patient_discharges")
+          .select("id, patients!inner(chamber_id)", { count: "exact", head: true })
+          .eq("status", "finalized")
+          .gte("discharge_date", dateRange.startDate)
+          .lte("discharge_date", dateRange.endDate)
+          .eq("patients.chamber_id", chamberId)
+      : this.client
+          .from("patient_discharges")
+          .select("*", { count: "exact", head: true })
+          .eq("status", "finalized")
+          .gte("discharge_date", dateRange.startDate)
+          .lte("discharge_date", dateRange.endDate);
 
-    const disDraftRangeQuery = this.client
-      .from("patient_discharges")
-      .select("*", { count: "exact", head: true })
-      .eq("status", "draft")
-      .gte("created_at", startIso)
-      .lte("created_at", endIso);
+    const disDraftRangeQuery = chamberId
+      ? this.client
+          .from("patient_discharges")
+          .select("id, patients!inner(chamber_id)", { count: "exact", head: true })
+          .eq("status", "draft")
+          .gte("created_at", startIso)
+          .lte("created_at", endIso)
+          .eq("patients.chamber_id", chamberId)
+      : this.client
+          .from("patient_discharges")
+          .select("*", { count: "exact", head: true })
+          .eq("status", "draft")
+          .gte("created_at", startIso)
+          .lte("created_at", endIso);
 
     // SMS Reminders query
     const smsRangeQuery = this.client
@@ -411,12 +457,19 @@ export class SupabaseReportRepository implements IReportRepository {
     ];
 
     // --- 6. Diagnostic Categories Distribution ---
-    const { data: diagCategoriesRows } = await this.client
-      .from("diagnostic_reports")
-      .select("category");
+    const diagCatQuery = chamberId
+      ? this.client
+          .from("diagnostic_reports")
+          .select("category, patients!inner(chamber_id)")
+          .eq("patients.chamber_id", chamberId)
+      : this.client
+          .from("diagnostic_reports")
+          .select("category");
+
+    const { data: diagCategoriesRows } = await diagCatQuery;
 
     const diagMap = new Map<string, number>();
-    for (const row of diagCategoriesRows || []) {
+    for (const row of (diagCategoriesRows || []) as DbRow[]) {
       const cat = String(row.category || "Other");
       diagMap.set(cat, (diagMap.get(cat) || 0) + 1);
     }
@@ -425,12 +478,19 @@ export class SupabaseReportRepository implements IReportRepository {
       .sort((a, b) => b.count - a.count);
 
     // --- 7. Procedure Categories Distribution ---
-    const { data: procCategoriesRows } = await this.client
-      .from("patient_procedures")
-      .select("category");
+    const procCatQuery = chamberId
+      ? this.client
+          .from("patient_procedures")
+          .select("category, patients!inner(chamber_id)")
+          .eq("patients.chamber_id", chamberId)
+      : this.client
+          .from("patient_procedures")
+          .select("category");
+
+    const { data: procCategoriesRows } = await procCatQuery;
 
     const procMap = new Map<string, number>();
-    for (const row of procCategoriesRows || []) {
+    for (const row of (procCategoriesRows || []) as DbRow[]) {
       const cat = String(row.category || "Other");
       procMap.set(cat, (procMap.get(cat) || 0) + 1);
     }

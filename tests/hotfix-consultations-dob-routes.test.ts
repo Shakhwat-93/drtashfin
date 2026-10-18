@@ -160,6 +160,19 @@ describe("Hotfix: Clinical Dashboard Chamber Scoping Queries", () => {
       "Clinical repository should use getClinicToday() for Dhaka clinic timezone!"
     );
   });
+
+  it("report repository joins patients table for diagnostic_reports, patient_procedures, and patient_discharges chamber filtering", () => {
+    const repoFilePath = path.join(
+      process.cwd(),
+      "src/lib/data/repositories/supabase-report-repository.ts"
+    );
+    const content = fs.readFileSync(repoFilePath, "utf8");
+
+    assert.ok(
+      content.includes("patients!inner(chamber_id)"),
+      "Report repository must use patients!inner(chamber_id) for diagnostic_reports, patient_procedures & discharges!"
+    );
+  });
 });
 
 describe("Hotfix: Navigation Routes Resolution (No 404s)", () => {
