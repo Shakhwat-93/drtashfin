@@ -11,6 +11,7 @@ import {
   KeyRound,
   CheckCircle2,
   AlertCircle,
+  User,
 } from "lucide-react";
 import { IconButton } from "@/components/ui/icon-button";
 import {
@@ -34,6 +35,7 @@ import {
 import { supabase } from "@/lib/supabase/client";
 import { ChamberSelector } from "@/features/chamber";
 import { AlertsPopover } from "@/features/alerts";
+import { OFFICIAL_DOCTOR_PROFILE } from "@/config/doctor-profile";
 
 export interface HeaderProps {
   onMenuClick?: () => void;
@@ -51,10 +53,10 @@ export function Header({ onMenuClick }: HeaderProps) {
   const router = useRouter();
   const [doctorUser, setDoctorUser] = React.useState<DoctorSessionUser>({
     id: "",
-    email: "drtashfinahmed@gmail.com",
-    doctorCode: "dr-tashfin",
-    fullName: "Dr. Tashfin Ahmed",
-    specialty: "Cardiology & Medicine",
+    email: OFFICIAL_DOCTOR_PROFILE.email,
+    doctorCode: OFFICIAL_DOCTOR_PROFILE.doctorCode,
+    fullName: OFFICIAL_DOCTOR_PROFILE.fullName,
+    specialty: OFFICIAL_DOCTOR_PROFILE.primaryDesignation,
   });
   const [mfaEnabled, setMfaEnabled] = React.useState(false);
   const [isSecurityModalOpen, setIsSecurityModalOpen] = React.useState(false);
@@ -268,7 +270,7 @@ export function Header({ onMenuClick }: HeaderProps) {
             <DropdownTrigger>
               <div className="flex items-center gap-2.5 pl-1.5 py-1 pr-2 rounded-lg hover:bg-[#FAF5EE] transition-colors border border-transparent hover:border-[#EAE3D9]">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F9EFE5] border border-[#EAE3D9] text-[#DE4F3C] font-serif font-semibold text-xs">
-                  DT
+                  RT
                 </div>
                 <div className="hidden md:flex flex-col text-left">
                   <span className="text-xs font-semibold text-[#201C1A] leading-tight">
@@ -295,6 +297,12 @@ export function Header({ onMenuClick }: HeaderProps) {
                   {doctorUser.email}
                 </p>
               </div>
+              <DropdownItem
+                onClick={() => router.push("/profile")}
+              >
+                <User className="h-3.5 w-3.5 text-[#7A746F]" />
+                Doctor Profile &amp; Credentials
+              </DropdownItem>
               <DropdownItem
                 onClick={() => {
                   setSecurityError(null);

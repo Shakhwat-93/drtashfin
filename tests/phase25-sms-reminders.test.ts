@@ -71,7 +71,7 @@ describe("Phase 25 — Secure SMS Follow-up Reminder System", () => {
         chamberName: "Dhaka Chamber",
       });
 
-      assert.ok(msg.includes("Dr. Tashfin Ahmed"));
+      assert.ok(msg.includes("Dr. Mohammad Rubaiath Tashfin"));
       assert.ok(msg.includes("Nov 20, 2026"));
       assert.ok(msg.includes("16:30"));
       assert.ok(msg.includes("Dhaka Chamber"));

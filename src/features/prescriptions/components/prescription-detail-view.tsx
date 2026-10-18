@@ -23,6 +23,7 @@ import { Prescription } from "@/types/prescription";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { OFFICIAL_DOCTOR_PROFILE } from "@/config/doctor-profile";
 import { usePrescriptionArchive } from "../hooks/use-prescription-archive";
 
 export interface PrescriptionDetailViewProps {
@@ -421,13 +422,13 @@ export function PrescriptionDetailView({
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 border-b-2 border-[#201C1A] pb-6">
           <div>
             <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#201C1A] tracking-tight">
-              Dr. Tashfin
+              {OFFICIAL_DOCTOR_PROFILE.fullName}
             </h2>
             <p className="text-xs sm:text-sm font-medium text-[#DE4F3C] mt-0.5">
-              MBBS, BCS (Health), Clinical Specialist
+              {OFFICIAL_DOCTOR_PROFILE.qualifications} • {OFFICIAL_DOCTOR_PROFILE.primaryDesignation}
             </p>
             <p className="text-xs text-[#7A746F] mt-1">
-              Doctor-Patient Management & Clinical Consultation Practice
+              {OFFICIAL_DOCTOR_PROFILE.workplace}
             </p>
           </div>
 
@@ -622,9 +623,9 @@ export function PrescriptionDetailView({
 
           <div className="text-right sm:min-w-[200px] border-t border-[#201C1A] pt-2">
             <p className="font-serif text-sm font-bold text-[#201C1A]">
-              Dr. Tashfin
+              {OFFICIAL_DOCTOR_PROFILE.fullName}
             </p>
-            <p className="text-[11px] text-[#7A746F]">Attending Clinician</p>
+            <p className="text-[11px] text-[#7A746F]">{OFFICIAL_DOCTOR_PROFILE.primaryDesignation}</p>
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, SupabaseClient, User } from "@supabase/supabase-js";
 import { CLINICAL_API_SECURITY_HEADERS } from "@/lib/security/api-security";
+import { OFFICIAL_DOCTOR_PROFILE } from "@/config/doctor-profile";
 
 export const DR_ACCESS_COOKIE = "dr_access_token";
 export const DR_REFRESH_COOKIE = "dr_refresh_token";
@@ -12,6 +13,12 @@ export interface DoctorIdentity {
   fullName: string;
   specialty: string;
   role: "doctor";
+  bengaliName?: string;
+  qualifications?: string;
+  primaryDesignation?: string;
+  fellowship?: string;
+  additionalTraining?: string;
+  workplace?: string;
 }
 
 export interface VerifiedDoctorSession {
@@ -315,21 +322,31 @@ export async function verifyDoctorSession(
 
   const doctorIdentity: DoctorIdentity = {
     id: verifiedUser.id,
-    email: String(doctorRecord?.email || verifiedUser.email || ""),
+    email: String(doctorRecord?.email || verifiedUser.email || OFFICIAL_DOCTOR_PROFILE.email),
     doctorCode: String(
       doctorRecord?.doctor_code ||
         verifiedUser.app_metadata?.doctor_code ||
-        "dr-tashfin"
+        OFFICIAL_DOCTOR_PROFILE.doctorCode
     ),
     fullName: String(
-      doctorRecord?.full_name || userMeta.name || "Dr. Tashfin Ahmed"
+      doctorRecord?.full_name || userMeta.name || OFFICIAL_DOCTOR_PROFILE.fullName
     ),
     specialty: String(
       doctorRecord?.specialty ||
         userMeta.specialty ||
-        "Cardiology & Medicine"
+        OFFICIAL_DOCTOR_PROFILE.primaryDesignation
     ),
     role: "doctor",
+    bengaliName: String(userMeta.bengali_name || OFFICIAL_DOCTOR_PROFILE.bengaliName),
+    qualifications: String(userMeta.qualifications || OFFICIAL_DOCTOR_PROFILE.qualifications),
+    primaryDesignation: String(
+      doctorRecord?.specialty ||
+        userMeta.primary_designation ||
+        OFFICIAL_DOCTOR_PROFILE.primaryDesignation
+    ),
+    fellowship: String(userMeta.fellowship || OFFICIAL_DOCTOR_PROFILE.fellowship),
+    additionalTraining: String(userMeta.additional_training || OFFICIAL_DOCTOR_PROFILE.additionalTraining),
+    workplace: String(userMeta.workplace || OFFICIAL_DOCTOR_PROFILE.workplace),
   };
 
   return {

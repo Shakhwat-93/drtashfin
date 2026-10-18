@@ -34,7 +34,7 @@ export async function generatePrescriptionPdf({
         margin: 36, // 0.5 inch margins
         info: {
           Title: `Prescription - ${prescription.prescriptionCode}`,
-          Author: "Dr. Tashfin",
+          Author: "Dr. Mohammad Rubaiath Tashfin",
           Subject: `Medical Prescription for ${patient.name} (${patient.patientId})`,
           Creator: "Doctor Tashfin Patient Management System",
         },
@@ -80,24 +80,24 @@ export async function generatePrescriptionPdf({
       // Top Header: Practice & Clinician Branding
       doc
         .font(fontBold)
-        .fontSize(20)
+        .fontSize(17)
         .fillColor("#201C1A")
-        .text("Dr. Tashfin", margin, margin);
+        .text("Dr. Mohammad Rubaiath Tashfin", margin, margin);
 
       doc
         .font(fontBold)
-        .fontSize(10)
+        .fontSize(9)
         .fillColor("#DE4F3C")
-        .text("MBBS, BCS (Health), Clinical Specialist", margin, margin + 26);
+        .text("M.B.B.S., M.S. (Ortho-Surgery) • Paediatric Orthopaedic Surgeon", margin, margin + 24);
 
       doc
         .font(fontReg)
-        .fontSize(8.5)
+        .fontSize(8)
         .fillColor("#7A746F")
         .text(
-          "Doctor-Patient Management & Clinical Consultation Practice",
+          "Rangpur Medical College & Hospital, Rangpur, Bangladesh",
           margin,
-          margin + 40
+          margin + 38
         );
 
       // Top Right: Prescription Code & Meta
@@ -446,9 +446,9 @@ export async function generatePrescriptionPdf({
 
       doc
         .font(fontBold)
-        .fontSize(10)
+        .fontSize(9.5)
         .fillColor("#201C1A")
-        .text("Dr. Tashfin", sigX, footerY + 26, {
+        .text("Dr. Mohammad Rubaiath Tashfin", sigX, footerY + 26, {
           width: 160,
           align: "center",
         });
@@ -457,7 +457,7 @@ export async function generatePrescriptionPdf({
         .font(fontReg)
         .fontSize(7.5)
         .fillColor("#7A746F")
-        .text("Attending Clinician", sigX, footerY + 38, {
+        .text("Paediatric Orthopaedic Surgeon", sigX, footerY + 38, {
           width: 160,
           align: "center",
         });

@@ -4,7 +4,7 @@ import * as React from "react";
 import { AdminShell } from "@/components/layout/admin-shell";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/ui/page-header";
-import { SmsGatewaySettingsSection } from "@/features/settings";
+import { SmsGatewaySettingsSection, DoctorProfileCard } from "@/features/settings";
 import { Sliders, ShieldCheck, Award, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
@@ -29,6 +29,9 @@ export default function SettingsPage() {
 
         {/* Settings Sections */}
         <div className="space-y-6">
+          {/* Official Doctor Profile Card */}
+          <DoctorProfileCard />
+
           {/* Doctor Achievements & Profile Card */}
           <Card className="p-5 border border-[#EAE3D9] bg-white rounded-xl shadow-2xs">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -41,7 +44,7 @@ export default function SettingsPage() {
                     Doctor Lifetime Achievements & Evidence
                   </h3>
                   <p className="text-xs text-[#7A746F] mt-0.5 max-w-xl">
-                    Manage Dr. Tashfin&apos;s qualifications, clinical certifications, awards, workshops, research publications, and verified Google Drive evidence records.
+                    Manage Dr. Mohammad Rubaiath Tashfin&apos;s qualifications, clinical certifications, awards, workshops, research publications, and verified Google Drive evidence records.
                   </p>
                 </div>
               </div>

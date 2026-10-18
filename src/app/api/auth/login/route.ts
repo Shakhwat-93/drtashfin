@@ -11,6 +11,7 @@ import {
   resetRateLimit,
 } from "@/lib/security/rate-limiter";
 import { CLINICAL_API_SECURITY_HEADERS } from "@/lib/security/api-security";
+import { OFFICIAL_DOCTOR_PROFILE } from "@/config/doctor-profile";
 
 export const runtime = "nodejs";
 
@@ -172,17 +173,27 @@ export async function POST(request: NextRequest) {
       doctorCode: String(
         doctorRecord?.doctor_code ||
           data.user.app_metadata?.doctor_code ||
-          "dr-tashfin"
+          OFFICIAL_DOCTOR_PROFILE.doctorCode
       ),
       fullName: String(
-        doctorRecord?.full_name || userMeta.name || "Dr. Tashfin Ahmed"
+        doctorRecord?.full_name || userMeta.name || OFFICIAL_DOCTOR_PROFILE.fullName
       ),
       specialty: String(
         doctorRecord?.specialty ||
           userMeta.specialty ||
-          "Cardiology & Medicine"
+          OFFICIAL_DOCTOR_PROFILE.primaryDesignation
       ),
       role: "doctor" as const,
+      bengaliName: String(userMeta.bengali_name || OFFICIAL_DOCTOR_PROFILE.bengaliName),
+      qualifications: String(userMeta.qualifications || OFFICIAL_DOCTOR_PROFILE.qualifications),
+      primaryDesignation: String(
+        doctorRecord?.specialty ||
+          userMeta.primary_designation ||
+          OFFICIAL_DOCTOR_PROFILE.primaryDesignation
+      ),
+      fellowship: String(userMeta.fellowship || OFFICIAL_DOCTOR_PROFILE.fellowship),
+      additionalTraining: String(userMeta.additional_training || OFFICIAL_DOCTOR_PROFILE.additionalTraining),
+      workplace: String(userMeta.workplace || OFFICIAL_DOCTOR_PROFILE.workplace),
     };
 
     const response = NextResponse.json(

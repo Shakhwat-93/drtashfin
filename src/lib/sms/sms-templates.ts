@@ -1,4 +1,5 @@
 import { formatDisplayDate, formatAppointmentTime } from "@/lib/date-utils";
+import { OFFICIAL_DOCTOR_PROFILE } from "@/config/doctor-profile";
 
 export interface ReminderTemplateParams {
   doctorName?: string;
@@ -9,8 +10,8 @@ export interface ReminderTemplateParams {
   language?: "en" | "bn";
 }
 
-const DEFAULT_DOCTOR_NAME_EN = "Dr. Tashfin Ahmed";
-const DEFAULT_DOCTOR_NAME_BN = "ডাঃ তাসফিন আহমেদ";
+const DEFAULT_DOCTOR_NAME_EN = OFFICIAL_DOCTOR_PROFILE.fullName;
+const DEFAULT_DOCTOR_NAME_BN = OFFICIAL_DOCTOR_PROFILE.bengaliName;
 const DEFAULT_CLINIC_PHONE = "+8801700000000";
 
 /**
