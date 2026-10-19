@@ -35,7 +35,7 @@ export class MockDiagnosticReportRepository implements IDiagnosticReportReposito
 
   private async enrichReportMetadata(report: DiagnosticReport): Promise<DiagnosticReport> {
     try {
-      const patient = await this.patientRepo.getPatientById(report.patientId);
+      const patient = await this.patientRepo.getPatientByIdentifier(report.patientId);
       if (patient) {
         report.patientName = patient.name;
         report.patientCode = patient.patientId;
@@ -110,7 +110,7 @@ export class MockDiagnosticReportRepository implements IDiagnosticReportReposito
     }
 
     // 2. Patient existence check
-    const patient = await this.patientRepo.getPatientById(dto.patientId);
+    const patient = await this.patientRepo.getPatientByIdentifier(dto.patientId);
     if (!patient) {
       throw new DataError(`Patient with ID "${dto.patientId}" does not exist`, "NOT_FOUND");
     }

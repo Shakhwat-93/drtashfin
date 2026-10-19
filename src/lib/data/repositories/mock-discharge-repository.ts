@@ -46,7 +46,7 @@ export class MockDischargeRepository implements IDischargeRepository {
     discharge: PatientDischarge
   ): Promise<PatientDischarge> {
     try {
-      const patient = await this.patientRepo.getPatientById(discharge.patientId);
+      const patient = await this.patientRepo.getPatientByIdentifier(discharge.patientId);
       if (patient) {
         discharge.patientName = patient.name;
         discharge.patientCode = patient.patientId;
@@ -147,7 +147,7 @@ export class MockDischargeRepository implements IDischargeRepository {
     }
 
     // 2. Patient existence check
-    const patient = await this.patientRepo.getPatientById(dto.patientId);
+    const patient = await this.patientRepo.getPatientByIdentifier(dto.patientId);
     if (!patient) {
       throw new DataError(
         `Patient with ID "${dto.patientId}" does not exist`,

@@ -38,7 +38,7 @@ export class MockProcedureRepository implements IProcedureRepository {
     procedure: PatientProcedure
   ): Promise<PatientProcedure> {
     try {
-      const patient = await this.patientRepo.getPatientById(procedure.patientId);
+      const patient = await this.patientRepo.getPatientByIdentifier(procedure.patientId);
       if (patient) {
         procedure.patientName = patient.name;
         procedure.patientCode = patient.patientId;
@@ -137,7 +137,7 @@ export class MockProcedureRepository implements IProcedureRepository {
     }
 
     // 2. Patient existence check
-    const patient = await this.patientRepo.getPatientById(dto.patientId);
+    const patient = await this.patientRepo.getPatientByIdentifier(dto.patientId);
     if (!patient) {
       throw new DataError(
         `Patient with ID "${dto.patientId}" does not exist`,
