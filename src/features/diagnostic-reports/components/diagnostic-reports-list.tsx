@@ -323,15 +323,21 @@ export function DiagnosticReportsList({
                   {/* Right Column: Actions */}
                   <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2.5 shrink-0 border-t sm:border-t-0 border-[#EAE3D9]/60 pt-3 sm:pt-0">
                     {/* Open Google Drive Link */}
-                    <a
-                      href={report.driveUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#FAF5EE] text-[#DE4F3C] border border-[#EAE3D9] hover:bg-[#DE4F3C] hover:text-white transition-colors shadow-2xs group"
-                    >
-                      <span>Open Google Drive Report</span>
-                      <ExternalLink className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
-                    </a>
+                    {report.driveUrl ? (
+                      <a
+                        href={report.driveUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#FAF5EE] text-[#DE4F3C] border border-[#EAE3D9] hover:bg-[#DE4F3C] hover:text-white transition-colors shadow-2xs group"
+                      >
+                        <span>Open Google Drive Report</span>
+                        <ExternalLink className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+                      </a>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] text-[#7A746F] bg-[#FAF5EE]/60 border border-[#EAE3D9]/60">
+                        No Link Attached
+                      </span>
+                    )}
 
                     {/* Edit and Delete Actions */}
                     <div className="flex items-center gap-1.5">

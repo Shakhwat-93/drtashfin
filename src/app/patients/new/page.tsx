@@ -11,7 +11,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PatientForm } from "@/features/patients";
 import { CreatePatientDTO, UpdatePatientDTO } from "@/types/patient";
-import { getPatientRepository } from "@/lib/data";
+import { DiagnosticReportCategory } from "@/types/diagnostic-report";
+import {
+  getPatientRepository,
+  getFollowUpRepository,
+  getDiagnosticReportRepository,
+  getPrescriptionRepository,
+} from "@/lib/data";
 import { formatChamberPatientId, generateNextChamberPatientId } from "@/lib/data/id-generator";
 import { useChamber } from "@/features/chamber";
 
@@ -46,11 +52,98 @@ export default function NewPatientPage() {
     setIsSubmitting(true);
     try {
       const repo = getPatientRepository();
+      const patientData = data as CreatePatientDTO;
       const payload: CreatePatientDTO = {
-        ...(data as CreatePatientDTO),
-        chamberId: (data as CreatePatientDTO).chamberId || activeChamber.id,
+        ...patientData,
+        chamberId: patientData.chamberId || activeChamber.id,
       };
       const created = await repo.createPatient(payload);
+
+      // 1. Follow-up scheduling integration
+      if (patientData.nextFollowUpDate && patientData.nextFollowUpDate.trim() !== "") {
+        try {
+          const followUpRepo = getFollowUpRepository();
+          await followUpRepo.createFollowUp({
+            patientId: created.id,
+            patientCode: created.patientId,
+            chamberId: created.chamberId,
+            scheduledDate: patientData.nextFollowUpDate.trim(),
+            reason:
+              patientData.nextFollowUpReason?.trim() ||
+              "Initial post-registration follow-up",
+            priority: patientData.nextFollowUpPriority || "routine",
+          });
+        } catch (fErr) {
+          console.error("Failed to schedule initial follow-up:", fErr);
+        }
+      }
+
+      // 2. Diagnostic Investigation integration
+      if (patientData.investigationName && patientData.investigationName.trim() !== "") {
+        try {
+          const diagRepo = getDiagnosticReportRepository();
+          await diagRepo.createReport({
+            patientId: created.id,
+            testName: patientData.investigationName.trim(),
+            category:
+              (patientData.investigationCategory as DiagnosticReportCategory) ||
+              "X-ray",
+            testDate:
+              patientData.investigationDate?.trim() ||
+              new Date().toISOString().split("T")[0],
+            diagnosticCenter: patientData.investigationFacility?.trim() || null,
+            doctorNotes: patientData.investigationNotes?.trim() || null,
+            driveUrl: patientData.investigationDriveUrl?.trim() || null,
+          });
+        } catch (dErr) {
+          console.error("Failed to record diagnostic investigation:", dErr);
+        }
+      }
+
+      // 3. Initial Prescription integration from Current Medications
+      if (
+        patientData.createPrescriptionFromMedications &&
+        patientData.currentMedications?.trim()
+      ) {
+        try {
+          const rxRepo = getPrescriptionRepository();
+          const medLines = patientData.currentMedications
+            .split(/[\n,;]+/)
+            .map((s) => s.trim())
+            .filter(Boolean);
+
+          const items = medLines.map((med, idx) => {
+            const freqMatch = med.match(/(\d\s*\+\s*\d(?:\s*\+\s*\d)?)/);
+            const frequency = freqMatch
+              ? freqMatch[1].replace(/\s+/g, "")
+              : "1+0+1";
+            const cleanName =
+              med.replace(/\(?\d\s*\+\s*\d(?:\s*\+\s*\d)?\)?/, "").trim() || med;
+
+            return {
+              brandName: cleanName,
+              genericName: cleanName,
+              frequency,
+              route: "Oral",
+              orderIndex: idx,
+            };
+          });
+
+          if (items.length > 0) {
+            await rxRepo.createPrescription({
+              patientId: created.id,
+              chamberId: created.chamberId,
+              prescriptionDate: new Date().toISOString().split("T")[0],
+              status: "finalized",
+              advice: "Current medications recorded during registration.",
+              items,
+            });
+          }
+        } catch (rxErr) {
+          console.error("Failed to record initial prescription:", rxErr);
+        }
+      }
+
       router.push(`/patients/${created.patientId}`);
     } catch (err) {
       setIsSubmitting(false);

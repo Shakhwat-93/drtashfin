@@ -29,7 +29,7 @@ export const createFollowUpSchema = z.object({
     .trim()
     .min(1, "Patient identifier is required."),
   patientCode: z.string().trim().optional(),
-  chamberId: z.string().uuid("Invalid chamber ID format.").optional().nullable().or(z.literal("")),
+  chamberId: z.string().trim().max(100, "Invalid chamber ID format.").optional().nullable().or(z.literal("")),
   consultationId: z.string().uuid("Invalid consultation ID.").optional().nullable().or(z.literal("")),
   originatingConsultationId: z.string().uuid("Invalid originating consultation ID.").optional().nullable().or(z.literal("")),
   scheduledDate: z

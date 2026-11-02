@@ -18,13 +18,16 @@ import { createPatientSchema, updatePatientSchema } from "@/schemas/patient";
 import { calculateAgeFromDob } from "@/lib/date-utils";
 
 function mapPatientFromRow(row: Record<string, unknown>): Patient {
+  const dob = row.date_of_birth ? String(row.date_of_birth) : undefined;
+  const computedAge = dob ? calculateAge(dob) : Number(row.age ?? 0);
+
   return {
     id: String(row.id),
     patientId: String(row.patient_id),
     chamberId: row.chamber_id ? String(row.chamber_id) : undefined,
     name: String(row.name),
-    dateOfBirth: String(row.date_of_birth),
-    age: Number(row.age),
+    dateOfBirth: dob,
+    age: computedAge !== null && computedAge !== undefined ? computedAge : Number(row.age ?? 0),
     gender: row.gender as Patient["gender"],
     weight: row.weight != null ? Number(row.weight) : undefined,
     phone: row.phone ? String(row.phone) : undefined,
@@ -225,11 +228,16 @@ export class SupabasePatientRepository implements IPatientRepository {
     }
 
     const validated = parseResult.data;
-    const computedAge = validated.age ?? calculateAge(validated.dateOfBirth);
+    const computedAge =
+      validated.age !== undefined
+        ? validated.age
+        : validated.dateOfBirth && validated.dateOfBirth.trim() !== ""
+        ? calculateAge(validated.dateOfBirth)
+        : 0;
 
     const payload: Record<string, unknown> = {
       name: validated.name.trim(),
-      date_of_birth: validated.dateOfBirth,
+      date_of_birth: validated.dateOfBirth?.trim() || null,
       age: computedAge,
       gender: validated.gender,
       weight: validated.weight ?? null,
@@ -351,8 +359,13 @@ export class SupabasePatientRepository implements IPatientRepository {
     }
 
     if (validated.dateOfBirth !== undefined) {
-      updatePayload.date_of_birth = validated.dateOfBirth;
-      updatePayload.age = validated.age ?? calculateAge(validated.dateOfBirth);
+      const cleanDob = validated.dateOfBirth?.trim() || null;
+      updatePayload.date_of_birth = cleanDob;
+      if (cleanDob) {
+        updatePayload.age = calculateAge(cleanDob);
+      } else if (validated.age !== undefined) {
+        updatePayload.age = validated.age;
+      }
     } else if (validated.age !== undefined) {
       updatePayload.age = validated.age;
     }

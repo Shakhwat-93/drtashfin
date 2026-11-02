@@ -10,7 +10,7 @@ export interface Patient {
   patientId: string; // Human-readable identifier (e.g., PT-000001, DH-000001)
   chamberId?: string; // UUID of assigned chamber (Dhaka, Rangpur, Narayanganj or unassigned)
   name: string;
-  dateOfBirth: string; // ISO format (YYYY-MM-DD)
+  dateOfBirth?: string; // ISO format (YYYY-MM-DD) or undefined if registered with age only
   age: number;
   gender: Gender;
   weight?: number; // Weight in kg
@@ -48,7 +48,7 @@ export interface Patient {
 
 export interface CreatePatientDTO {
   name: string;
-  dateOfBirth: string;
+  dateOfBirth?: string;
   gender: Gender;
   chamberId?: string;
   age?: number;
@@ -82,6 +82,22 @@ export interface CreatePatientDTO {
   smsConsentStatus?: SmsConsentStatus;
   smsConsentAt?: string | null;
   smsConsentSource?: SmsConsentSource | null;
+
+  // Optional registration follow-up integration
+  nextFollowUpDate?: string;
+  nextFollowUpReason?: string;
+  nextFollowUpPriority?: "routine" | "review" | "urgent" | "normal" | "high";
+
+  // Optional registration diagnostic investigation integration
+  investigationName?: string;
+  investigationCategory?: string;
+  investigationDate?: string;
+  investigationFacility?: string;
+  investigationNotes?: string;
+  investigationDriveUrl?: string;
+
+  // Optional create initial prescription from current medications
+  createPrescriptionFromMedications?: boolean;
 }
 
 export interface UpdatePatientDTO {

@@ -227,14 +227,16 @@ export class MockPatientRepository implements IPatientRepository {
     const age =
       validated.age !== undefined
         ? validated.age
-        : this.calculateAge(validated.dateOfBirth);
+        : validated.dateOfBirth && validated.dateOfBirth.trim() !== ""
+        ? this.calculateAge(validated.dateOfBirth)
+        : 0;
 
     const newPatient: Patient = {
       id: generateInternalUUID(),
       patientId: newPatientId,
       ...(validated.chamberId ? { chamberId: validated.chamberId } : {}),
       name: validated.name,
-      dateOfBirth: validated.dateOfBirth,
+      ...(validated.dateOfBirth?.trim() ? { dateOfBirth: validated.dateOfBirth.trim() } : {}),
       age,
       gender: validated.gender,
       ...(validated.weight !== undefined ? { weight: validated.weight } : {}),
@@ -306,8 +308,12 @@ export class MockPatientRepository implements IPatientRepository {
     const now = new Date().toISOString();
 
     let computedAge = existing.age;
-    if (data.dateOfBirth) {
-      computedAge = data.age !== undefined ? data.age : this.calculateAge(data.dateOfBirth);
+    if (data.dateOfBirth !== undefined) {
+      if (data.dateOfBirth.trim() !== "") {
+        computedAge = this.calculateAge(data.dateOfBirth);
+      } else if (data.age !== undefined) {
+        computedAge = data.age;
+      }
     } else if (data.age !== undefined) {
       computedAge = data.age;
     }

@@ -48,6 +48,7 @@ import {
 import { usePatients, useDashboardMetrics } from "@/features/patients";
 import { useChamber } from "@/features/chamber";
 import { Gender, BloodGroup } from "@/types";
+import { calculateAgeFromDob } from "@/lib/date-utils";
 import { DashboardScheduleWidget } from "@/features/calendar";
 
 export default function DashboardPage() {
@@ -59,7 +60,8 @@ export default function DashboardPage() {
 
   // Form State
   const [fullName, setFullName] = React.useState("");
-  const [dateOfBirth, setDateOfBirth] = React.useState("1985-05-15");
+  const [dateOfBirth, setDateOfBirth] = React.useState("");
+  const [age, setAge] = React.useState<string>("");
   const [gender, setGender] = React.useState<Gender>("female");
   const [phone, setPhone] = React.useState("");
   const [weight, setWeight] = React.useState<string>("65");
@@ -88,10 +90,17 @@ export default function DashboardPage() {
     setFormError(null);
     setIsSubmitting(true);
 
+    if (!dateOfBirth && !age) {
+      setFormError("Please provide either Date of Birth or Age (Years).");
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       await createPatient({
         name: fullName.trim(),
-        dateOfBirth,
+        dateOfBirth: dateOfBirth || undefined,
+        age: age ? parseInt(age, 10) : undefined,
         gender,
         weight: weight ? parseFloat(weight) : undefined,
         phone: phone.trim() || undefined,
@@ -101,6 +110,8 @@ export default function DashboardPage() {
 
       // Reset form and close
       setFullName("");
+      setDateOfBirth("");
+      setAge("");
       setPhone("");
       setIsNewPatientModalOpen(false);
     } catch (err) {
@@ -486,14 +497,35 @@ export default function DashboardPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="space-y-1.5">
-                  <Label isRequired>Date of Birth</Label>
+                  <Label>Date of Birth</Label>
                   <Input
-                    required
                     type="date"
+                    max={new Date().toISOString().split("T")[0]}
                     value={dateOfBirth}
-                    onChange={(e) => setDateOfBirth(e.target.value)}
+                    onChange={(e) => {
+                      const dob = e.target.value;
+                      setDateOfBirth(dob);
+                      if (dob) {
+                        const calculated = calculateAgeFromDob(dob);
+                        if (calculated !== null) setAge(String(calculated));
+                      }
+                    }}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label isRequired>Age (Years)</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={130}
+                    placeholder={dateOfBirth ? "Auto" : "Enter age"}
+                    value={age}
+                    readOnly={Boolean(dateOfBirth)}
+                    onChange={(e) => {
+                      if (/^\d*$/.test(e.target.value)) setAge(e.target.value);
+                    }}
                   />
                 </div>
                 <div className="space-y-1.5">

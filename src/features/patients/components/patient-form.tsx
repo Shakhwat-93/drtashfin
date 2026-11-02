@@ -11,9 +11,15 @@ import {
   Activity,
   ShieldAlert,
   MessageSquare,
+  Calendar,
+  FileText,
 } from "lucide-react";
 import { Patient, CreatePatientDTO, UpdatePatientDTO } from "@/types/patient";
 import { Gender, BloodGroup } from "@/types/common";
+import {
+  DiagnosticReportCategory,
+  DIAGNOSTIC_REPORT_CATEGORIES,
+} from "@/types/diagnostic-report";
 import { createPatientSchema, updatePatientSchema } from "@/schemas/patient";
 import { getPatientRepository } from "@/lib/data";
 import { calculateAgeFromDob } from "@/lib/date-utils";
@@ -145,9 +151,27 @@ export function PatientForm({
   const [currentMedications, setCurrentMedications] = React.useState(
     initialData?.currentMedications || ""
   );
+  const [createPrescriptionFromMedications, setCreatePrescriptionFromMedications] =
+    React.useState(false);
   const [patientNotes, setPatientNotes] = React.useState(
     initialData?.patientNotes || ""
   );
+
+  // Section D: Follow-up Scheduling (Registration workflow)
+  const [nextFollowUpDate, setNextFollowUpDate] = React.useState("");
+  const [nextFollowUpReason, setNextFollowUpReason] = React.useState("Initial follow-up");
+  const [nextFollowUpPriority, setNextFollowUpPriority] = React.useState<
+    "routine" | "urgent" | "high"
+  >("routine");
+
+  // Section E: Initial Diagnostic Investigation (Registration workflow)
+  const [investigationName, setInvestigationName] = React.useState("");
+  const [investigationCategory, setInvestigationCategory] =
+    React.useState<DiagnosticReportCategory>("X-ray");
+  const [investigationDate, setInvestigationDate] = React.useState("");
+  const [investigationFacility, setInvestigationFacility] = React.useState("");
+  const [investigationNotes, setInvestigationNotes] = React.useState("");
+  const [investigationDriveUrl, setInvestigationDriveUrl] = React.useState("");
 
   // Validation & Duplicate State
   const [errors, setErrors] = React.useState<Record<string, string>>({});
@@ -162,8 +186,12 @@ export function PatientForm({
         name.trim() !== "" ||
         phone.trim() !== "" ||
         dateOfBirth !== "" ||
+        age !== "" ||
         address.trim() !== "" ||
-        allergies.trim() !== ""
+        allergies.trim() !== "" ||
+        nextFollowUpDate !== "" ||
+        investigationName !== "" ||
+        createPrescriptionFromMedications
       );
     }
     return (
@@ -264,18 +292,29 @@ export function PatientForm({
       const calculatedAge = calculateAgeFromDob(dob);
       if (calculatedAge !== null) {
         setAge(String(calculatedAge));
-        setErrors((prev) => {
-          if (!prev.dateOfBirth && !prev.age) return prev;
-          const updated = { ...prev };
-          delete updated.dateOfBirth;
-          delete updated.age;
-          return updated;
-        });
-      } else {
-        setAge("");
       }
-    } else {
-      setAge("");
+    }
+    setErrors((prev) => {
+      if (!prev.dateOfBirth && !prev.age) return prev;
+      const updated = { ...prev };
+      delete updated.dateOfBirth;
+      delete updated.age;
+      return updated;
+    });
+  };
+
+  // Direct manual Age entry (when Date of Birth is omitted or approximate)
+  const handleAgeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (/^\d*$/.test(val)) {
+      setAge(val);
+      setErrors((prev) => {
+        if (!prev.dateOfBirth && !prev.age) return prev;
+        const updated = { ...prev };
+        delete updated.dateOfBirth;
+        delete updated.age;
+        return updated;
+      });
     }
   };
 
@@ -421,6 +460,33 @@ export function PatientForm({
           : undefined,
       patientNotes:
         patientNotes.trim() !== "" ? patientNotes.trim() : undefined,
+
+      // Section D (Registration Follow-up Integration)
+      nextFollowUpDate:
+        nextFollowUpDate.trim() !== "" ? nextFollowUpDate.trim() : undefined,
+      nextFollowUpReason:
+        nextFollowUpReason.trim() !== "" ? nextFollowUpReason.trim() : undefined,
+      nextFollowUpPriority,
+
+      // Section E (Registration Diagnostic Integration)
+      investigationName:
+        investigationName.trim() !== "" ? investigationName.trim() : undefined,
+      investigationCategory,
+      investigationDate:
+        investigationDate.trim() !== "" ? investigationDate.trim() : undefined,
+      investigationFacility:
+        investigationFacility.trim() !== ""
+          ? investigationFacility.trim()
+          : undefined,
+      investigationNotes:
+        investigationNotes.trim() !== "" ? investigationNotes.trim() : undefined,
+      investigationDriveUrl:
+        investigationDriveUrl.trim() !== ""
+          ? investigationDriveUrl.trim()
+          : undefined,
+
+      // Prescription Integration from Current Medications
+      createPrescriptionFromMedications,
     };
 
     // Zod validation
@@ -622,9 +688,12 @@ export function PatientForm({
 
           {/* Date of Birth */}
           <div>
-            <label className="block text-xs font-semibold text-[#201C1A] mb-1">
-              Date of Birth <span className="text-[#DE4F3C]">*</span>
-            </label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-xs font-semibold text-[#201C1A]">
+                Date of Birth
+              </label>
+              <span className="text-[10px] text-[#7A746F]">Auto-calculates Age</span>
+            </div>
             <input
               type="date"
               name="dateOfBirth"
@@ -637,7 +706,6 @@ export function PatientForm({
                   ? "border-rose-400 focus:border-rose-500 focus:ring-rose-200"
                   : "border-[#EAE3D9] focus:border-[#DE4F3C] focus:ring-[#DE4F3C]/20"
               )}
-              required
             />
             {errors.dateOfBirth && (
               <p className="mt-1 text-[11px] text-rose-600 font-medium">
@@ -650,21 +718,27 @@ export function PatientForm({
           <div>
             <div className="flex items-center justify-between mb-1">
               <label className="block text-xs font-semibold text-[#201C1A]">
-                Age (Years)
+                Age (Years) <span className="text-[#DE4F3C]">*</span>
               </label>
-              <span className="text-[10px] text-[#7A746F]">Auto-calculated</span>
+              <span className="text-[10px] text-[#7A746F]">
+                {dateOfBirth ? "Auto from DOB" : "Direct entry"}
+              </span>
             </div>
             <input
-              type="text"
+              type="number"
+              min={0}
+              max={130}
               name="age"
               value={age}
-              readOnly
-              placeholder="Auto from DOB"
+              readOnly={Boolean(dateOfBirth)}
+              onChange={handleAgeChange}
+              placeholder={dateOfBirth ? "Auto from DOB" : "Enter age in years"}
               className={cn(
-                "w-full rounded-lg border bg-[#FAF5EE]/60 px-3.5 py-2.5 text-xs font-medium text-[#201C1A] placeholder-[#7A746F] cursor-not-allowed transition-all focus:outline-hidden",
-                errors.age
-                  ? "border-rose-400 focus:border-rose-500"
-                  : "border-[#EAE3D9]"
+                "w-full rounded-lg border px-3.5 py-2.5 text-xs font-medium text-[#201C1A] placeholder-[#7A746F] transition-all focus:outline-hidden focus:ring-2",
+                dateOfBirth
+                  ? "bg-[#FAF5EE]/60 text-[#7A746F] cursor-not-allowed border-[#EAE3D9]"
+                  : "bg-white border-[#EAE3D9] focus:border-[#DE4F3C] focus:ring-[#DE4F3C]/20",
+                errors.age && "border-rose-400 focus:border-rose-500 focus:ring-rose-200"
               )}
             />
             {errors.age ? (
@@ -673,9 +747,9 @@ export function PatientForm({
               </p>
             ) : (
               <p className="mt-1 text-[10px] text-[#7A746F]">
-                {age !== ""
+                {dateOfBirth
                   ? `Calculated age: ${age} yr${Number(age) === 1 ? "" : "s"}`
-                  : "Select a valid Date of Birth"}
+                  : "Enter completed years (0-130)"}
               </p>
             )}
           </div>
@@ -1231,7 +1305,7 @@ export function PatientForm({
           </div>
 
           {/* Current Medications */}
-          <div className="sm:col-span-2 space-y-1">
+          <div className="sm:col-span-2 space-y-2">
             <label className="block text-xs font-semibold text-[#201C1A]">
               Current Medications (Patient-Reported)
             </label>
@@ -1243,6 +1317,21 @@ export function PatientForm({
               placeholder="e.g. Tab. Losartan 50mg (1+0+0), Tab. Metformin 500mg (1+0+1)..."
               className="w-full rounded-lg border border-[#EAE3D9] bg-white px-3.5 py-2 text-xs text-[#201C1A] placeholder-[#7A746F] transition-all focus:border-[#DE4F3C] focus:outline-hidden focus:ring-2 focus:ring-[#DE4F3C]/20"
             />
+            {mode === "create" && currentMedications.trim() !== "" && (
+              <label className="flex items-center gap-2 pt-1 text-xs text-[#201C1A] cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={createPrescriptionFromMedications}
+                  onChange={(e) =>
+                    setCreatePrescriptionFromMedications(e.target.checked)
+                  }
+                  className="rounded border-[#EAE3D9] text-[#DE4F3C] focus:ring-[#DE4F3C]/30 h-3.5 w-3.5 cursor-pointer"
+                />
+                <span className="font-medium text-[#201C1A]">
+                  Record initial prescription in Prescription Section (/prescriptions)
+                </span>
+              </label>
+            )}
           </div>
 
           {/* Clinical Notes */}
@@ -1261,6 +1350,196 @@ export function PatientForm({
           </div>
         </div>
       </div>
+
+      {/* ====================================================================== */}
+      {/* SECTION D: FOLLOW-UP SCHEDULING (REGISTRATION WORKFLOW) */}
+      {/* ====================================================================== */}
+      {mode === "create" && (
+        <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF5EE]/30 p-5 space-y-4">
+          <div className="flex items-center justify-between border-b border-[#EAE3D9] pb-3">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-[#DE4F3C]" />
+              <h4 className="font-serif text-sm font-bold text-[#201C1A] uppercase tracking-wide">
+                Section D &mdash; Follow-up Scheduling & Next Visit
+              </h4>
+            </div>
+            <Badge variant="neutral" className="text-[10px]">
+              Optional
+            </Badge>
+          </div>
+
+          <p className="text-xs text-[#7A746F]">
+            Schedule the patient&apos;s next visit directly. This will automatically populate the Follow-up Calendar (/follow-ups) and appear in the patient&apos;s timeline.
+          </p>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div>
+              <label className="block text-xs font-semibold text-[#201C1A] mb-1">
+                Next Follow-up Date
+              </label>
+              <input
+                type="date"
+                name="nextFollowUpDate"
+                value={nextFollowUpDate}
+                min={new Date().toISOString().split("T")[0]}
+                onChange={(e) => setNextFollowUpDate(e.target.value)}
+                className="w-full rounded-lg border border-[#EAE3D9] bg-white px-3.5 py-2 text-xs text-[#201C1A] transition-all focus:border-[#DE4F3C] focus:outline-hidden focus:ring-2 focus:ring-[#DE4F3C]/20"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#201C1A] mb-1">
+                Follow-up Reason
+              </label>
+              <input
+                type="text"
+                name="nextFollowUpReason"
+                value={nextFollowUpReason}
+                onChange={(e) => setNextFollowUpReason(e.target.value)}
+                placeholder="e.g. Suture removal, X-ray check, Review"
+                className="w-full rounded-lg border border-[#EAE3D9] bg-white px-3.5 py-2 text-xs text-[#201C1A] placeholder-[#7A746F] transition-all focus:border-[#DE4F3C] focus:outline-hidden focus:ring-2 focus:ring-[#DE4F3C]/20"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#201C1A] mb-1">
+                Priority Level
+              </label>
+              <select
+                name="nextFollowUpPriority"
+                value={nextFollowUpPriority}
+                onChange={(e) =>
+                  setNextFollowUpPriority(
+                    e.target.value as "routine" | "urgent" | "high"
+                  )
+                }
+                className="w-full rounded-lg border border-[#EAE3D9] bg-white px-3.5 py-2 text-xs text-[#201C1A] transition-all focus:border-[#DE4F3C] focus:outline-hidden focus:ring-2 focus:ring-[#DE4F3C]/20"
+              >
+                <option value="routine">Routine</option>
+                <option value="high">High Priority</option>
+                <option value="urgent">Urgent</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ====================================================================== */}
+      {/* SECTION E: INITIAL DIAGNOSTIC INVESTIGATION (REGISTRATION WORKFLOW) */}
+      {/* ====================================================================== */}
+      {mode === "create" && (
+        <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF5EE]/30 p-5 space-y-4">
+          <div className="flex items-center justify-between border-b border-[#EAE3D9] pb-3">
+            <div className="flex items-center gap-2">
+              <FileText className="h-4 w-4 text-[#DE4F3C]" />
+              <h4 className="font-serif text-sm font-bold text-[#201C1A] uppercase tracking-wide">
+                Section E &mdash; Diagnostic Investigation & Report
+              </h4>
+            </div>
+            <Badge variant="neutral" className="text-[10px]">
+              Optional
+            </Badge>
+          </div>
+
+          <p className="text-xs text-[#7A746F]">
+            Record initial diagnostic tests (e.g. X-Ray, MRI, Blood work). The test will immediately appear in the Investigation Section (/investigations) and in the patient profile. Google Drive link is optional.
+          </p>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label className="block text-xs font-semibold text-[#201C1A] mb-1">
+                Investigation / Test Name
+              </label>
+              <input
+                type="text"
+                name="investigationName"
+                value={investigationName}
+                onChange={(e) => setInvestigationName(e.target.value)}
+                placeholder="e.g. X-Ray Right Forearm AP/Lat, MRI Spine, CBC"
+                className="w-full rounded-lg border border-[#EAE3D9] bg-white px-3.5 py-2 text-xs text-[#201C1A] placeholder-[#7A746F] transition-all focus:border-[#DE4F3C] focus:outline-hidden focus:ring-2 focus:ring-[#DE4F3C]/20"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#201C1A] mb-1">
+                Test Category
+              </label>
+              <select
+                name="investigationCategory"
+                value={investigationCategory}
+                onChange={(e) =>
+                  setInvestigationCategory(
+                    e.target.value as DiagnosticReportCategory
+                  )
+                }
+                className="w-full rounded-lg border border-[#EAE3D9] bg-white px-3.5 py-2 text-xs text-[#201C1A] transition-all focus:border-[#DE4F3C] focus:outline-hidden focus:ring-2 focus:ring-[#DE4F3C]/20"
+              >
+                {DIAGNOSTIC_REPORT_CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#201C1A] mb-1">
+                Test Date
+              </label>
+              <input
+                type="date"
+                name="investigationDate"
+                value={investigationDate}
+                max={new Date().toISOString().split("T")[0]}
+                onChange={(e) => setInvestigationDate(e.target.value)}
+                className="w-full rounded-lg border border-[#EAE3D9] bg-white px-3.5 py-2 text-xs text-[#201C1A] transition-all focus:border-[#DE4F3C] focus:outline-hidden focus:ring-2 focus:ring-[#DE4F3C]/20"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#201C1A] mb-1">
+                Diagnostic Center / Facility
+              </label>
+              <input
+                type="text"
+                name="investigationFacility"
+                value={investigationFacility}
+                onChange={(e) => setInvestigationFacility(e.target.value)}
+                placeholder="e.g. Popular Diagnostic, Ibn Sina, Medinova"
+                className="w-full rounded-lg border border-[#EAE3D9] bg-white px-3.5 py-2 text-xs text-[#201C1A] placeholder-[#7A746F] transition-all focus:border-[#DE4F3C] focus:outline-hidden focus:ring-2 focus:ring-[#DE4F3C]/20"
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-semibold text-[#201C1A] mb-1">
+                Google Drive Link <span className="text-[10px] text-[#7A746F] font-normal">(Optional)</span>
+              </label>
+              <input
+                type="url"
+                name="investigationDriveUrl"
+                value={investigationDriveUrl}
+                onChange={(e) => setInvestigationDriveUrl(e.target.value)}
+                placeholder="https://drive.google.com/file/d/..."
+                className="w-full rounded-lg border border-[#EAE3D9] bg-white px-3.5 py-2 text-xs text-[#201C1A] placeholder-[#7A746F] transition-all focus:border-[#DE4F3C] focus:outline-hidden focus:ring-2 focus:ring-[#DE4F3C]/20"
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-semibold text-[#201C1A] mb-1">
+                Doctor&apos;s Findings / Impression
+              </label>
+              <textarea
+                rows={2}
+                name="investigationNotes"
+                value={investigationNotes}
+                onChange={(e) => setInvestigationNotes(e.target.value)}
+                placeholder="e.g. Displaced fracture of distal radius, joint space preserved..."
+                className="w-full rounded-lg border border-[#EAE3D9] bg-white px-3.5 py-2 text-xs text-[#201C1A] placeholder-[#7A746F] transition-all focus:border-[#DE4F3C] focus:outline-hidden focus:ring-2 focus:ring-[#DE4F3C]/20"
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Action Buttons */}
       <div className="flex items-center justify-end gap-3 border-t border-[#EAE3D9] pt-5">

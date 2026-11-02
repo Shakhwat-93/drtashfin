@@ -486,17 +486,19 @@ export function ConsultationDetail({
                     </p>
                   )}
 
-                  <div className="pt-1.5 border-t border-[#FAF5EE] flex justify-end">
-                    <a
-                      href={report.driveUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-[#DE4F3C] hover:underline"
-                    >
-                      <span>Open in Google Drive</span>
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
-                  </div>
+                  {report.driveUrl && (
+                    <div className="pt-1.5 border-t border-[#FAF5EE] flex justify-end">
+                      <a
+                        href={report.driveUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-[#DE4F3C] hover:underline"
+                      >
+                        <span>Open in Google Drive</span>
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

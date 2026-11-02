@@ -31,7 +31,7 @@ test("Patient Workflow Suite", async (t) => {
     const res = await repo.getPatients({ search: "1972" });
     assert.ok(res.items.length > 0, "Should find at least 1 patient born in 1972");
     assert.ok(
-      res.items.some((p) => p.dateOfBirth.includes("1972")),
+      res.items.some((p) => p.dateOfBirth?.includes("1972")),
       "Result should have dateOfBirth containing 1972"
     );
   });

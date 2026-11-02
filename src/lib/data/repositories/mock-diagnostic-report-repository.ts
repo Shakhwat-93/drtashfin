@@ -101,12 +101,16 @@ export class MockDiagnosticReportRepository implements IDiagnosticReportReposito
   }
 
   async createReport(dto: CreateDiagnosticReportDTO): Promise<DiagnosticReport> {
-    // 1. Google Drive URL validation and normalization
-    const driveResult = validateAndNormalizeGoogleDriveUrl(dto.driveUrl);
-    if (!driveResult.isValid || !driveResult.normalizedUrl) {
-      throw new ValidationError(
-        driveResult.error || "Must be a valid HTTPS Google Drive URL"
-      );
+    // 1. Google Drive URL validation and normalization if provided
+    let normalizedDriveUrl: string | null = null;
+    if (dto.driveUrl && dto.driveUrl.trim() !== "") {
+      const driveResult = validateAndNormalizeGoogleDriveUrl(dto.driveUrl);
+      if (!driveResult.isValid || !driveResult.normalizedUrl) {
+        throw new ValidationError(
+          driveResult.error || "Must be a valid HTTPS Google Drive URL"
+        );
+      }
+      normalizedDriveUrl = driveResult.normalizedUrl;
     }
 
     // 2. Patient existence check
@@ -136,7 +140,7 @@ export class MockDiagnosticReportRepository implements IDiagnosticReportReposito
       testDate: dto.testDate,
       diagnosticCenter: dto.diagnosticCenter?.trim() || null,
       doctorNotes: dto.doctorNotes?.trim() || null,
-      driveUrl: driveResult.normalizedUrl,
+      driveUrl: normalizedDriveUrl,
       createdAt: now,
       updatedAt: now,
       patientName: patient.name,
@@ -160,14 +164,18 @@ export class MockDiagnosticReportRepository implements IDiagnosticReportReposito
     const current = all[index];
     let updatedDriveUrl = current.driveUrl;
 
-    if (dto.driveUrl) {
-      const driveResult = validateAndNormalizeGoogleDriveUrl(dto.driveUrl);
-      if (!driveResult.isValid || !driveResult.normalizedUrl) {
-        throw new ValidationError(
-          driveResult.error || "Must be a valid HTTPS Google Drive URL"
-        );
+    if (dto.driveUrl !== undefined) {
+      if (dto.driveUrl && dto.driveUrl.trim() !== "") {
+        const driveResult = validateAndNormalizeGoogleDriveUrl(dto.driveUrl);
+        if (!driveResult.isValid || !driveResult.normalizedUrl) {
+          throw new ValidationError(
+            driveResult.error || "Must be a valid HTTPS Google Drive URL"
+          );
+        }
+        updatedDriveUrl = driveResult.normalizedUrl;
+      } else {
+        updatedDriveUrl = null;
       }
-      updatedDriveUrl = driveResult.normalizedUrl;
     }
 
     if (dto.consultationId) {

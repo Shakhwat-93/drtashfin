@@ -26,7 +26,7 @@ export interface DiagnosticReport {
   testDate: string; // YYYY-MM-DD
   diagnosticCenter?: string | null;
   doctorNotes?: string | null;
-  driveUrl: string; // Validated HTTPS Google Drive file or folder URL
+  driveUrl?: string | null; // Validated HTTPS Google Drive file or folder URL (optional)
   createdAt: string;
   updatedAt: string;
   // Joined presentation metadata
@@ -43,7 +43,7 @@ export interface CreateDiagnosticReportDTO {
   testDate: string;
   diagnosticCenter?: string | null;
   doctorNotes?: string | null;
-  driveUrl: string;
+  driveUrl?: string | null;
 }
 
 export interface UpdateDiagnosticReportDTO {
@@ -53,7 +53,7 @@ export interface UpdateDiagnosticReportDTO {
   testDate?: string;
   diagnosticCenter?: string | null;
   doctorNotes?: string | null;
-  driveUrl?: string;
+  driveUrl?: string | null;
 }
 
 export interface DiagnosticReportFilterParams {

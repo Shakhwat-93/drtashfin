@@ -83,7 +83,7 @@ export function DiagnosticReportModal({
       setTestDate(existingReport.testDate);
       setDiagnosticCenter(existingReport.diagnosticCenter || "");
       setDoctorNotes(existingReport.doctorNotes || "");
-      setDriveUrl(existingReport.driveUrl);
+      setDriveUrl(existingReport.driveUrl || "");
       setSelectedConsultationId(existingReport.consultationId || "");
     } else {
       setTestName("");
@@ -111,18 +111,17 @@ export function DiagnosticReportModal({
       return;
     }
 
-    if (!driveUrl.trim()) {
-      setError("Please provide the Google Drive link.");
-      return;
-    }
-
-    const val = validateAndNormalizeGoogleDriveUrl(driveUrl.trim());
-    if (!val.isValid || !val.normalizedUrl) {
-      setError(
-        val.error ||
-          "Please enter a valid secure HTTPS Google Drive link (drive.google.com or docs.google.com)."
-      );
-      return;
+    let normalizedDriveUrl: string | null = null;
+    if (driveUrl.trim()) {
+      const val = validateAndNormalizeGoogleDriveUrl(driveUrl.trim());
+      if (!val.isValid || !val.normalizedUrl) {
+        setError(
+          val.error ||
+            "Please enter a valid secure HTTPS Google Drive link (drive.google.com or docs.google.com)."
+        );
+        return;
+      }
+      normalizedDriveUrl = val.normalizedUrl;
     }
 
     try {
@@ -134,7 +133,7 @@ export function DiagnosticReportModal({
         testDate,
         diagnosticCenter: diagnosticCenter.trim() || null,
         doctorNotes: doctorNotes.trim() || null,
-        driveUrl: val.normalizedUrl,
+        driveUrl: normalizedDriveUrl,
         consultationId: selectedConsultationId ? selectedConsultationId : null,
       };
 
@@ -274,7 +273,7 @@ export function DiagnosticReportModal({
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <label className="text-xs font-semibold text-[#201C1A]">
-                Google Drive URL <span className="text-[#DE4F3C]">*</span>
+                Google Drive URL <span className="text-[10px] text-[#7A746F] font-normal">(Optional)</span>
               </label>
               {driveValidation?.isValid && (
                 <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700">
@@ -290,7 +289,6 @@ export function DiagnosticReportModal({
               placeholder="https://drive.google.com/file/d/... or /drive/folders/..."
               value={driveUrl}
               onChange={(e) => setDriveUrl(e.target.value)}
-              required
             />
             <p className="text-[11px] text-[#7A746F] leading-relaxed">
               Paste the shareable Google Drive link to the PDF, scan, or folder containing this report.

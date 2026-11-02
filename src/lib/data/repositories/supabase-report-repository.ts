@@ -726,7 +726,20 @@ export class SupabaseReportRepository implements IReportRepository {
 
     if (params.searchQuery && params.searchQuery.trim()) {
       const term = `%${params.searchQuery.trim()}%`;
-      query = query.or(`prescription_code.ilike.${term}`);
+      // Search across prescription code, patient name, or patient ID
+      const { data: matchedPatients } = await this.client
+        .from("patients")
+        .select("id")
+        .or(`name.ilike.${term},patient_id.ilike.${term}`);
+
+      const matchedPatientIds = (matchedPatients || []).map((p: { id: string }) => p.id);
+      if (matchedPatientIds.length > 0) {
+        query = query.or(
+          `prescription_code.ilike.${term},patient_id.in.(${matchedPatientIds.join(",")})`
+        );
+      } else {
+        query = query.or(`prescription_code.ilike.${term}`);
+      }
     }
 
     query = query

@@ -9,9 +9,13 @@ import { validateAndNormalizeGoogleDriveUrl } from "@/lib/drive/drive-url-utils"
 
 const googleDriveUrlSchema = z
   .string()
-  .min(1, "Google Drive link is required")
+  .trim()
+  .optional()
+  .nullable()
+  .or(z.literal(""))
   .refine(
     (url) => {
+      if (!url) return true;
       const res = validateAndNormalizeGoogleDriveUrl(url);
       return res.isValid;
     },
@@ -47,7 +51,7 @@ export const createDiagnosticReportSchema = z.object({
     .nullable()
     .optional()
     .transform((val) => (val ? val.trim() : null)),
-  driveUrl: googleDriveUrlSchema,
+  driveUrl: googleDriveUrlSchema.optional(),
 });
 
 export const updateDiagnosticReportSchema = z.object({

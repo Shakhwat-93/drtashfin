@@ -36,7 +36,7 @@ function mapReportFromRow(row: Record<string, unknown>): DiagnosticReport {
     testDate: String(row.test_date),
     diagnosticCenter: row.diagnostic_center ? String(row.diagnostic_center) : null,
     doctorNotes: row.doctor_notes ? String(row.doctor_notes) : null,
-    driveUrl: String(row.drive_url),
+    driveUrl: row.drive_url ? String(row.drive_url) : null,
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),
     patientName: patientRel?.name ? String(patientRel.name) : undefined,
@@ -155,19 +155,23 @@ export class SupabaseDiagnosticReportRepository implements IDiagnosticReportRepo
     // 1. Resolve patient ID
     const resolvedPatientId = await this.resolvePatientDbId(dto.patientId);
 
-    // 2. Validate Google Drive URL
-    const driveValidation = validateAndNormalizeGoogleDriveUrl(dto.driveUrl);
-    if (!driveValidation.isValid || !driveValidation.normalizedUrl) {
-      throw new ValidationError(
-        driveValidation.error || "Must be a valid HTTPS Google Drive URL"
-      );
+    // 2. Validate Google Drive URL if provided
+    let normalizedDriveUrl: string | null = null;
+    if (dto.driveUrl && dto.driveUrl.trim() !== "") {
+      const driveValidation = validateAndNormalizeGoogleDriveUrl(dto.driveUrl);
+      if (!driveValidation.isValid || !driveValidation.normalizedUrl) {
+        throw new ValidationError(
+          driveValidation.error || "Must be a valid HTTPS Google Drive URL"
+        );
+      }
+      normalizedDriveUrl = driveValidation.normalizedUrl;
     }
 
     // 3. Validate Zod Schema
     const parseResult = createDiagnosticReportSchema.safeParse({
       ...dto,
       patientId: resolvedPatientId,
-      driveUrl: driveValidation.normalizedUrl,
+      driveUrl: normalizedDriveUrl,
     });
 
     if (!parseResult.success) {
@@ -195,7 +199,7 @@ export class SupabaseDiagnosticReportRepository implements IDiagnosticReportRepo
       test_date: parseResult.data.testDate,
       diagnostic_center: parseResult.data.diagnosticCenter,
       doctor_notes: parseResult.data.doctorNotes,
-      drive_url: driveValidation.normalizedUrl,
+      drive_url: normalizedDriveUrl,
     };
 
     const { data, error } = await this.client
@@ -238,13 +242,17 @@ export class SupabaseDiagnosticReportRepository implements IDiagnosticReportRepo
       updatePayload.doctor_notes = parseResult.data.doctorNotes;
 
     if (dto.driveUrl !== undefined) {
-      const driveValidation = validateAndNormalizeGoogleDriveUrl(dto.driveUrl);
-      if (!driveValidation.isValid || !driveValidation.normalizedUrl) {
-        throw new ValidationError(
-          driveValidation.error || "Must be a valid HTTPS Google Drive URL"
-        );
+      if (dto.driveUrl && dto.driveUrl.trim() !== "") {
+        const driveValidation = validateAndNormalizeGoogleDriveUrl(dto.driveUrl);
+        if (!driveValidation.isValid || !driveValidation.normalizedUrl) {
+          throw new ValidationError(
+            driveValidation.error || "Must be a valid HTTPS Google Drive URL"
+          );
+        }
+        updatePayload.drive_url = driveValidation.normalizedUrl;
+      } else {
+        updatePayload.drive_url = null;
       }
-      updatePayload.drive_url = driveValidation.normalizedUrl;
     }
 
     if (dto.consultationId !== undefined) {

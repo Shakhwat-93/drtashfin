@@ -87,15 +87,30 @@ export class SupabasePrescriptionRepository implements IPrescriptionRepository {
     this.client = client;
   }
 
+  private async resolvePatientDbId(patientIdentifier: string): Promise<string> {
+    if (!patientIdentifier) return patientIdentifier;
+    if (isValidUUID(patientIdentifier)) {
+      return patientIdentifier;
+    }
+    const { data: patient } = await this.client
+      .from("patients")
+      .select("id")
+      .or(`patient_id.eq.${patientIdentifier},id.eq.${patientIdentifier}`)
+      .maybeSingle();
+    return patient?.id || patientIdentifier;
+  }
+
   public async getPrescriptionsByPatientId(
     patientId: string
   ): Promise<Prescription[]> {
     if (!patientId) return [];
 
+    const resolvedPatientId = await this.resolvePatientDbId(patientId);
+
     const { data, error } = await this.client
       .from("prescriptions")
       .select("*, prescription_items(*)")
-      .eq("patient_id", patientId)
+      .eq("patient_id", resolvedPatientId)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -140,11 +155,17 @@ export class SupabasePrescriptionRepository implements IPrescriptionRepository {
   public async getPrescriptionById(id: string): Promise<Prescription | null> {
     if (!id) return null;
 
-    const { data, error } = await this.client
+    let query = this.client
       .from("prescriptions")
-      .select("*, prescription_items(*)")
-      .eq("id", id)
-      .maybeSingle();
+      .select("*, prescription_items(*)");
+
+    if (isValidUUID(id)) {
+      query = query.eq("id", id);
+    } else {
+      query = query.eq("prescription_code", id);
+    }
+
+    const { data, error } = await query.maybeSingle();
 
     if (error) {
       throw new DataError(
@@ -167,6 +188,8 @@ export class SupabasePrescriptionRepository implements IPrescriptionRepository {
       throw new ValidationError("patientId is required to create a prescription.");
     }
 
+    const resolvedPatientId = await this.resolvePatientDbId(dto.patientId);
+
     // Verify consultation relationship server-side to prevent cross-patient writes
     if (dto.consultationId) {
       const { data: consult } = await this.client
@@ -175,7 +198,7 @@ export class SupabasePrescriptionRepository implements IPrescriptionRepository {
         .eq("id", dto.consultationId)
         .maybeSingle();
 
-      if (consult && consult.patient_id !== dto.patientId) {
+      if (consult && consult.patient_id !== resolvedPatientId && consult.patient_id !== dto.patientId) {
         throw new ValidationError(
           `Consultation "${dto.consultationId}" does not belong to patient "${dto.patientId}". Cross-patient writes are strictly prevented.`
         );
@@ -199,7 +222,7 @@ export class SupabasePrescriptionRepository implements IPrescriptionRepository {
     const shouldFinalizeImmediately = dto.status === "finalized";
 
     const prescriptionPayload = {
-      patient_id: dto.patientId,
+      patient_id: resolvedPatientId,
       chamber_id: dto.chamberId || null,
       consultation_id: dto.consultationId || null,
       doctor_id: dto.doctorId || "dr-tashfin",

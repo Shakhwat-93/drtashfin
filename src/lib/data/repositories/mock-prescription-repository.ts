@@ -6,13 +6,37 @@ import {
   UpdatePrescriptionDTO,
 } from "@/types/prescription";
 import { DataError, ValidationError } from "../errors";
+import { MockStorage } from "../mock/mock-storage";
 
 export class MockPrescriptionRepository implements IPrescriptionRepository {
-  private prescriptions: Prescription[] = [];
+  private storageKey = "prescriptions_list";
   private codeCounter = 1;
 
   constructor(initialData: Prescription[] = []) {
-    this.prescriptions = [...initialData];
+    const existing = MockStorage.get<Prescription[]>(this.storageKey);
+    if (!existing || existing.length === 0) {
+      MockStorage.set(this.storageKey, [...initialData]);
+      this.codeCounter = initialData.length + 1;
+    } else {
+      if (initialData.length > 0) {
+        const merged = [...existing];
+        for (const item of initialData) {
+          if (!merged.some((m) => m.id === item.id)) {
+            merged.push(item);
+          }
+        }
+        MockStorage.set(this.storageKey, merged);
+      }
+      this.codeCounter = (MockStorage.get<Prescription[]>(this.storageKey) || []).length + 1;
+    }
+  }
+
+  private getAllInternal(): Prescription[] {
+    return MockStorage.get<Prescription[]>(this.storageKey) || [];
+  }
+
+  private saveAllInternal(items: Prescription[]): void {
+    MockStorage.set(this.storageKey, items);
   }
 
   private generateCode(): string {
@@ -24,7 +48,7 @@ export class MockPrescriptionRepository implements IPrescriptionRepository {
   public async getPrescriptionsByPatientId(
     patientId: string
   ): Promise<Prescription[]> {
-    return this.prescriptions
+    return this.getAllInternal()
       .filter((p) => p.patientId === patientId)
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   }
@@ -32,7 +56,7 @@ export class MockPrescriptionRepository implements IPrescriptionRepository {
   public async getPrescriptionByConsultationId(
     consultationId: string
   ): Promise<Prescription | null> {
-    const found = this.prescriptions
+    const found = this.getAllInternal()
       .filter((p) => p.consultationId === consultationId)
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
 
@@ -40,7 +64,9 @@ export class MockPrescriptionRepository implements IPrescriptionRepository {
   }
 
   public async getPrescriptionById(id: string): Promise<Prescription | null> {
-    const found = this.prescriptions.find((p) => p.id === id);
+    const found = this.getAllInternal().find(
+      (p) => p.id === id || p.prescriptionCode === id
+    );
     return found ? JSON.parse(JSON.stringify(found)) : null;
   }
 
@@ -107,7 +133,9 @@ export class MockPrescriptionRepository implements IPrescriptionRepository {
       updatedAt: now,
     };
 
-    this.prescriptions.push(prescription);
+    const all = this.getAllInternal();
+    all.push(prescription);
+    this.saveAllInternal(all);
     return JSON.parse(JSON.stringify(prescription));
   }
 
@@ -115,12 +143,13 @@ export class MockPrescriptionRepository implements IPrescriptionRepository {
     id: string,
     dto: UpdatePrescriptionDTO
   ): Promise<Prescription> {
-    const idx = this.prescriptions.findIndex((p) => p.id === id);
+    const all = this.getAllInternal();
+    const idx = all.findIndex((p) => p.id === id);
     if (idx === -1) {
       throw new DataError(`Prescription with id "${id}" not found.`);
     }
 
-    const existing = this.prescriptions[idx];
+    const existing = all[idx];
     if (existing.status === "finalized") {
       throw new DataError(
         "Cannot modify a finalized prescription. Clinical records are locked for audit integrity."
@@ -180,17 +209,19 @@ export class MockPrescriptionRepository implements IPrescriptionRepository {
       updatedAt: now,
     };
 
-    this.prescriptions[idx] = updated;
+    all[idx] = updated;
+    this.saveAllInternal(all);
     return JSON.parse(JSON.stringify(updated));
   }
 
   public async finalizePrescription(id: string): Promise<Prescription> {
-    const idx = this.prescriptions.findIndex((p) => p.id === id);
+    const all = this.getAllInternal();
+    const idx = all.findIndex((p) => p.id === id);
     if (idx === -1) {
       throw new DataError(`Prescription with id "${id}" not found.`);
     }
 
-    const existing = this.prescriptions[idx];
+    const existing = all[idx];
     if (existing.status === "finalized") {
       return JSON.parse(JSON.stringify(existing));
     }
@@ -203,22 +234,25 @@ export class MockPrescriptionRepository implements IPrescriptionRepository {
       updatedAt: now,
     };
 
-    this.prescriptions[idx] = finalized;
+    all[idx] = finalized;
+    this.saveAllInternal(all);
     return JSON.parse(JSON.stringify(finalized));
   }
 
   public async deleteDraftPrescription(id: string): Promise<boolean> {
-    const idx = this.prescriptions.findIndex((p) => p.id === id);
+    const all = this.getAllInternal();
+    const idx = all.findIndex((p) => p.id === id);
     if (idx === -1) return false;
 
-    const existing = this.prescriptions[idx];
+    const existing = all[idx];
     if (existing.status === "finalized") {
       throw new DataError(
         "Cannot delete a finalized prescription. Finalized clinical records are immutable."
       );
     }
 
-    this.prescriptions.splice(idx, 1);
+    all.splice(idx, 1);
+    this.saveAllInternal(all);
     return true;
   }
 
@@ -233,13 +267,14 @@ export class MockPrescriptionRepository implements IPrescriptionRepository {
       archivedAt: string;
     }
   ): Promise<Prescription> {
-    const idx = this.prescriptions.findIndex((p) => p.id === prescriptionId);
+    const all = this.getAllInternal();
+    const idx = all.findIndex((p) => p.id === prescriptionId);
     if (idx === -1) {
       throw new DataError(`Prescription "${prescriptionId}" not found`);
     }
 
     const updated: Prescription = {
-      ...this.prescriptions[idx],
+      ...all[idx],
       archivedDocumentId: metadata.archivedDocumentId,
       archivedPdfKey: metadata.archivedPdfKey,
       archivedPdfHash: metadata.archivedPdfHash,
@@ -249,7 +284,8 @@ export class MockPrescriptionRepository implements IPrescriptionRepository {
       updatedAt: new Date().toISOString(),
     };
 
-    this.prescriptions[idx] = updated;
+    all[idx] = updated;
+    this.saveAllInternal(all);
     return JSON.parse(JSON.stringify(updated));
   }
 }
