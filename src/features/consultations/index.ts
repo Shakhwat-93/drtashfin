@@ -3,3 +3,4 @@ export * from "./hooks/use-consultation";
 export * from "./components/consultation-form";
 export * from "./components/consultation-detail";
 export * from "./components/consultation-history-list";
+export * from "./components/new-encounter-modal";
