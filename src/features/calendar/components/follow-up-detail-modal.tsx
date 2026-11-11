@@ -104,12 +104,12 @@ export function FollowUpDetailModal({
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose} className="max-w-2xl">
-        <ModalHeader>
-          <div className="flex items-center justify-between w-full pr-6">
-            <div className="flex items-center gap-2">
-              <CalendarClock className="h-5 w-5 text-[#DE4F3C]" />
-              <div>
+      <Modal isOpen={isOpen} onClose={onClose} className="max-w-2xl p-0">
+        <ModalHeader className="px-4 sm:px-6 pt-5 pb-3 pr-11">
+          <div className="flex flex-wrap items-start sm:items-center justify-between gap-2 w-full">
+            <div className="flex items-start sm:items-center gap-2 min-w-0">
+              <CalendarClock className="h-5 w-5 text-[#DE4F3C] shrink-0 mt-0.5 sm:mt-0" />
+              <div className="min-w-0">
                 <ModalTitle>Follow-up Appointment Details</ModalTitle>
                 <ModalDescription>
                   Clinical appointment details and actions
@@ -128,25 +128,25 @@ export function FollowUpDetailModal({
                   ? "warning"
                   : "info"
               }
-              className="capitalize"
+              className="capitalize shrink-0"
             >
               {isOverdue ? "Overdue" : isToday ? "Due Today" : followUp.status}
             </Badge>
           </div>
         </ModalHeader>
 
-        <ModalBody className="space-y-4">
+        <ModalBody className="space-y-4 px-4 sm:px-6 py-4">
           {/* Patient Card */}
-          <div className="p-3.5 rounded-xl border border-[#EAE3D9] bg-[#FAF5EE]/70 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white border border-[#EAE3D9] text-[#DE4F3C]">
+          <div className="p-3.5 rounded-xl border border-[#EAE3D9] bg-[#FAF5EE]/70 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white border border-[#EAE3D9] text-[#DE4F3C]">
                 <User className="h-5 w-5" />
               </div>
-              <div>
-                <h4 className="font-serif text-sm font-semibold text-[#201C1A]">
+              <div className="min-w-0">
+                <h4 className="font-serif text-sm font-semibold text-[#201C1A] break-words">
                   {followUp.patientName || "Unrecorded Patient"}
                 </h4>
-                <div className="flex items-center gap-2 text-xs text-[#7A746F]">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-[#7A746F]">
                   {followUp.patientCode && (
                     <span className="font-mono font-medium text-[#201C1A]">
                       {followUp.patientCode}
@@ -162,7 +162,7 @@ export function FollowUpDetailModal({
               </div>
             </div>
 
-            <Link href={`/patients/${targetPatient}`}>
+            <Link href={`/patients/${targetPatient}`} className="shrink-0">
               <Button variant="outline" size="sm">
                 Open File
               </Button>
@@ -170,7 +170,7 @@ export function FollowUpDetailModal({
           </div>
 
           {/* Appointment Timing & Chamber Meta */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 min-[360px]:grid-cols-2 gap-3">
             <div className="p-3 rounded-xl border border-[#EAE3D9] bg-white space-y-1">
               <span className="text-[11px] font-semibold uppercase tracking-wider text-[#7A746F]">
                 Scheduled Date & Time
@@ -283,16 +283,16 @@ export function FollowUpDetailModal({
                   return (
                     <div
                       key={rem.id}
-                      className="flex items-center justify-between gap-2 p-2 rounded-lg bg-[#FAF5EE] text-xs"
+                      className="flex flex-wrap items-center justify-between gap-2 p-2 rounded-lg bg-[#FAF5EE] text-xs"
                     >
-                      <div className="flex items-center gap-2 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 min-w-0 flex-1">
                         <Badge
                           variant="neutral"
                           className="text-[10px] uppercase font-bold tracking-wider shrink-0 bg-white"
                         >
                           {rem.reminderType.replace("_", " ")}
                         </Badge>
-                        <span className="text-[11px] text-[#59534E] truncate">
+                        <span className="text-[11px] text-[#59534E] break-words min-w-0">
                           {rem.recipientPhoneMasked || rem.recipientPhone} &bull; Target:{" "}
                           {new Date(rem.scheduledFor).toLocaleTimeString([], {
                             hour: "2-digit",
@@ -303,7 +303,7 @@ export function FollowUpDetailModal({
 
                       <Badge
                         variant={isSent ? "success" : isFailed ? "danger" : isSkipped ? "warning" : "info"}
-                        className="text-[10px]"
+                        className="text-[10px] shrink-0"
                       >
                         {rem.status}
                       </Badge>
@@ -315,8 +315,8 @@ export function FollowUpDetailModal({
           )}
         </ModalBody>
 
-        <ModalFooter className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
+        <ModalFooter className="flex flex-wrap items-center justify-between gap-2 px-4 sm:px-6 py-3 border-t border-[#EAE3D9]">
+          <div className="flex flex-wrap items-center gap-2">
             {followUp.status === "scheduled" && (
               <>
                 <Button
@@ -345,7 +345,7 @@ export function FollowUpDetailModal({
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Link
               href={`/patients/${targetPatient}/consultations/new?isFollowUp=true&originatingConsultationId=${followUp.id}`}
             >

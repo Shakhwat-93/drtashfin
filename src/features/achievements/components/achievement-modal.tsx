@@ -188,26 +188,25 @@ export function AchievementModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl border border-[#EAE3D9] overflow-hidden">
-        <ModalHeader className="border-b border-[#FAF5EE] bg-[#FAF8F5] px-6 py-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white border border-[#EAE3D9] text-[#DE4F3C] shadow-2xs">
-              <Award className="h-5 w-5" />
-            </div>
-            <div>
-              <ModalTitle className="text-base font-serif font-bold text-[#201C1A]">
-                {isEditing ? "Edit Achievement Record" : "Record Doctor Achievement"}
-              </ModalTitle>
-              <ModalDescription className="text-xs text-[#7A746F]">
-                Document professional qualifications, certifications, awards, and verified evidence.
-              </ModalDescription>
-            </div>
+    <Modal isOpen={isOpen} onClose={onClose} className="max-w-2xl p-0">
+      <ModalHeader className="border-b border-[#FAF5EE] bg-[#FAF8F5] px-4 sm:px-6 py-4 pr-11">
+        <div className="flex items-start sm:items-center gap-3 min-w-0">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white border border-[#EAE3D9] text-[#DE4F3C] shadow-2xs">
+            <Award className="h-5 w-5" />
           </div>
-        </ModalHeader>
+          <div className="min-w-0">
+            <ModalTitle className="text-base font-serif font-bold text-[#201C1A]">
+              {isEditing ? "Edit Achievement Record" : "Record Doctor Achievement"}
+            </ModalTitle>
+            <ModalDescription className="text-xs text-[#7A746F]">
+              Document professional qualifications, certifications, awards, and verified evidence.
+            </ModalDescription>
+          </div>
+        </div>
+      </ModalHeader>
 
-        <form onSubmit={handleSubmit}>
-          <ModalBody className="space-y-4 max-h-[72vh] overflow-y-auto px-6 py-4">
+      <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+        <ModalBody className="space-y-4 px-4 sm:px-6 py-4">
             {error && (
               <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
                 <AlertCircle className="h-4 w-4 shrink-0" />
@@ -421,7 +420,7 @@ export function AchievementModal({
             </div>
           </ModalBody>
 
-          <ModalFooter className="border-t border-[#FAF5EE] bg-[#FAF8F5] px-6 py-3.5 flex items-center justify-end gap-2">
+          <ModalFooter className="border-t border-[#FAF5EE] bg-[#FAF8F5] px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-end gap-2">
             <Button
               type="button"
               variant="outline"
@@ -444,7 +443,6 @@ export function AchievementModal({
             </Button>
           </ModalFooter>
         </form>
-      </div>
     </Modal>
   );
 }

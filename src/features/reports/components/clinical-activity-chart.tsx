@@ -67,10 +67,10 @@ export function ClinicalActivityChart({
   const hoveredItem = hoveredIndex !== null && trends[hoveredIndex] ? trends[hoveredIndex] : null;
 
   return (
-    <Card className="overflow-hidden">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <div>
-          <CardTitle className="text-sm font-bold text-[#201C1A]">
+    <Card className="overflow-hidden min-w-0">
+      <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2">
+        <div className="min-w-0">
+          <CardTitle className="text-sm font-bold text-[#201C1A] break-words">
             {title}
           </CardTitle>
           <p className="text-xs text-[#7A746F]">
@@ -79,7 +79,7 @@ export function ClinicalActivityChart({
         </div>
 
         {/* Legend */}
-        <div className="flex items-center gap-4 text-xs">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs shrink-0">
           <div className="flex items-center gap-1.5">
             <span className="h-2.5 w-2.5 rounded-full bg-[#DE4F3C]" />
             <span className="font-medium text-[#201C1A]">Consultations</span>

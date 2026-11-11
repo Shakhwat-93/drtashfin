@@ -167,8 +167,8 @@ export default function PatientProfilePage({
       <PageContainer className="space-y-6">
         {/* Top Navigation & Breadcrumb */}
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <Link href="/patients">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 min-w-0">
+            <Link href="/patients" className="shrink-0">
               <Button
                 variant="outline"
                 size="sm"
@@ -179,12 +179,12 @@ export default function PatientProfilePage({
               </Button>
             </Link>
             <span className="text-xs text-[#7A746F]">/</span>
-            <span className="text-xs font-semibold text-[#201C1A]">
+            <span className="text-xs font-semibold text-[#201C1A] break-words min-w-0">
               {patient.name}
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <Link href={`/patients/${patient.patientId}/edit`}>
               <Button
                 variant="outline"
@@ -200,9 +200,9 @@ export default function PatientProfilePage({
 
         {/* Cross-Chamber Context Notice */}
         {isCrossChamber && (
-          <div className="flex items-center gap-2.5 p-3 rounded-xl border border-amber-200 bg-amber-50/70 text-xs text-amber-900 shadow-2xs">
-            <Building2 className="h-4 w-4 shrink-0 text-amber-700" />
-            <div>
+          <div className="flex items-start sm:items-center gap-2.5 p-3 rounded-xl border border-amber-200 bg-amber-50/70 text-xs text-amber-900 shadow-2xs">
+            <Building2 className="h-4 w-4 shrink-0 text-amber-700 mt-0.5 sm:mt-0" />
+            <div className="min-w-0 break-words">
               <strong className="font-semibold">Cross-Chamber Notice:</strong> This patient is registered under{" "}
               <strong>{patientChamber?.name}</strong>, while your currently active dashboard chamber is{" "}
               <strong>{activeChamber?.name}</strong>. Consultations and records are linked to this patient&apos;s registered chamber.
@@ -211,17 +211,17 @@ export default function PatientProfilePage({
         )}
 
         {/* Doctor Patient Identity Header Card */}
-        <div className="rounded-xl border border-[#EAE3D9] bg-white p-6 shadow-xs">
+        <div className="rounded-xl border border-[#EAE3D9] bg-white p-4 sm:p-6 shadow-xs min-w-0">
           <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             {/* Identity Info */}
-            <div className="flex items-start gap-4">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[#FAF5EE] border border-[#EAE3D9] text-[#DE4F3C] font-serif text-2xl font-bold">
+            <div className="flex items-start gap-3 sm:gap-4 min-w-0">
+              <div className="flex h-12 w-12 sm:h-16 sm:w-16 shrink-0 items-center justify-center rounded-2xl bg-[#FAF5EE] border border-[#EAE3D9] text-[#DE4F3C] font-serif text-xl sm:text-2xl font-bold">
                 {patient.name.charAt(0).toUpperCase()}
               </div>
 
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="font-serif text-xl font-bold text-[#201C1A]">
+                  <h1 className="font-serif text-lg sm:text-xl font-bold text-[#201C1A] break-words">
                     {patient.name}
                   </h1>
                   <Badge
@@ -271,34 +271,34 @@ export default function PatientProfilePage({
             </div>
 
             {/* Quick Contact & Details */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-xs text-[#7A746F] border-t border-[#EAE3D9] pt-4 md:border-t-0 md:pt-0">
-              <div className="flex items-center gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-xs text-[#7A746F] border-t border-[#EAE3D9] pt-4 md:border-t-0 md:pt-0 min-w-0">
+              <div className="flex items-center gap-2 min-w-0">
                 <Phone className="h-3.5 w-3.5 shrink-0 text-[#DE4F3C]" />
-                <span className="text-[#201C1A] font-medium">
+                <span className="text-[#201C1A] font-medium break-words">
                   {patient.phone || "No phone provided"}
                 </span>
               </div>
               {patient.secondaryPhone && (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 min-w-0">
                   <Phone className="h-3.5 w-3.5 shrink-0 text-[#7A746F]" />
-                  <span className="text-[#201C1A] font-medium">
+                  <span className="text-[#201C1A] font-medium break-words">
                     Alt: {patient.secondaryPhone}
                   </span>
                 </div>
               )}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 min-w-0">
                 <Mail className="h-3.5 w-3.5 shrink-0 text-[#DE4F3C]" />
-                <span className="text-[#201C1A] font-medium truncate max-w-[180px]">
+                <span className="text-[#201C1A] font-medium truncate min-w-0 flex-1">
                   {patient.email || "No email provided"}
                 </span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 min-w-0">
                 <MapPin className="h-3.5 w-3.5 shrink-0 text-[#DE4F3C]" />
-                <span className="text-[#201C1A] font-medium truncate max-w-[180px]">
+                <span className="text-[#201C1A] font-medium truncate min-w-0 flex-1">
                   {patient.address || "No address on file"}
                 </span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 min-w-0">
                 <Calendar className="h-3.5 w-3.5 shrink-0 text-[#DE4F3C]" />
                 <span>Registered: {registrationDate}</span>
               </div>
@@ -306,8 +306,8 @@ export default function PatientProfilePage({
           </div>
 
           {/* Quick Clinical Actions Bar */}
-          <div className="mt-6 flex flex-wrap items-center gap-2 border-t border-[#EAE3D9] pt-4">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-[#7A746F] mr-2">
+          <div className="mt-5 sm:mt-6 flex flex-wrap items-center gap-2 border-t border-[#EAE3D9] pt-4">
+            <div className="w-full sm:w-auto text-[11px] font-bold uppercase tracking-wider text-[#7A746F] sm:mr-2">
               Clinical Actions:
             </div>
             <Link href={`/patients/${patient.patientId}/consultations/new`}>
@@ -375,9 +375,9 @@ export default function PatientProfilePage({
         </div>
 
         {/* Clinical Workspace Tabs */}
-        <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <div className="overflow-x-auto pb-1">
-            <TabsList className="bg-[#FAF5EE] border border-[#EAE3D9] p-1 gap-1">
+        <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="w-full min-w-0">
+          <div className="overflow-x-auto pb-1 max-w-full no-scrollbar">
+            <TabsList className="bg-[#FAF5EE] border border-[#EAE3D9] p-1 gap-1 w-max min-w-full sm:w-fit">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="visits">Visits</TabsTrigger>
               <TabsTrigger value="history">Medical History</TabsTrigger>
@@ -424,43 +424,43 @@ export default function PatientProfilePage({
 
           {/* 1. Overview Tab */}
           <TabsContent value="overview" className="space-y-5 mt-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
               {/* Card 1: Vitals & Identity */}
-              <Card className="border border-[#EAE3D9] bg-white p-5 shadow-xs">
+              <Card className="border border-[#EAE3D9] bg-white p-4 sm:p-5 shadow-xs min-w-0">
                 <div className="flex items-center gap-2 mb-3">
-                  <Activity className="h-4 w-4 text-[#DE4F3C]" />
+                  <Activity className="h-4 w-4 text-[#DE4F3C] shrink-0" />
                   <h4 className="text-xs font-bold uppercase tracking-wider text-[#7A746F]">
                     Key Parameters
                   </h4>
                 </div>
                 <div className="space-y-2.5 text-xs">
-                  <div className="flex justify-between py-1.5 border-b border-[#FAF5EE]">
-                    <span className="text-[#7A746F]">Age</span>
-                    <span className="font-semibold text-[#201C1A]">{patient.age} yrs</span>
+                  <div className="flex justify-between gap-2 py-1.5 border-b border-[#FAF5EE]">
+                    <span className="text-[#7A746F] shrink-0">Age</span>
+                    <span className="font-semibold text-[#201C1A] text-right">{patient.age} yrs</span>
                   </div>
-                  <div className="flex justify-between py-1.5 border-b border-[#FAF5EE]">
-                    <span className="text-[#7A746F]">Date of Birth</span>
-                    <span className="font-semibold text-[#201C1A]">{patient.dateOfBirth}</span>
+                  <div className="flex justify-between gap-2 py-1.5 border-b border-[#FAF5EE]">
+                    <span className="text-[#7A746F] shrink-0">Date of Birth</span>
+                    <span className="font-semibold text-[#201C1A] text-right">{patient.dateOfBirth}</span>
                   </div>
-                  <div className="flex justify-between py-1.5 border-b border-[#FAF5EE]">
-                    <span className="text-[#7A746F]">Sex / Gender</span>
-                    <span className="font-semibold text-[#201C1A] capitalize">{patient.gender}</span>
+                  <div className="flex justify-between gap-2 py-1.5 border-b border-[#FAF5EE]">
+                    <span className="text-[#7A746F] shrink-0">Sex / Gender</span>
+                    <span className="font-semibold text-[#201C1A] capitalize text-right">{patient.gender}</span>
                   </div>
-                  <div className="flex justify-between py-1.5 border-b border-[#FAF5EE]">
-                    <span className="text-[#7A746F]">Weight</span>
-                    <span className="font-semibold text-[#201C1A]">
+                  <div className="flex justify-between gap-2 py-1.5 border-b border-[#FAF5EE]">
+                    <span className="text-[#7A746F] shrink-0">Weight</span>
+                    <span className="font-semibold text-[#201C1A] text-right">
                       {patient.weight ? `${patient.weight} kg` : "Not recorded"}
                     </span>
                   </div>
-                  <div className="flex justify-between py-1.5 border-b border-[#FAF5EE]">
-                    <span className="text-[#7A746F]">Blood Group</span>
-                    <span className="font-semibold text-[#DE4F3C]">
+                  <div className="flex justify-between gap-2 py-1.5 border-b border-[#FAF5EE]">
+                    <span className="text-[#7A746F] shrink-0">Blood Group</span>
+                    <span className="font-semibold text-[#DE4F3C] text-right">
                       {patient.bloodGroup || "Not recorded"}
                     </span>
                   </div>
-                  <div className="flex justify-between py-1.5">
-                    <span className="text-[#7A746F]">Occupation</span>
-                    <span className="font-semibold text-[#201C1A]">
+                  <div className="flex justify-between gap-2 py-1.5">
+                    <span className="text-[#7A746F] shrink-0">Occupation</span>
+                    <span className="font-semibold text-[#201C1A] text-right break-words min-w-0">
                       {patient.occupation || "Not recorded"}
                     </span>
                   </div>
@@ -468,35 +468,35 @@ export default function PatientProfilePage({
               </Card>
 
               {/* Card 2: Family & Guardian */}
-              <Card className="border border-[#EAE3D9] bg-white p-5 shadow-xs">
+              <Card className="border border-[#EAE3D9] bg-white p-4 sm:p-5 shadow-xs min-w-0">
                 <div className="flex items-center gap-2 mb-3">
-                  <Users className="h-4 w-4 text-[#DE4F3C]" />
+                  <Users className="h-4 w-4 text-[#DE4F3C] shrink-0" />
                   <h4 className="text-xs font-bold uppercase tracking-wider text-[#7A746F]">
                     Family & Guardian
                   </h4>
                 </div>
                 <div className="space-y-2.5 text-xs">
-                  <div className="flex justify-between py-1.5 border-b border-[#FAF5EE]">
-                    <span className="text-[#7A746F]">Father&apos;s Name</span>
-                    <span className="font-semibold text-[#201C1A]">
+                  <div className="flex justify-between gap-2 py-1.5 border-b border-[#FAF5EE]">
+                    <span className="text-[#7A746F] shrink-0">Father&apos;s Name</span>
+                    <span className="font-semibold text-[#201C1A] text-right break-words min-w-0">
                       {patient.fatherName || "—"}
                     </span>
                   </div>
-                  <div className="flex justify-between py-1.5 border-b border-[#FAF5EE]">
-                    <span className="text-[#7A746F]">Mother&apos;s Name</span>
-                    <span className="font-semibold text-[#201C1A]">
+                  <div className="flex justify-between gap-2 py-1.5 border-b border-[#FAF5EE]">
+                    <span className="text-[#7A746F] shrink-0">Mother&apos;s Name</span>
+                    <span className="font-semibold text-[#201C1A] text-right break-words min-w-0">
                       {patient.motherName || "—"}
                     </span>
                   </div>
-                  <div className="flex justify-between py-1.5 border-b border-[#FAF5EE]">
-                    <span className="text-[#7A746F]">Guardian Name</span>
-                    <span className="font-semibold text-[#201C1A]">
+                  <div className="flex justify-between gap-2 py-1.5 border-b border-[#FAF5EE]">
+                    <span className="text-[#7A746F] shrink-0">Guardian Name</span>
+                    <span className="font-semibold text-[#201C1A] text-right break-words min-w-0">
                       {patient.guardianName || "—"}
                     </span>
                   </div>
-                  <div className="flex justify-between py-1.5">
-                    <span className="text-[#7A746F]">Relationship</span>
-                    <span className="font-semibold text-[#201C1A]">
+                  <div className="flex justify-between gap-2 py-1.5">
+                    <span className="text-[#7A746F] shrink-0">Relationship</span>
+                    <span className="font-semibold text-[#201C1A] text-right break-words min-w-0">
                       {patient.guardianRelationship || "—"}
                     </span>
                   </div>
@@ -504,31 +504,31 @@ export default function PatientProfilePage({
               </Card>
 
               {/* Card 3: Contact & Addresses */}
-              <Card className="border border-[#EAE3D9] bg-white p-5 shadow-xs">
+              <Card className="border border-[#EAE3D9] bg-white p-4 sm:p-5 shadow-xs min-w-0">
                 <div className="flex items-center gap-2 mb-3">
-                  <MapPin className="h-4 w-4 text-[#DE4F3C]" />
+                  <MapPin className="h-4 w-4 text-[#DE4F3C] shrink-0" />
                   <h4 className="text-xs font-bold uppercase tracking-wider text-[#7A746F]">
                     Contact & Address
                   </h4>
                 </div>
                 <div className="space-y-2.5 text-xs">
-                  <div className="flex justify-between py-1.5 border-b border-[#FAF5EE]">
-                    <span className="text-[#7A746F]">Primary Mobile</span>
-                    <span className="font-semibold text-[#201C1A]">{patient.phone || "—"}</span>
+                  <div className="flex justify-between gap-2 py-1.5 border-b border-[#FAF5EE]">
+                    <span className="text-[#7A746F] shrink-0">Primary Mobile</span>
+                    <span className="font-semibold text-[#201C1A] text-right break-all min-w-0">{patient.phone || "—"}</span>
                   </div>
-                  <div className="flex justify-between py-1.5 border-b border-[#FAF5EE]">
-                    <span className="text-[#7A746F]">Alternative Contact</span>
-                    <span className="font-semibold text-[#201C1A]">{patient.secondaryPhone || "—"}</span>
+                  <div className="flex justify-between gap-2 py-1.5 border-b border-[#FAF5EE]">
+                    <span className="text-[#7A746F] shrink-0">Alternative Contact</span>
+                    <span className="font-semibold text-[#201C1A] text-right break-all min-w-0">{patient.secondaryPhone || "—"}</span>
                   </div>
                   <div className="py-1 border-b border-[#FAF5EE]">
                     <span className="text-[#7A746F] block mb-0.5">Present Address</span>
-                    <span className="font-semibold text-[#201C1A] leading-relaxed block">
+                    <span className="font-semibold text-[#201C1A] leading-relaxed block break-words">
                       {patient.address || "No address recorded"}
                     </span>
                   </div>
                   <div className="py-1">
                     <span className="text-[#7A746F] block mb-0.5">Permanent Address</span>
-                    <span className="font-semibold text-[#201C1A] leading-relaxed block">
+                    <span className="font-semibold text-[#201C1A] leading-relaxed block break-words">
                       {patient.permanentAddress || "Same as present / Not recorded"}
                     </span>
                   </div>
@@ -536,30 +536,30 @@ export default function PatientProfilePage({
               </Card>
 
               {/* Card 4: Emergency Contact & Status */}
-              <Card className="border border-[#EAE3D9] bg-white p-5 shadow-xs flex flex-col justify-between">
+              <Card className="border border-[#EAE3D9] bg-white p-4 sm:p-5 shadow-xs flex flex-col justify-between min-w-0">
                 <div>
                   <div className="flex items-center gap-2 mb-3">
-                    <ShieldAlert className="h-4 w-4 text-amber-600" />
+                    <ShieldAlert className="h-4 w-4 text-amber-600 shrink-0" />
                     <h4 className="text-xs font-bold uppercase tracking-wider text-[#7A746F]">
                       Emergency Contact
                     </h4>
                   </div>
                   <div className="space-y-2.5 text-xs">
-                    <div className="flex justify-between py-1.5 border-b border-[#FAF5EE]">
-                      <span className="text-[#7A746F]">Contact Name</span>
-                      <span className="font-semibold text-[#201C1A]">
+                    <div className="flex justify-between gap-2 py-1.5 border-b border-[#FAF5EE]">
+                      <span className="text-[#7A746F] shrink-0">Contact Name</span>
+                      <span className="font-semibold text-[#201C1A] text-right break-words min-w-0">
                         {patient.emergencyContactName || "Not specified"}
                       </span>
                     </div>
-                    <div className="flex justify-between py-1.5 border-b border-[#FAF5EE]">
-                      <span className="text-[#7A746F]">Relationship</span>
-                      <span className="font-semibold text-[#201C1A]">
+                    <div className="flex justify-between gap-2 py-1.5 border-b border-[#FAF5EE]">
+                      <span className="text-[#7A746F] shrink-0">Relationship</span>
+                      <span className="font-semibold text-[#201C1A] text-right break-words min-w-0">
                         {patient.emergencyContactRelationship || "—"}
                       </span>
                     </div>
-                    <div className="flex justify-between py-1.5">
-                      <span className="text-[#7A746F]">Phone</span>
-                      <span className="font-semibold text-[#201C1A]">
+                    <div className="flex justify-between gap-2 py-1.5">
+                      <span className="text-[#7A746F] shrink-0">Phone</span>
+                      <span className="font-semibold text-[#201C1A] text-right break-all min-w-0">
                         {patient.emergencyContactPhone || "—"}
                       </span>
                     </div>
@@ -577,13 +577,13 @@ export default function PatientProfilePage({
             </div>
 
             {/* Longitudinal Treatment, Follow-up, Diagnostic & Discharge Overview Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 pt-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 pt-1">
               {/* Follow-up Status Card */}
-              <Card className="border border-[#EAE3D9] bg-white p-5 shadow-xs flex flex-col justify-between">
+              <Card className="border border-[#EAE3D9] bg-white p-4 sm:p-5 shadow-xs flex flex-col justify-between min-w-0">
                 <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <CalendarClock className="h-4 w-4 text-[#DE4F3C]" />
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <CalendarClock className="h-4 w-4 text-[#DE4F3C] shrink-0" />
                       <h4 className="text-xs font-bold uppercase tracking-wider text-[#7A746F]">
                         Next Recommended Follow-up
                       </h4>
@@ -642,24 +642,24 @@ export default function PatientProfilePage({
               </Card>
 
               {/* Prescriptions & Clinical Documents Quick Access */}
-              <Card className="border border-[#EAE3D9] bg-white p-5 shadow-xs flex flex-col justify-between">
+              <Card className="border border-[#EAE3D9] bg-white p-4 sm:p-5 shadow-xs flex flex-col justify-between min-w-0">
                 <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-[#DE4F3C]" />
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <FileText className="h-4 w-4 text-[#DE4F3C] shrink-0" />
                       <h4 className="text-xs font-bold uppercase tracking-wider text-[#7A746F]">
                         Medications & Prescriptions
                       </h4>
                     </div>
-                    <Badge variant="neutral" size="sm">
+                    <Badge variant="neutral" size="sm" className="shrink-0">
                       {patientPrescriptions.length} Records
                     </Badge>
                   </div>
 
                   {patientPrescriptions.length > 0 ? (
                     <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF8F5] p-3.5 space-y-1.5 text-xs">
-                      <div className="flex items-center justify-between">
-                        <span className="font-semibold text-[#201C1A]">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <span className="font-semibold text-[#201C1A] break-all">
                           Latest Rx: {patientPrescriptions[0].prescriptionCode}
                         </span>
                         <Badge
@@ -696,32 +696,32 @@ export default function PatientProfilePage({
               </Card>
 
               {/* Card 3: Diagnostic Reports Quick Access */}
-              <Card className="border border-[#EAE3D9] bg-white p-5 shadow-xs flex flex-col justify-between">
+              <Card className="border border-[#EAE3D9] bg-white p-4 sm:p-5 shadow-xs flex flex-col justify-between min-w-0">
                 <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <FlaskConical className="h-4 w-4 text-[#DE4F3C]" />
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <FlaskConical className="h-4 w-4 text-[#DE4F3C] shrink-0" />
                       <h4 className="text-xs font-bold uppercase tracking-wider text-[#7A746F]">
                         Diagnostic Reports
                       </h4>
                     </div>
-                    <Badge variant="neutral" size="sm">
+                    <Badge variant="neutral" size="sm" className="shrink-0">
                       {patientReports.length} {patientReports.length === 1 ? "Report" : "Reports"}
                     </Badge>
                   </div>
 
                   {patientReports.length > 0 ? (
                     <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF8F5] p-3.5 space-y-1.5 text-xs">
-                      <div className="flex items-center justify-between">
-                        <span className="font-semibold text-[#201C1A] truncate max-w-[160px]">
+                      <div className="flex items-center justify-between gap-2 min-w-0">
+                        <span className="font-semibold text-[#201C1A] truncate min-w-0 flex-1">
                           {patientReports[0].testName}
                         </span>
-                        <Badge variant="neutral" size="sm" className="text-[10px]">
+                        <Badge variant="neutral" size="sm" className="text-[10px] shrink-0">
                           {patientReports[0].category}
                         </Badge>
                       </div>
-                      <div className="flex items-center justify-between text-[11px] text-[#7A746F]">
-                        <span>
+                      <div className="flex items-center justify-between gap-2 text-[11px] text-[#7A746F] min-w-0">
+                        <span className="shrink-0">
                           {new Date(patientReports[0].testDate + "T00:00:00").toLocaleDateString("en-US", {
                             month: "short",
                             day: "numeric",
@@ -729,7 +729,7 @@ export default function PatientProfilePage({
                           })}
                         </span>
                         {patientReports[0].diagnosticCenter && (
-                          <span className="truncate max-w-[120px]">
+                          <span className="truncate min-w-0 text-right">
                             {patientReports[0].diagnosticCenter}
                           </span>
                         )}
@@ -756,21 +756,21 @@ export default function PatientProfilePage({
               </Card>
 
               {/* Card 4: Discharges & Final Clinical Summary Quick Access */}
-              <Card className="border border-[#EAE3D9] bg-white p-5 shadow-xs flex flex-col justify-between">
+              <Card className="border border-[#EAE3D9] bg-white p-4 sm:p-5 shadow-xs flex flex-col justify-between min-w-0">
                 <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <FileCheck className="h-4 w-4 text-[#DE4F3C]" />
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <FileCheck className="h-4 w-4 text-[#DE4F3C] shrink-0" />
                       <h4 className="text-xs font-bold uppercase tracking-wider text-[#7A746F]">
                         Discharge & Final Summary
                       </h4>
                     </div>
                     {patientDischarges.length > 0 ? (
-                      <Badge variant="success" size="sm">
+                      <Badge variant="success" size="sm" className="shrink-0">
                         {patientDischarges.length} {patientDischarges.length === 1 ? "Record" : "Records"}
                       </Badge>
                     ) : (
-                      <Badge variant="neutral" size="sm">
+                      <Badge variant="neutral" size="sm" className="shrink-0">
                         Active Care
                       </Badge>
                     )}
@@ -778,20 +778,20 @@ export default function PatientProfilePage({
 
                   {patientDischarges.length > 0 ? (
                     <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF8F5] p-3.5 space-y-1.5 text-xs">
-                      <div className="flex items-center justify-between">
-                        <span className="font-semibold text-[#201C1A] truncate max-w-[150px]">
+                      <div className="flex items-center justify-between gap-2 min-w-0">
+                        <span className="font-semibold text-[#201C1A] truncate min-w-0 flex-1">
                           {patientDischarges[0].conditionAtDischarge}
                         </span>
                         <Badge
                           variant={patientDischarges[0].status === "finalized" ? "success" : "warning"}
                           size="sm"
-                          className="capitalize text-[10px]"
+                          className="capitalize text-[10px] shrink-0"
                         >
                           {patientDischarges[0].status}
                         </Badge>
                       </div>
-                      <div className="flex items-center justify-between text-[11px] text-[#7A746F]">
-                        <span>
+                      <div className="flex items-center justify-between gap-2 text-[11px] text-[#7A746F] min-w-0">
+                        <span className="shrink-0">
                           {new Date(patientDischarges[0].dischargeDate + "T00:00:00").toLocaleDateString("en-US", {
                             month: "short",
                             day: "numeric",
@@ -799,7 +799,7 @@ export default function PatientProfilePage({
                           })}
                         </span>
                         {patientDischarges[0].doctorName && (
-                          <span className="truncate max-w-[110px]">
+                          <span className="truncate min-w-0 text-right">
                             {patientDischarges[0].doctorName}
                           </span>
                         )}
@@ -891,73 +891,73 @@ export default function PatientProfilePage({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
               {/* Chronic Conditions / Past Medical History */}
-              <Card className="border border-[#EAE3D9] bg-white p-5 shadow-xs space-y-3">
+              <Card className="border border-[#EAE3D9] bg-white p-4 sm:p-5 shadow-xs space-y-3 min-w-0">
                 <div className="flex items-center gap-2">
-                  <HeartPulse className="h-4 w-4 text-[#DE4F3C]" />
+                  <HeartPulse className="h-4 w-4 text-[#DE4F3C] shrink-0" />
                   <h4 className="text-xs font-bold uppercase tracking-wider text-[#201C1A]">
                     Past Medical History & Chronic Conditions
                   </h4>
                 </div>
-                <div className="text-xs text-[#201C1A] leading-relaxed whitespace-pre-wrap bg-[#FAF5EE]/50 p-3.5 rounded-lg border border-[#EAE3D9]/60 min-h-[90px]">
+                <div className="text-xs text-[#201C1A] leading-relaxed whitespace-pre-wrap break-words bg-[#FAF5EE]/50 p-3.5 rounded-lg border border-[#EAE3D9]/60 min-h-[90px]">
                   {patient.medicalHistory || "No chronic illnesses, prior surgeries, or hospitalizations recorded."}
                 </div>
               </Card>
 
               {/* Current Medications */}
-              <Card className="border border-[#EAE3D9] bg-white p-5 shadow-xs space-y-3">
+              <Card className="border border-[#EAE3D9] bg-white p-4 sm:p-5 shadow-xs space-y-3 min-w-0">
                 <div className="flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-[#DE4F3C]" />
+                  <FileText className="h-4 w-4 text-[#DE4F3C] shrink-0" />
                   <h4 className="text-xs font-bold uppercase tracking-wider text-[#201C1A]">
                     Current Medications (Patient-Reported)
                   </h4>
                 </div>
-                <div className="text-xs text-[#201C1A] leading-relaxed whitespace-pre-wrap bg-[#FAF5EE]/50 p-3.5 rounded-lg border border-[#EAE3D9]/60 min-h-[90px]">
+                <div className="text-xs text-[#201C1A] leading-relaxed whitespace-pre-wrap break-words bg-[#FAF5EE]/50 p-3.5 rounded-lg border border-[#EAE3D9]/60 min-h-[90px]">
                   {patient.currentMedications || "No active regular medications reported by patient."}
                 </div>
               </Card>
 
               {/* Confidential Doctor Notes */}
-              <Card className="md:col-span-2 border border-[#EAE3D9] bg-white p-5 shadow-xs space-y-3">
+              <Card className="md:col-span-2 border border-[#EAE3D9] bg-white p-4 sm:p-5 shadow-xs space-y-3 min-w-0">
                 <div className="flex items-center gap-2">
-                  <ShieldAlert className="h-4 w-4 text-[#DE4F3C]" />
+                  <ShieldAlert className="h-4 w-4 text-[#DE4F3C] shrink-0" />
                   <h4 className="text-xs font-bold uppercase tracking-wider text-[#201C1A]">
                     Confidential Clinical Observations & Patient Notes
                   </h4>
                 </div>
-                <div className="text-xs text-[#201C1A] leading-relaxed whitespace-pre-wrap bg-[#FAF5EE]/50 p-3.5 rounded-lg border border-[#EAE3D9]/60 min-h-[70px]">
+                <div className="text-xs text-[#201C1A] leading-relaxed whitespace-pre-wrap break-words bg-[#FAF5EE]/50 p-3.5 rounded-lg border border-[#EAE3D9]/60 min-h-[70px]">
                   {patient.patientNotes || "No patient-level clinical notes recorded."}
                 </div>
               </Card>
 
               {/* Procedure & Surgical History Summary Card */}
               {patientProcedures.length > 0 && (
-                <Card className="md:col-span-2 border border-[#EAE3D9] bg-white p-5 shadow-xs space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Activity className="h-4 w-4 text-[#DE4F3C]" />
+                <Card className="md:col-span-2 border border-[#EAE3D9] bg-white p-4 sm:p-5 shadow-xs space-y-3 min-w-0">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Activity className="h-4 w-4 text-[#DE4F3C] shrink-0" />
                       <h4 className="text-xs font-bold uppercase tracking-wider text-[#201C1A]">
                         Operations & Procedures History ({patientProcedures.length})
                       </h4>
                     </div>
                     <button
                       onClick={() => setActiveTab("operations")}
-                      className="text-xs font-medium text-[#DE4F3C] hover:underline"
+                      className="text-xs font-medium text-[#DE4F3C] hover:underline shrink-0"
                     >
                       View All Operations →
                     </button>
                   </div>
                   <div className="divide-y divide-[#FAF5EE]">
                     {patientProcedures.slice(0, 3).map((proc) => (
-                      <div key={proc.id} className="py-2.5 flex items-center justify-between text-xs">
-                        <div className="space-y-0.5">
-                          <span className="font-semibold text-[#201C1A]">{proc.procedureName}</span>
-                          <span className="text-[#7A746F] block text-[11px]">
+                      <div key={proc.id} className="py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
+                        <div className="space-y-0.5 min-w-0">
+                          <span className="font-semibold text-[#201C1A] break-words">{proc.procedureName}</span>
+                          <span className="text-[#7A746F] block text-[11px] break-words">
                             {proc.category} • {proc.procedureDate} {proc.hospitalFacility ? `at ${proc.hospitalFacility}` : ""}
                           </span>
                         </div>
-                        <Badge variant="neutral" size="sm" className="text-[10px]">
+                        <Badge variant="neutral" size="sm" className="text-[10px] shrink-0">
                           {proc.outcome || "Recorded"}
                         </Badge>
                       </div>
@@ -968,34 +968,34 @@ export default function PatientProfilePage({
 
               {/* Discharge & Final Reports Summary Card */}
               {patientDischarges.length > 0 && (
-                <Card className="md:col-span-2 border border-[#EAE3D9] bg-white p-5 shadow-xs space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <FileCheck className="h-4 w-4 text-[#DE4F3C]" />
+                <Card className="md:col-span-2 border border-[#EAE3D9] bg-white p-4 sm:p-5 shadow-xs space-y-3 min-w-0">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <FileCheck className="h-4 w-4 text-[#DE4F3C] shrink-0" />
                       <h4 className="text-xs font-bold uppercase tracking-wider text-[#201C1A]">
                         Discharges & Final Clinical Reports ({patientDischarges.length})
                       </h4>
                     </div>
                     <button
                       onClick={() => setActiveTab("discharges")}
-                      className="text-xs font-medium text-[#DE4F3C] hover:underline"
+                      className="text-xs font-medium text-[#DE4F3C] hover:underline shrink-0"
                     >
                       View All Discharges →
                     </button>
                   </div>
                   <div className="divide-y divide-[#FAF5EE]">
                     {patientDischarges.slice(0, 3).map((dis) => (
-                      <div key={dis.id} className="py-2.5 flex items-center justify-between text-xs">
-                        <div className="space-y-0.5">
-                          <span className="font-semibold text-[#201C1A]">{dis.conditionAtDischarge}</span>
-                          <span className="text-[#7A746F] block text-[11px]">
+                      <div key={dis.id} className="py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
+                        <div className="space-y-0.5 min-w-0">
+                          <span className="font-semibold text-[#201C1A] break-words">{dis.conditionAtDischarge}</span>
+                          <span className="text-[#7A746F] block text-[11px] break-words">
                             Discharged: {dis.dischargeDate} {dis.doctorName ? `by ${dis.doctorName}` : ""}
                           </span>
                         </div>
                         <Badge
                           variant={dis.status === "finalized" ? "success" : "warning"}
                           size="sm"
-                          className="capitalize text-[10px]"
+                          className="capitalize text-[10px] shrink-0"
                         >
                           {dis.status}
                         </Badge>

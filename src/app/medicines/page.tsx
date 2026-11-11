@@ -167,13 +167,13 @@ export default function MedicinesPage() {
     <AdminShell>
       <PageContainer className="space-y-6">
         {/* Page Header */}
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-[#EAE3D9] pb-5">
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="font-serif text-2xl font-bold text-[#201C1A]">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-[#EAE3D9] pb-5">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="font-serif text-xl sm:text-2xl font-bold text-[#201C1A] break-words">
                 Bangladesh Medicine Catalogue
               </h1>
-              <Badge variant="neutral" className="border-[#C4BCB3] text-[#201C1A] text-xs font-semibold">
+              <Badge variant="neutral" className="border-[#C4BCB3] text-[#201C1A] text-xs font-semibold shrink-0">
                 {((globalTotalCount || 1250) + 19667).toLocaleString()} Total Searchable
               </Badge>
             </div>
@@ -182,22 +182,22 @@ export default function MedicinesPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2 self-start sm:self-auto">
+          <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1 text-xs font-medium text-emerald-800">
-              <ShieldCheck className="h-3.5 w-3.5" />
+              <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
               <span>MedEx &amp; Square Verified</span>
             </span>
           </div>
         </div>
 
         {/* Quick Search & Filters Card */}
-        <div className="rounded-2xl border border-[#EAE3D9] bg-white p-4 sm:p-5 shadow-xs space-y-4">
-          <div className="flex items-center justify-between text-xs font-semibold text-[#201C1A]">
-            <span className="flex items-center gap-1.5">
+        <div className="rounded-2xl border border-[#EAE3D9] bg-white p-3.5 sm:p-5 shadow-xs space-y-4 min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-4 text-xs font-semibold text-[#201C1A]">
+            <span className="flex items-center gap-1.5 shrink-0">
               <Pill className="h-4 w-4 text-[#DE4F3C]" />
               <span>Fast Clinical Autocomplete</span>
             </span>
-            <span className="text-[11px] text-[#7A746F]">
+            <span className="text-[11px] font-normal sm:font-semibold text-[#7A746F]">
               Search across 20,900+ brands, generics, strengths &amp; manufacturers
             </span>
           </div>
@@ -211,8 +211,8 @@ export default function MedicinesPage() {
 
           {/* Dosage Form Filter Tabs */}
           {dosageForms.length > 0 && (
-            <div className="space-y-1.5 pt-1">
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+            <div className="space-y-1.5 pt-1 min-w-0">
+              <div className="w-full min-w-0 flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
                 <span className="text-[11px] font-medium text-[#7A746F] shrink-0 mr-1 flex items-center gap-1">
                   <SlidersHorizontal className="h-3 w-3" />
                   Form:
@@ -328,14 +328,14 @@ export default function MedicinesPage() {
                 <span className="font-semibold text-[#201C1A]">{totalPages}</span> ({matchingCount.toLocaleString()} total items)
               </div>
 
-              <div className="flex items-center gap-1.5">
+              <div className="flex flex-wrap items-center justify-center gap-1 sm:gap-1.5">
                 {/* First Page */}
                 <button
                   type="button"
                   onClick={() => handlePageChange(1)}
                   disabled={currentPage === 1}
                   aria-label="First page"
-                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#EAE3D9] bg-white text-[#7A746F] hover:bg-[#F8F5F0] hover:text-[#201C1A] disabled:opacity-35 disabled:cursor-not-allowed transition-colors"
+                  className="hidden sm:flex h-8 w-8 items-center justify-center rounded-lg border border-[#EAE3D9] bg-white text-[#7A746F] hover:bg-[#F8F5F0] hover:text-[#201C1A] disabled:opacity-35 disabled:cursor-not-allowed transition-colors"
                 >
                   <ChevronsLeft className="h-4 w-4" />
                 </button>
@@ -352,7 +352,7 @@ export default function MedicinesPage() {
                 </button>
 
                 {/* Numbered Page Buttons */}
-                <div className="flex items-center gap-1">
+                <div className="flex flex-wrap items-center justify-center gap-1">
                   {getPageNumbers().map((p, idx) => {
                     if (typeof p === "string") {
                       return (
@@ -370,7 +370,7 @@ export default function MedicinesPage() {
                         key={p}
                         type="button"
                         onClick={() => handlePageChange(p)}
-                        className={`h-8 min-w-[32px] px-2 rounded-lg text-xs font-medium transition-colors ${
+                        className={`h-8 min-w-[30px] sm:min-w-[32px] px-1.5 sm:px-2 rounded-lg text-xs font-medium transition-colors ${
                           isActive
                             ? "bg-[#201C1A] text-white shadow-xs font-semibold"
                             : "border border-[#EAE3D9] bg-white text-[#201C1A] hover:bg-[#F8F5F0]"
@@ -399,7 +399,7 @@ export default function MedicinesPage() {
                   onClick={() => handlePageChange(totalPages)}
                   disabled={currentPage === totalPages}
                   aria-label="Last page"
-                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#EAE3D9] bg-white text-[#7A746F] hover:bg-[#F8F5F0] hover:text-[#201C1A] disabled:opacity-35 disabled:cursor-not-allowed transition-colors"
+                  className="hidden sm:flex h-8 w-8 items-center justify-center rounded-lg border border-[#EAE3D9] bg-white text-[#7A746F] hover:bg-[#F8F5F0] hover:text-[#201C1A] disabled:opacity-35 disabled:cursor-not-allowed transition-colors"
                 >
                   <ChevronsRight className="h-4 w-4" />
                 </button>

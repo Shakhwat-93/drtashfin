@@ -128,7 +128,7 @@ export function PatientListTable({
             <TableRow key={patient.id}>
               {/* Patient ID */}
               <TableCell label="Patient ID">
-                <div className="flex flex-col items-start gap-1">
+                <div className="flex flex-col items-end md:items-start gap-1">
                   <Badge
                     variant="neutral"
                     size="sm"
@@ -150,14 +150,14 @@ export function PatientListTable({
 
               {/* Name & Subtitle */}
               <TableCell label="Patient Details">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center justify-end md:justify-start gap-2.5 sm:gap-3 min-w-0">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FAF5EE] border border-[#EAE3D9] text-[#DE4F3C] font-semibold text-xs">
                     {patient.name.charAt(0).toUpperCase()}
                   </div>
-                  <div className="min-w-0 flex flex-col">
+                  <div className="min-w-0 flex flex-col text-left">
                     <Link
                       href={`/patients/${patient.patientId}`}
-                      className="font-medium text-xs text-[#201C1A] hover:text-[#DE4F3C] transition-colors truncate"
+                      className="font-medium text-xs text-[#201C1A] hover:text-[#DE4F3C] transition-colors break-words md:truncate"
                     >
                       {patient.name}
                     </Link>
@@ -181,7 +181,7 @@ export function PatientListTable({
 
               {/* Blood & Weight */}
               <TableCell label="Blood & Weight">
-                <div className="flex items-center gap-1.5 text-xs text-[#201C1A]">
+                <div className="flex items-center justify-end md:justify-start gap-1.5 text-xs text-[#201C1A]">
                   {patient.bloodGroup ? (
                     <Badge variant="primary" size="sm">
                       {patient.bloodGroup}
@@ -199,14 +199,14 @@ export function PatientListTable({
 
               {/* Phone */}
               <TableCell label="Contact Phone">
-                <span className="text-xs text-[#201C1A]">
+                <span className="text-xs text-[#201C1A] font-mono md:font-sans">
                   {patient.phone || <span className="text-[#7A746F]">-</span>}
                 </span>
               </TableCell>
 
               {/* Quick Actions */}
               <TableCell label="Actions" className="text-right">
-                <div className="flex items-center justify-end gap-1.5">
+                <div className="flex flex-wrap items-center justify-end gap-1.5">
                   <Link href={`/patients/${patient.patientId}`}>
                     <Button
                       variant="ghost"

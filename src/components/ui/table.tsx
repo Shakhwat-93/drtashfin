@@ -172,7 +172,9 @@ export interface TableCellProps
 export const TableCell = React.forwardRef<HTMLTableCellElement, TableCellProps>(
   ({ className, label, isAction, children, ...props }, ref) => {
     const { responsive } = React.useContext(TableContext);
-    const actionCell = isAction ?? (label?.toLowerCase() === "action");
+    const normalizedLabel = label?.toLowerCase();
+    const actionCell =
+      isAction ?? (normalizedLabel === "action" || normalizedLabel === "actions");
 
     if (responsive === "stack") {
       return (
@@ -182,8 +184,8 @@ export const TableCell = React.forwardRef<HTMLTableCellElement, TableCellProps>(
           className={cn(
             "text-[#201C1A] align-middle",
             actionCell
-              ? "block md:table-cell pt-2.5 mt-2 border-t border-[#EAE3D9]/60 md:border-t-0 md:p-4 text-right"
-              : "flex items-start justify-between gap-3 py-1.5 md:table-cell md:p-4 text-xs md:text-sm",
+              ? "block md:table-cell pt-2.5 mt-2 border-t border-[#EAE3D9]/60 md:border-t-0 md:mt-0 md:p-4 text-right"
+              : "flex items-start justify-between gap-2 sm:gap-3 py-1.5 md:table-cell md:p-4 text-xs md:text-sm",
             className
           )}
           {...props}
@@ -197,7 +199,7 @@ export const TableCell = React.forwardRef<HTMLTableCellElement, TableCellProps>(
             className={cn(
               "min-w-0 max-w-full break-words",
               !actionCell && "text-right md:text-left",
-              actionCell && "w-full flex justify-end"
+              actionCell && "w-full flex flex-wrap justify-end gap-1.5"
             )}
           >
             {children}

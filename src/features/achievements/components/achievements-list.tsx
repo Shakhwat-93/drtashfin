@@ -166,41 +166,41 @@ export function AchievementsList() {
       {/* Screen Header Toolbar & Stat Cards */}
       <div className="print:hidden space-y-5">
         {/* Metric Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <Card className="p-4 border-[#EAE3D9] bg-white rounded-xl shadow-2xs">
-            <div className="flex items-center justify-between">
+        <div className="grid grid-cols-1 min-[360px]:grid-cols-2 sm:grid-cols-4 gap-3">
+          <Card className="p-3.5 sm:p-4 border-[#EAE3D9] bg-white rounded-xl shadow-2xs">
+            <div className="flex items-center justify-between gap-2">
               <span className="text-xs font-semibold text-[#7A746F]">Total Achievements</span>
-              <Award className="h-4 w-4 text-[#DE4F3C]" />
+              <Award className="h-4 w-4 text-[#DE4F3C] shrink-0" />
             </div>
             <div className="mt-2 text-2xl font-serif font-bold text-[#201C1A]">
               {total}
             </div>
           </Card>
 
-          <Card className="p-4 border-[#EAE3D9] bg-white rounded-xl shadow-2xs">
-            <div className="flex items-center justify-between">
+          <Card className="p-3.5 sm:p-4 border-[#EAE3D9] bg-white rounded-xl shadow-2xs">
+            <div className="flex items-center justify-between gap-2">
               <span className="text-xs font-semibold text-[#7A746F]">Active Categories</span>
-              <Layers className="h-4 w-4 text-indigo-600" />
+              <Layers className="h-4 w-4 text-indigo-600 shrink-0" />
             </div>
             <div className="mt-2 text-2xl font-serif font-bold text-[#201C1A]">
               {categoriesCount}
             </div>
           </Card>
 
-          <Card className="p-4 border-[#EAE3D9] bg-white rounded-xl shadow-2xs">
-            <div className="flex items-center justify-between">
+          <Card className="p-3.5 sm:p-4 border-[#EAE3D9] bg-white rounded-xl shadow-2xs">
+            <div className="flex items-center justify-between gap-2">
               <span className="text-xs font-semibold text-[#7A746F]">Published in Profile</span>
-              <Sparkles className="h-4 w-4 text-amber-600" />
+              <Sparkles className="h-4 w-4 text-amber-600 shrink-0" />
             </div>
             <div className="mt-2 text-2xl font-serif font-bold text-[#201C1A]">
               {publishedCount}
             </div>
           </Card>
 
-          <Card className="p-4 border-[#EAE3D9] bg-white rounded-xl shadow-2xs">
-            <div className="flex items-center justify-between">
+          <Card className="p-3.5 sm:p-4 border-[#EAE3D9] bg-white rounded-xl shadow-2xs">
+            <div className="flex items-center justify-between gap-2">
               <span className="text-xs font-semibold text-[#7A746F]">Verified Evidence</span>
-              <FileCheck2 className="h-4 w-4 text-emerald-600" />
+              <FileCheck2 className="h-4 w-4 text-emerald-600 shrink-0" />
             </div>
             <div className="mt-2 text-2xl font-serif font-bold text-[#201C1A]">
               {verifiedEvidenceCount}
@@ -210,7 +210,7 @@ export function AchievementsList() {
 
         {/* Action Bar */}
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               variant="primary"
               size="sm"
@@ -379,7 +379,7 @@ export function AchievementsList() {
 
       {/* Empty State */}
       {!isLoading && sortedAchievements.length === 0 && (
-        <Card className="p-12 text-center border-dashed border-[#EAE3D9] bg-white rounded-xl space-y-3">
+        <Card className="p-6 sm:p-12 text-center border-dashed border-[#EAE3D9] bg-white rounded-xl space-y-3">
           <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FAF5EE] text-[#DE4F3C] border border-[#EAE3D9]">
             <Award className="h-6 w-6" />
           </div>
@@ -449,64 +449,63 @@ export function AchievementsList() {
         onClose={() => {
           if (!isDeleting) setAchievementToDelete(null);
         }}
+        className="max-w-md p-0"
       >
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-[#EAE3D9] overflow-hidden">
-          <ModalHeader className="border-b border-[#FAF5EE] bg-[#FAF8F5] px-6 py-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-50 border border-rose-200 text-rose-600">
-                <AlertTriangle className="h-5 w-5" />
-              </div>
-              <div>
-                <ModalTitle className="text-base font-serif font-bold text-[#201C1A]">
-                  Delete Achievement Record
-                </ModalTitle>
-                <ModalDescription className="text-xs text-[#7A746F]">
-                  Confirm permanent removal of this achievement.
-                </ModalDescription>
-              </div>
+        <ModalHeader className="border-b border-[#FAF5EE] bg-[#FAF8F5] px-4 sm:px-6 py-4 pr-11">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-50 border border-rose-200 text-rose-600">
+              <AlertTriangle className="h-5 w-5" />
             </div>
-          </ModalHeader>
+            <div className="min-w-0">
+              <ModalTitle className="text-base font-serif font-bold text-[#201C1A]">
+                Delete Achievement Record
+              </ModalTitle>
+              <ModalDescription className="text-xs text-[#7A746F]">
+                Confirm permanent removal of this achievement.
+              </ModalDescription>
+            </div>
+          </div>
+        </ModalHeader>
 
-          <ModalBody className="p-6 space-y-3 text-xs text-[#201C1A]">
-            <p>
-              Are you sure you want to delete the record for:
-            </p>
-            <p className="font-semibold font-serif text-sm p-3 rounded-lg bg-[#FAF5EE] border border-[#EAE3D9]">
-              &ldquo;{achievementToDelete?.title}&rdquo;
-            </p>
-            <p className="text-[11px] text-[#7A746F]">
-              This action permanently deletes the achievement from Dr. Tashfin&apos;s professional portfolio. Any linked Google Drive files remain completely safe in your Google Drive.
-            </p>
+        <ModalBody className="p-4 sm:p-6 space-y-3 text-xs text-[#201C1A]">
+          <p>
+            Are you sure you want to delete the record for:
+          </p>
+          <p className="font-semibold font-serif text-sm p-3 rounded-lg bg-[#FAF5EE] border border-[#EAE3D9] break-words">
+            &ldquo;{achievementToDelete?.title}&rdquo;
+          </p>
+          <p className="text-[11px] text-[#7A746F]">
+            This action permanently deletes the achievement from Dr. Tashfin&apos;s professional portfolio. Any linked Google Drive files remain completely safe in your Google Drive.
+          </p>
 
-            {deleteError && (
-              <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs">
-                {deleteError}
-              </div>
-            )}
-          </ModalBody>
+          {deleteError && (
+            <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs break-words">
+              {deleteError}
+            </div>
+          )}
+        </ModalBody>
 
-          <ModalFooter className="border-t border-[#FAF5EE] bg-[#FAF8F5] px-6 py-3.5 flex items-center justify-end gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setAchievementToDelete(null)}
-              disabled={isDeleting}
-              className="text-xs"
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleConfirmDelete}
-              disabled={isDeleting}
-              className="text-xs bg-rose-600 hover:bg-rose-700 text-white hover:text-white border-rose-600 gap-1.5"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-              <span>{isDeleting ? "Deleting..." : "Confirm Delete"}</span>
-            </Button>
-          </ModalFooter>
-        </div>
+        <ModalFooter className="border-t border-[#FAF5EE] bg-[#FAF8F5] px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-end gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setAchievementToDelete(null)}
+            disabled={isDeleting}
+            className="text-xs"
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleConfirmDelete}
+            disabled={isDeleting}
+            className="text-xs bg-rose-600 hover:bg-rose-700 text-white hover:text-white border-rose-600 gap-1.5"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            <span>{isDeleting ? "Deleting..." : "Confirm Delete"}</span>
+          </Button>
+        </ModalFooter>
       </Modal>
     </div>
   );

@@ -14,6 +14,7 @@ export interface MonthViewProps {
 }
 
 const WEEKDAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const WEEKDAY_SHORT = ["S", "M", "T", "W", "T", "F", "S"];
 
 export function MonthView({
   year,
@@ -25,17 +26,18 @@ export function MonthView({
   const gridCells = React.useMemo(() => getMonthGrid(year, month), [year, month]);
 
   return (
-    <div className="rounded-2xl border border-[#EAE3D9] bg-white shadow-2xs overflow-hidden">
+    <div className="rounded-2xl border border-[#EAE3D9] bg-white shadow-2xs overflow-hidden min-w-0">
       {/* Weekday Header Columns */}
       <div className="grid grid-cols-7 border-b border-[#EAE3D9] bg-[#FAF5EE]/70 text-center">
         {WEEKDAY_NAMES.map((name, idx) => (
           <div
             key={name}
-            className={`py-2.5 text-xs font-semibold ${
+            className={`py-2 sm:py-2.5 text-[11px] sm:text-xs font-semibold ${
               idx === 5 || idx === 6 ? "text-[#DE4F3C]" : "text-[#7A746F]"
             }`}
           >
-            {name}
+            <span className="sm:hidden">{WEEKDAY_SHORT[idx]}</span>
+            <span className="hidden sm:inline">{name}</span>
           </div>
         ))}
       </div>
@@ -53,7 +55,7 @@ export function MonthView({
             <div
               key={cell.dateStr}
               onClick={() => onSelectDate(cell.dateStr)}
-              className={`min-h-[110px] sm:min-h-[125px] p-1.5 sm:p-2 flex flex-col justify-between transition-colors cursor-pointer ${
+              className={`min-h-[68px] sm:min-h-[125px] min-w-0 p-1 sm:p-2 flex flex-col justify-between transition-colors cursor-pointer ${
                 !cell.isCurrentMonth
                   ? "bg-[#FAF5EE]/30 text-[#7A746F]/50"
                   : cell.isToday
@@ -62,9 +64,9 @@ export function MonthView({
               }`}
             >
               {/* Day Cell Top: Date Number & Badge */}
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-0.5 min-w-0">
                 <span
-                  className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold transition-all ${
+                  className={`inline-flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-full text-[11px] sm:text-xs font-semibold transition-all shrink-0 ${
                     cell.isToday
                       ? "bg-[#DE4F3C] text-white shadow-xs"
                       : cell.isCurrentMonth
@@ -76,14 +78,38 @@ export function MonthView({
                 </span>
 
                 {hasFollowUps && (
-                  <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded-full bg-[#FAF5EE] text-[#7A746F] border border-[#EAE3D9]">
+                  <span className="text-[9px] sm:text-[10px] font-semibold px-1 sm:px-1.5 py-0.2 rounded-full bg-[#FAF5EE] text-[#7A746F] border border-[#EAE3D9] leading-tight">
                     {dayFollowUps.length}
                   </span>
                 )}
               </div>
 
-              {/* Day Follow-up Items */}
-              <div className="mt-1 flex-1 space-y-1 overflow-hidden">
+              {/* Compact Mobile Indicator Dots (< sm) */}
+              {hasFollowUps && (
+                <div className="mt-1 flex sm:hidden flex-wrap items-center justify-center gap-0.5 px-0.5">
+                  {dayFollowUps.slice(0, 4).map((f) => {
+                    const isOverdue = f.status === "scheduled" && isOverdueInClinic(f.scheduledDate);
+                    const isUrgent = f.priority === "urgent" || f.priority === "high";
+                    const dotColor =
+                      f.status === "completed"
+                        ? "bg-emerald-500"
+                        : f.status === "cancelled"
+                        ? "bg-[#7A746F]/50"
+                        : isOverdue || isUrgent
+                        ? "bg-[#DE4F3C]"
+                        : "bg-sky-500";
+                    return (
+                      <span
+                        key={f.id}
+                        className={`h-1.5 w-1.5 rounded-full ${dotColor}`}
+                      />
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Desktop / Tablet Day Follow-up Items (sm+) */}
+              <div className="mt-1 flex-1 space-y-1 overflow-hidden hidden sm:block">
                 {visibleItems.map((f) => {
                   const isOverdue = f.status === "scheduled" && isOverdueInClinic(f.scheduledDate);
                   const isUrgent = f.priority === "urgent" || f.priority === "high";

@@ -173,11 +173,11 @@ export function SmsGatewaySettingsSection() {
   return (
     <Card className="border-[#EAE3D9] bg-white shadow-xs overflow-hidden">
       {/* Card Header */}
-      <CardHeader className="border-b border-[#EAE3D9]/70 pb-5 bg-gradient-to-b from-[#FAF5EE]/40 to-transparent">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#FAF5EE] text-[#DE4F3C] border border-[#EAE3D9]">
+      <CardHeader className="border-b border-[#EAE3D9]/70 pb-4 sm:pb-5 p-4 sm:p-6 bg-gradient-to-b from-[#FAF5EE]/40 to-transparent">
+        <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
+          <div className="space-y-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#FAF5EE] text-[#DE4F3C] border border-[#EAE3D9]">
                 <MessageSquare className="h-4 w-4" />
               </div>
               <CardTitle className="text-base font-semibold text-[#201C1A]">
@@ -214,7 +214,7 @@ export function SmsGatewaySettingsSection() {
         </div>
       </CardHeader>
 
-      <CardContent className="pt-6 space-y-6">
+      <CardContent className="p-4 sm:p-6 pt-5 sm:pt-6 space-y-6">
         {/* Status Alerts */}
         {saveSuccessMsg && (
           <div className="flex items-center gap-2 p-3 text-xs rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-900 animate-in fade-in">
@@ -237,9 +237,9 @@ export function SmsGatewaySettingsSection() {
             ) : (
               <AlertTriangle className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
             )}
-            <div className="space-y-1">
+            <div className="space-y-1 min-w-0">
               <span className="font-semibold">{validationResult.status}</span>
-              <p className="text-[11px] leading-relaxed">{validationResult.message}</p>
+              <p className="text-[11px] leading-relaxed break-words">{validationResult.message}</p>
               {validationResult.balance && (
                 <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-100/80 text-emerald-800 text-[11px] font-mono font-medium">
                   <Coins className="h-3 w-3" />
@@ -253,17 +253,17 @@ export function SmsGatewaySettingsSection() {
         {errorMsg && (
           <div className="flex items-start gap-2 p-3 text-xs rounded-xl border border-rose-200 bg-rose-50 text-rose-800 animate-in fade-in">
             <AlertTriangle className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
-            <span>{errorMsg}</span>
+            <span className="break-words">{errorMsg}</span>
           </div>
         )}
 
         {/* Configuration Form */}
         <form onSubmit={handleSave} className="space-y-5">
           {/* Provider Overview Box */}
-          <div className="p-4 rounded-xl border border-[#EAE3D9] bg-[#FAF5EE]/30 space-y-3">
+          <div className="p-3.5 sm:p-4 rounded-xl border border-[#EAE3D9] bg-[#FAF5EE]/30 space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <Globe className="h-4 w-4 text-[#7A746F]" />
+                <Globe className="h-4 w-4 text-[#7A746F] shrink-0" />
                 <span className="text-xs font-semibold text-[#201C1A]">SMS Provider</span>
               </div>
               <a
@@ -273,7 +273,7 @@ export function SmsGatewaySettingsSection() {
                 className="text-[11px] text-[#DE4F3C] hover:underline inline-flex items-center gap-1 font-medium"
               >
                 Bulk SMS Dhaka Portal
-                <ExternalLink className="h-3 w-3" />
+                <ExternalLink className="h-3 w-3 shrink-0" />
               </a>
             </div>
             <p className="text-[11px] text-[#7A746F] leading-relaxed">
@@ -283,9 +283,9 @@ export function SmsGatewaySettingsSection() {
 
           {/* API Key Field */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <label className="text-xs font-semibold text-[#201C1A] flex items-center gap-1.5">
-                <Key className="h-3.5 w-3.5 text-[#7A746F]" />
+                <Key className="h-3.5 w-3.5 text-[#7A746F] shrink-0" />
                 API Key <span className="text-rose-500">*</span>
               </label>
               {config?.hasApiKey && !isReplacingKey && (
@@ -315,12 +315,12 @@ export function SmsGatewaySettingsSection() {
             </div>
 
             {config?.hasApiKey && !isReplacingKey ? (
-              <div className="flex items-center justify-between p-3 rounded-lg border border-[#EAE3D9] bg-[#FAF5EE]/50 text-xs">
-                <div className="flex items-center gap-2 font-mono text-[#59534E]">
-                  <Lock className="h-3.5 w-3.5 text-emerald-600" />
-                  <span>{config.maskedApiKey || "••••••••••••"}</span>
+              <div className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-lg border border-[#EAE3D9] bg-[#FAF5EE]/50 text-xs min-w-0">
+                <div className="flex items-center gap-2 font-mono text-[#59534E] min-w-0">
+                  <Lock className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                  <span className="truncate">{config.maskedApiKey || "••••••••••••"}</span>
                 </div>
-                <Badge variant="neutral" className="text-[10px] text-[#7A746F] bg-white">
+                <Badge variant="neutral" className="text-[10px] text-[#7A746F] bg-white shrink-0">
                   Encrypted at Rest (AES-256-GCM)
                 </Badge>
               </div>
@@ -362,7 +362,7 @@ export function SmsGatewaySettingsSection() {
               value={callerId}
               onChange={(e) => setCallerId(e.target.value)}
               disabled={isSaving}
-              className="text-sm font-mono max-w-sm"
+              className="text-sm font-mono w-full sm:max-w-sm"
             />
             <p className="text-[11px] text-[#7A746F]">
               Default is <code className="bg-[#FAF5EE] px-1 py-0.5 rounded text-[10px]">1234</code> for numeric sender ID. If using a custom brand masking ID, ensure it is approved in your Bulk SMS Dhaka portal.

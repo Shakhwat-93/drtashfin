@@ -356,9 +356,9 @@ export function PrescriptionEditor({
     <div className="space-y-6 max-w-4xl mx-auto">
       {/* Top Header Card */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[#EAE3D9] pb-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="font-serif text-2xl font-bold text-[#201C1A]">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="font-serif text-xl sm:text-2xl font-bold text-[#201C1A]">
               {existingPrescription ? "Edit Prescription Draft" : "New Prescription"}
             </h1>
             <Badge variant="neutral" className="text-xs border-[#C4BCB3]">
@@ -366,7 +366,7 @@ export function PrescriptionEditor({
             </Badge>
           </div>
           <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-[#7A746F]">
-            <span>
+            <span className="break-words">
               Patient: <strong className="text-[#201C1A]">{patient.name}</strong> ({patient.patientId}, {patient.gender}, {patient.age}y)
             </span>
             {patientChamber ? (
@@ -384,7 +384,7 @@ export function PrescriptionEditor({
         </div>
 
         {/* Prescription Date selector */}
-        <div className="flex items-center gap-2 self-start sm:self-auto">
+        <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
           <label className="text-xs font-semibold text-[#7A746F] flex items-center gap-1">
             <Calendar className="h-3.5 w-3.5" />
             <span>Date:</span>
@@ -393,7 +393,7 @@ export function PrescriptionEditor({
             type="date"
             value={prescriptionDate}
             onChange={(e) => setPrescriptionDate(e.target.value)}
-            className="rounded-lg border border-[#EAE3D9] bg-white px-2.5 py-1 text-xs text-[#201C1A] focus:border-[#DE4F3C] focus:outline-hidden"
+            className="rounded-lg border border-[#EAE3D9] bg-white px-2.5 py-1 text-xs text-[#201C1A] max-w-full focus:border-[#DE4F3C] focus:outline-hidden"
           />
         </div>
       </div>
@@ -401,24 +401,24 @@ export function PrescriptionEditor({
       {/* Clinical Safety Banner */}
       <div className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50/40 p-3.5 text-xs text-amber-900">
         <Info className="h-4 w-4 shrink-0 text-amber-700 mt-0.5" />
-        <div>
+        <div className="min-w-0">
           <strong className="font-semibold text-amber-950">Clinician Control & Verification:</strong> All doses, frequencies, routes, and instructions are solely determined and confirmed by the attending doctor. Catalogue data serves strictly as pharmaceutical nomenclature reference.
         </div>
       </div>
 
       {/* Error Banner */}
       {errorMessage && (
-        <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-800">
-          <AlertTriangle className="h-4 w-4 shrink-0 text-red-600" />
-          <span>{errorMessage}</span>
+        <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-800">
+          <AlertTriangle className="h-4 w-4 shrink-0 text-red-600 mt-0.5" />
+          <span className="min-w-0 break-words">{errorMessage}</span>
         </div>
       )}
 
       {/* SECTION 1: MEDICINE SEARCH & ADD */}
-      <div className="rounded-2xl border border-[#EAE3D9] bg-white p-5 shadow-xs space-y-4">
-        <div className="flex items-center justify-between">
+      <div className="rounded-2xl border border-[#EAE3D9] bg-white p-3.5 sm:p-5 shadow-xs space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#FAF5EE] border border-[#EAE3D9] text-[#DE4F3C]">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#FAF5EE] border border-[#EAE3D9] text-[#DE4F3C]">
               <Pill className="h-4 w-4" />
             </div>
             <h2 className="font-serif text-base font-bold text-[#201C1A]">
@@ -450,7 +450,7 @@ export function PrescriptionEditor({
           </div>
         ) : (
           /* Manual Custom Entry Mode */
-          <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF8F5] p-4 space-y-3">
+          <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF8F5] p-3.5 sm:p-4 space-y-3">
             <div className="text-xs font-semibold text-[#201C1A]">
               Manual / Custom Medicine Entry
             </div>
@@ -501,7 +501,7 @@ export function PrescriptionEditor({
                 </select>
               </div>
             </div>
-            <div className="flex justify-end gap-2 pt-1">
+            <div className="flex flex-wrap justify-end gap-2 pt-1">
               <Button
                 variant="outline"
                 size="sm"
@@ -525,15 +525,15 @@ export function PrescriptionEditor({
 
       {/* SECTION 2: PRESCRIBED MEDICINES LIST (REORDERABLE & EDITABLE) */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between text-xs font-semibold text-[#201C1A]">
+        <div className="flex flex-wrap items-center justify-between gap-1 text-xs font-semibold text-[#201C1A]">
           <span>Medications List ({items.length})</span>
-          <span className="text-[11px] text-[#7A746F]">
+          <span className="text-[11px] text-[#7A746F] font-normal">
             Verify frequency (e.g. 1+0+1), route, and duration for each item
           </span>
         </div>
 
         {items.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-[#EAE3D9] bg-white p-8 text-center text-[#7A746F]">
+          <div className="rounded-2xl border border-dashed border-[#EAE3D9] bg-white p-6 sm:p-8 text-center text-[#7A746F]">
             <Pill className="mx-auto h-8 w-8 text-[#C4BCB3] mb-2" />
             <p className="text-xs font-medium text-[#201C1A]">No medications added yet</p>
             <p className="text-[11px] mt-0.5">
@@ -545,15 +545,15 @@ export function PrescriptionEditor({
             {items.map((item, index) => (
               <div
                 key={index}
-                className="rounded-2xl border border-[#EAE3D9] bg-white p-4 shadow-2xs space-y-3 transition-all hover:border-[#C4BCB3]"
+                className="rounded-2xl border border-[#EAE3D9] bg-white p-3.5 sm:p-4 shadow-2xs space-y-3 transition-all hover:border-[#C4BCB3]"
               >
                 {/* Header row: Number, Brand, Generic, badges, Reorder, Remove */}
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#EAE3D9]/60 pb-2.5">
-                  <div className="flex items-center gap-2">
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#201C1A] text-[10px] font-bold text-white">
+                  <div className="flex flex-wrap items-center gap-2 min-w-0">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#201C1A] text-[10px] font-bold text-white">
                       {index + 1}
                     </span>
-                    <span className="font-serif text-sm font-bold text-[#201C1A]">
+                    <span className="font-serif text-sm font-bold text-[#201C1A] break-words">
                       {item.brandName}
                     </span>
                     {item.strength && (
@@ -567,7 +567,7 @@ export function PrescriptionEditor({
                         handleUpdateItem(index, "dosageForm", e.target.value)
                       }
                       aria-label="Dosage Form"
-                      className="rounded-md border border-[#EAE3D9] bg-[#FAF8F5] px-1.5 py-0.5 text-[10px] font-medium text-[#201C1A] focus:border-[#DE4F3C] focus:outline-hidden"
+                      className="max-w-full rounded-md border border-[#EAE3D9] bg-[#FAF8F5] px-1.5 py-0.5 text-[10px] font-medium text-[#201C1A] focus:border-[#DE4F3C] focus:outline-hidden"
                     >
                       <option value="">Form (Optional)</option>
                       <option value="Tablet">Tablet</option>
@@ -587,7 +587,7 @@ export function PrescriptionEditor({
                     )}
                   </div>
 
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 shrink-0">
                     {/* Reorder Buttons */}
                     <button
                       type="button"
@@ -720,18 +720,18 @@ export function PrescriptionEditor({
 
                 {/* Second row: Timing & Special instructions */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-[#EAE3D9]/40">
-                  <div className="space-y-1">
+                  <div className="space-y-1 min-w-0">
                     <label className="text-[10px] font-medium text-[#7A746F]">
                       Timing Instructions
                     </label>
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex flex-wrap sm:flex-nowrap items-center gap-1.5 min-w-0">
                       <Input
                         value={item.timingInstructions || ""}
                         onChange={(e) =>
                           handleUpdateItem(index, "timingInstructions", e.target.value)
                         }
                         placeholder="e.g. After meal, Before meal"
-                        className="h-7 text-xs"
+                        className="h-7 text-xs min-w-0 flex-1"
                       />
                       <select
                         onChange={(e) => {
@@ -739,7 +739,7 @@ export function PrescriptionEditor({
                             handleUpdateItem(index, "timingInstructions", e.target.value);
                           }
                         }}
-                        className="h-7 rounded border border-[#EAE3D9] bg-white px-1 text-[11px] text-[#7A746F]"
+                        className="h-7 max-w-full shrink-0 rounded border border-[#EAE3D9] bg-white px-1.5 text-[11px] text-[#7A746F]"
                       >
                         <option value="">Preset</option>
                         {COMMON_TIMINGS.map((t) => (
@@ -751,7 +751,7 @@ export function PrescriptionEditor({
                     </div>
                   </div>
 
-                  <div className="space-y-1">
+                  <div className="space-y-1 min-w-0">
                     <label className="text-[10px] font-medium text-[#7A746F]">
                       Special Instructions / Warnings
                     </label>
@@ -772,9 +772,9 @@ export function PrescriptionEditor({
       </div>
 
       {/* SECTION 3: CLINICAL ADVICE & FOLLOW-UP */}
-      <div className="rounded-2xl border border-[#EAE3D9] bg-white p-5 shadow-xs space-y-4">
+      <div className="rounded-2xl border border-[#EAE3D9] bg-white p-3.5 sm:p-5 shadow-xs space-y-4">
         <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#FAF5EE] border border-[#EAE3D9] text-[#DE4F3C]">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#FAF5EE] border border-[#EAE3D9] text-[#DE4F3C]">
             <Sparkles className="h-4 w-4" />
           </div>
           <h2 className="font-serif text-base font-bold text-[#201C1A]">
@@ -784,7 +784,7 @@ export function PrescriptionEditor({
 
         {/* Advice Textarea */}
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-1">
             <label className="text-xs font-semibold text-[#201C1A]">
               Clinical Advice & Lifestyle Instructions
             </label>
@@ -810,7 +810,7 @@ export function PrescriptionEditor({
                 key={i}
                 type="button"
                 onClick={() => handleAddAdviceChip(chip)}
-                className="rounded-full border border-[#EAE3D9] bg-[#FAF8F5] px-2.5 py-0.5 text-[10px] font-medium text-[#504A45] hover:bg-[#EAE3D9] hover:text-[#201C1A] cursor-pointer transition-colors"
+                className="rounded-full border border-[#EAE3D9] bg-[#FAF8F5] px-2.5 py-0.5 text-[10px] font-medium text-[#504A45] hover:bg-[#EAE3D9] hover:text-[#201C1A] cursor-pointer transition-colors whitespace-normal text-left max-w-full"
               >
                 + {chip.slice(0, 32)}...
               </button>
@@ -848,7 +848,7 @@ export function PrescriptionEditor({
 
         {/* Clinician Internal Notes (Not Printed) */}
         <div className="space-y-1 pt-2 border-t border-[#EAE3D9]/60">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-1">
             <label className="text-xs font-semibold text-[#201C1A]">
               Internal Clinician Notes
             </label>
@@ -865,7 +865,7 @@ export function PrescriptionEditor({
       </div>
 
       {/* ACTION BAR (SAVE DRAFT / FINALIZE / CANCEL) */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-2xl border border-[#EAE3D9] bg-[#FAF8F5] p-4 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-[#EAE3D9] bg-[#FAF8F5] p-3.5 sm:p-4 shadow-sm">
         <div>
           <Button
             type="button"
@@ -880,7 +880,7 @@ export function PrescriptionEditor({
           </Button>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center justify-end gap-2.5">
           {/* Save Draft Button */}
           <Button
             type="button"
@@ -917,18 +917,19 @@ export function PrescriptionEditor({
       <Modal
         isOpen={showFinalizeModal}
         onClose={() => setShowFinalizeModal(false)}
+        className="max-w-lg p-0"
       >
-        <ModalHeader>
+        <ModalHeader className="px-4 sm:px-6">
           <ModalTitle>Confirm Prescription Finalization</ModalTitle>
           <ModalDescription>
             Please confirm you are ready to officially lock and issue this prescription.
           </ModalDescription>
         </ModalHeader>
 
-        <ModalBody className="space-y-4">
+        <ModalBody className="space-y-4 px-4 sm:px-6">
           <div className="rounded-xl border border-amber-200 bg-amber-50 p-3.5 text-xs text-amber-900 flex items-start gap-2.5">
             <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600 mt-0.5" />
-            <div>
+            <div className="min-w-0">
               <p className="font-semibold text-amber-950">Medico-Legal Record Lock:</p>
               <p className="mt-1">
                 Finalizing will officially lock this prescription. Once locked, medicines, dosages, and clinical advice cannot be silently edited.
@@ -937,22 +938,22 @@ export function PrescriptionEditor({
           </div>
 
           <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF8F5] p-3 text-xs space-y-1.5">
-            <div className="flex justify-between text-[#7A746F]">
-              <span>Patient:</span>
-              <strong className="text-[#201C1A]">{patient.name} ({patient.patientId})</strong>
+            <div className="flex justify-between gap-2 text-[#7A746F]">
+              <span className="shrink-0">Patient:</span>
+              <strong className="text-[#201C1A] text-right break-words min-w-0">{patient.name} ({patient.patientId})</strong>
             </div>
-            <div className="flex justify-between text-[#7A746F]">
+            <div className="flex justify-between gap-2 text-[#7A746F]">
               <span>Prescribed Items:</span>
               <strong className="text-[#201C1A]">{items.length} medications</strong>
             </div>
-            <div className="flex justify-between text-[#7A746F]">
+            <div className="flex justify-between gap-2 text-[#7A746F]">
               <span>Prescription Date:</span>
               <strong className="text-[#201C1A]">{prescriptionDate}</strong>
             </div>
           </div>
         </ModalBody>
 
-        <ModalFooter>
+        <ModalFooter className="flex-wrap px-4 sm:px-6">
           <Button
             variant="outline"
             size="sm"

@@ -214,12 +214,12 @@ export function PrescriptionDetailView({
 
       {/* Cloudflare R2 Archive & Cryptographic Integrity Banner */}
       {isFinalized && (
-        <div className="rounded-2xl border border-[#EAE3D9] bg-white p-5 shadow-xs space-y-3 print:hidden">
+        <div className="rounded-2xl border border-[#EAE3D9] bg-white p-3.5 sm:p-5 shadow-xs space-y-3 print:hidden">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-start gap-2.5 min-w-0 flex-1">
               <div
                 className={cn(
-                  "flex h-8 w-8 items-center justify-center rounded-xl border",
+                  "flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border",
                   isArchived
                     ? "border-emerald-200 bg-emerald-50 text-emerald-700"
                     : "border-amber-200 bg-amber-50 text-amber-700"
@@ -231,8 +231,8 @@ export function PrescriptionDetailView({
                   <CloudUpload className="h-4 w-4" />
                 )}
               </div>
-              <div>
-                <div className="flex items-center gap-2">
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-[#201C1A]">
                     {isArchived
                       ? `Cloudflare R2 Official Archive (v${latestDocument?.version || 1})`
@@ -248,7 +248,7 @@ export function PrescriptionDetailView({
                     </Badge>
                   )}
                 </div>
-                <p className="text-[11px] text-[#7A746F] mt-0.5">
+                <p className="text-[11px] text-[#7A746F] mt-0.5 break-words">
                   {isArchived
                     ? "Official immutable PDF persisted in private R2 bucket with SHA-256 cryptographic fingerprint."
                     : "Finalized clinical prescription is ready for official PDF generation and R2 cloud archival."}
@@ -256,7 +256,7 @@ export function PrescriptionDetailView({
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {!isArchived && (
                 <Button
                   size="sm"
@@ -285,15 +285,15 @@ export function PrescriptionDetailView({
           </div>
 
           {(archiveError || verifyError) && (
-            <div className="rounded-lg bg-red-50 border border-red-200 p-2.5 text-xs text-red-800 flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 shrink-0 text-red-600" />
-              <span>{archiveError || verifyError}</span>
+            <div className="rounded-lg bg-red-50 border border-red-200 p-2.5 text-xs text-red-800 flex items-start gap-2">
+              <AlertTriangle className="h-4 w-4 shrink-0 text-red-600 mt-0.5" />
+              <span className="min-w-0 break-words">{archiveError || verifyError}</span>
             </div>
           )}
 
           {/* Expanded Cryptographic Integrity Audit Details */}
           {(showIntegrityCard || verification) && latestDocument && (
-            <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF8F5] p-4 text-xs space-y-3 mt-3">
+            <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF8F5] p-3.5 sm:p-4 text-xs space-y-3 mt-3">
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#EAE3D9] pb-2">
                 <span className="font-semibold text-[#201C1A]">
                   Cryptographic Integrity Report
@@ -315,16 +315,16 @@ export function PrescriptionDetailView({
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px]">
-                <div>
+                <div className="min-w-0">
                   <span className="text-[#7A746F] block">SHA-256 Digest:</span>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <code className="rounded bg-white px-2 py-0.5 border border-[#EAE3D9] font-mono text-[10px] text-[#201C1A] select-all truncate max-w-[280px]">
+                  <div className="flex items-center gap-1.5 mt-0.5 min-w-0">
+                    <code className="min-w-0 flex-1 max-w-full rounded bg-white px-2 py-0.5 border border-[#EAE3D9] font-mono text-[10px] text-[#201C1A] select-all truncate">
                       {latestDocument.contentHash}
                     </code>
                     <button
                       type="button"
                       onClick={() => handleCopyHash(latestDocument.contentHash)}
-                      className="p-1 hover:bg-[#EAE3D9]/60 rounded text-[#7A746F] hover:text-[#201C1A]"
+                      className="p-1 shrink-0 hover:bg-[#EAE3D9]/60 rounded text-[#7A746F] hover:text-[#201C1A]"
                       title="Copy SHA-256 Hash"
                     >
                       {copiedHash ? (
@@ -336,9 +336,9 @@ export function PrescriptionDetailView({
                   </div>
                 </div>
 
-                <div>
+                <div className="min-w-0">
                   <span className="text-[#7A746F] block">R2 Storage Object Key:</span>
-                  <code className="font-mono text-[10px] text-[#201C1A] block truncate mt-0.5">
+                  <code className="font-mono text-[10px] text-[#201C1A] block break-all whitespace-normal mt-0.5">
                     {latestDocument.r2Key}
                   </code>
                 </div>
@@ -417,23 +417,23 @@ export function PrescriptionDetailView({
       )}
 
       {/* Main Clinical Prescription Paper (A4 Style) */}
-      <div className="rounded-2xl border border-[#EAE3D9] bg-white p-6 sm:p-10 shadow-sm print:border-none print:shadow-none print:p-0 space-y-6">
+      <div className="rounded-2xl border border-[#EAE3D9] bg-white p-4 sm:p-8 lg:p-10 shadow-sm print:border-none print:shadow-none print:p-0 space-y-6">
         {/* Clinician & Clinic Header */}
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 border-b-2 border-[#201C1A] pb-6">
-          <div>
-            <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#201C1A] tracking-tight">
+          <div className="min-w-0">
+            <h2 className="font-serif text-xl sm:text-3xl font-bold text-[#201C1A] tracking-tight break-words">
               {OFFICIAL_DOCTOR_PROFILE.fullName}
             </h2>
-            <p className="text-xs sm:text-sm font-medium text-[#DE4F3C] mt-0.5">
+            <p className="text-xs sm:text-sm font-medium text-[#DE4F3C] mt-0.5 break-words">
               {OFFICIAL_DOCTOR_PROFILE.qualifications} • {OFFICIAL_DOCTOR_PROFILE.primaryDesignation}
             </p>
-            <p className="text-xs text-[#7A746F] mt-1">
+            <p className="text-xs text-[#7A746F] mt-1 break-words">
               {OFFICIAL_DOCTOR_PROFILE.workplace}
             </p>
           </div>
 
-          <div className="text-left sm:text-right space-y-1">
-            <div className="flex items-center sm:justify-end gap-2">
+          <div className="text-left sm:text-right space-y-1 shrink-0">
+            <div className="flex flex-wrap items-center sm:justify-end gap-2">
               <span className="font-mono text-sm font-bold text-[#201C1A]">
                 {prescription.prescriptionCode}
               </span>
@@ -454,17 +454,17 @@ export function PrescriptionDetailView({
         </div>
 
         {/* Patient Identity Strip */}
-        <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF8F5] p-4 text-xs">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div>
+        <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF8F5] p-3.5 sm:p-4 text-xs">
+          <div className="grid grid-cols-1 min-[380px]:grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+            <div className="min-w-0">
               <span className="text-[#7A746F] block text-[11px]">Patient Name:</span>
-              <strong className="text-sm font-serif font-bold text-[#201C1A]">
+              <strong className="text-sm font-serif font-bold text-[#201C1A] break-words">
                 {patient.name}
               </strong>
             </div>
-            <div>
+            <div className="min-w-0">
               <span className="text-[#7A746F] block text-[11px]">Patient ID:</span>
-              <span className="font-mono font-semibold text-[#201C1A]">
+              <span className="font-mono font-semibold text-[#201C1A] break-words">
                 {patient.patientId}
               </span>
             </div>
@@ -501,15 +501,15 @@ export function PrescriptionDetailView({
               {prescription.items.map((item, index) => (
                 <div
                   key={item.id}
-                  className="rounded-xl border border-[#EAE3D9]/80 bg-white p-4 space-y-2 hover:border-[#C4BCB3] transition-colors"
+                  className="rounded-xl border border-[#EAE3D9]/80 bg-white p-3.5 sm:p-4 space-y-2 hover:border-[#C4BCB3] transition-colors"
                 >
                   {/* Top Item Row */}
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#FAF5EE] border border-[#EAE3D9] text-[11px] font-bold text-[#DE4F3C]">
+                    <div className="flex flex-wrap items-center gap-2 min-w-0">
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#FAF5EE] border border-[#EAE3D9] text-[11px] font-bold text-[#DE4F3C]">
                         {index + 1}
                       </span>
-                      <h3 className="font-serif text-base font-bold text-[#201C1A]">
+                      <h3 className="font-serif text-base font-bold text-[#201C1A] break-words">
                         {item.brandName}
                       </h3>
                       {item.strength && (
@@ -525,7 +525,7 @@ export function PrescriptionDetailView({
                     </div>
 
                     {/* Frequency & Duration Pill */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <span className="rounded-lg bg-[#201C1A] px-2.5 py-1 font-mono text-xs font-bold text-white shadow-2xs">
                         {item.frequency}
                       </span>
@@ -538,19 +538,19 @@ export function PrescriptionDetailView({
                   </div>
 
                   {/* Generic Name & Manufacturer */}
-                  <div className="flex flex-wrap items-center justify-between text-xs text-[#7A746F] pl-7">
-                    <span>
+                  <div className="flex flex-wrap items-center justify-between gap-1 text-xs text-[#7A746F] pl-0 sm:pl-7">
+                    <span className="break-words">
                       Generic: <em className="text-[#504A45]">{item.genericName}</em>
                     </span>
                     {item.manufacturer && (
-                      <span className="text-[11px] text-[#7A746F]">
+                      <span className="text-[11px] text-[#7A746F] break-words">
                         {item.manufacturer}
                       </span>
                     )}
                   </div>
 
                   {/* Instructions & Route */}
-                  <div className="flex flex-wrap items-center gap-3 pl-7 pt-1 text-xs text-[#504A45]">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 pl-0 sm:pl-7 pt-1 text-xs text-[#504A45]">
                     {item.dose && (
                       <span className="inline-flex items-center gap-1 font-medium">
                         Dose: <span className="text-[#201C1A]">{item.dose}</span>
@@ -562,12 +562,12 @@ export function PrescriptionDetailView({
                       </span>
                     )}
                     {item.timingInstructions && (
-                      <span className="inline-flex items-center gap-1 text-[#DE4F3C] font-medium">
+                      <span className="inline-flex items-center gap-1 text-[#DE4F3C] font-medium break-words">
                         • {item.timingInstructions}
                       </span>
                     )}
                     {item.specialInstructions && (
-                      <span className="inline-flex items-center gap-1 italic text-[#7A746F]">
+                      <span className="inline-flex items-center gap-1 italic text-[#7A746F] break-words">
                         • {item.specialInstructions}
                       </span>
                     )}
@@ -580,11 +580,11 @@ export function PrescriptionDetailView({
 
         {/* Clinical Advice Section */}
         {prescription.advice && (
-          <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF8F5] p-5 space-y-2">
+          <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF8F5] p-3.5 sm:p-5 space-y-2">
             <h4 className="text-xs font-bold uppercase tracking-wider text-[#201C1A]">
               Advice & Patient Instructions
             </h4>
-            <div className="text-xs leading-relaxed text-[#504A45] whitespace-pre-line">
+            <div className="text-xs leading-relaxed text-[#504A45] whitespace-pre-line break-words">
               {prescription.advice}
             </div>
           </div>
@@ -592,10 +592,10 @@ export function PrescriptionDetailView({
 
         {/* Follow-up Section */}
         {formattedFollowUp && (
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-xl border border-emerald-200 bg-emerald-50/40 p-4 text-xs text-emerald-900">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-emerald-700" />
-              <span>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-xl border border-emerald-200 bg-emerald-50/40 p-3.5 sm:p-4 text-xs text-emerald-900">
+            <div className="flex items-start gap-2 min-w-0">
+              <Calendar className="h-4 w-4 text-emerald-700 shrink-0 mt-0.5" />
+              <span className="min-w-0 break-words">
                 <strong>Next Review Date: </strong>
                 {formattedFollowUp}
                 {prescription.followUpInstructions && ` — ${prescription.followUpInstructions}`}
@@ -606,22 +606,22 @@ export function PrescriptionDetailView({
 
         {/* Signature & Medico-Legal Footer */}
         <div className="pt-8 border-t border-[#EAE3D9] flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
-          <div className="text-[10px] text-[#7A746F] space-y-0.5">
+          <div className="text-[10px] text-[#7A746F] space-y-0.5 min-w-0">
             <p>Generated via Doctor Tashfin Patient Management System.</p>
             <p>MedEx Bangladesh Verified Pharmaceutical Sourcing.</p>
             {isFinalized && prescription.finalizedAt && (
-              <p className="font-mono text-emerald-700">
+              <p className="font-mono text-emerald-700 break-words">
                 Locked & Finalized at: {new Date(prescription.finalizedAt).toUTCString()}
               </p>
             )}
             {latestDocument && (
-              <p className="font-mono text-[9px] text-[#7A746F]">
+              <p className="font-mono text-[9px] text-[#7A746F] break-all">
                 SHA-256: {latestDocument.contentHash}
               </p>
             )}
           </div>
 
-          <div className="text-right sm:min-w-[200px] border-t border-[#201C1A] pt-2">
+          <div className="text-left sm:text-right sm:min-w-[200px] border-t border-[#201C1A] pt-2 shrink-0">
             <p className="font-serif text-sm font-bold text-[#201C1A]">
               {OFFICIAL_DOCTOR_PROFILE.fullName}
             </p>

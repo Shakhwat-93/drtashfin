@@ -40,7 +40,7 @@ export function AgendaView({ followUps, onSelectFollowUp }: AgendaViewProps) {
 
   if (followUps.length === 0) {
     return (
-      <div className="p-12 text-center rounded-2xl border border-[#EAE3D9] bg-white shadow-2xs space-y-3">
+      <div className="p-6 sm:p-12 text-center rounded-2xl border border-[#EAE3D9] bg-white shadow-2xs space-y-3">
         <Calendar className="h-10 w-10 text-[#7A746F]/50 mx-auto" />
         <h3 className="font-serif text-base font-semibold text-[#201C1A]">
           No follow-up appointments scheduled
@@ -61,10 +61,10 @@ export function AgendaView({ followUps, onSelectFollowUp }: AgendaViewProps) {
         return (
           <div key={dateStr} className="space-y-3">
             {/* Date Section Header */}
-            <div className="flex items-center justify-between pb-1 border-b border-[#EAE3D9]">
-              <div className="flex items-center gap-2">
-                <Calendar className={`h-4 w-4 ${isToday ? "text-[#DE4F3C]" : "text-[#7A746F]"}`} />
-                <h3 className="font-serif text-sm font-bold text-[#201C1A]">
+            <div className="flex flex-wrap items-center justify-between gap-2 pb-1 border-b border-[#EAE3D9]">
+              <div className="flex flex-wrap items-center gap-2 min-w-0">
+                <Calendar className={`h-4 w-4 shrink-0 ${isToday ? "text-[#DE4F3C]" : "text-[#7A746F]"}`} />
+                <h3 className="font-serif text-sm font-bold text-[#201C1A] break-words">
                   {formatDisplayDate(dateStr, { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
                 </h3>
                 {isToday && (
@@ -78,7 +78,7 @@ export function AgendaView({ followUps, onSelectFollowUp }: AgendaViewProps) {
                   </Badge>
                 )}
               </div>
-              <span className="text-xs font-medium text-[#7A746F]">
+              <span className="text-xs font-medium text-[#7A746F] shrink-0">
                 {items.length} {items.length === 1 ? "appointment" : "appointments"}
               </span>
             </div>
@@ -93,7 +93,7 @@ export function AgendaView({ followUps, onSelectFollowUp }: AgendaViewProps) {
                 return (
                   <div
                     key={f.id}
-                    className={`p-4 rounded-xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+                    className={`p-3.5 sm:p-4 rounded-xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 min-w-0 ${
                       f.status === "completed"
                         ? "bg-[#EBF5EE]/30 border-[#D1EAD8]"
                         : f.status === "cancelled"
@@ -150,9 +150,9 @@ export function AgendaView({ followUps, onSelectFollowUp }: AgendaViewProps) {
                         {f.reason}
                       </p>
 
-                      <div className="flex flex-wrap items-center gap-3 text-[11px] text-[#7A746F] pt-1">
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[#7A746F] pt-1 min-w-0">
                         {timeStr ? (
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-1 shrink-0">
                             <Clock className="h-3.5 w-3.5" />
                             <span>{timeStr}</span>
                           </div>
@@ -162,14 +162,14 @@ export function AgendaView({ followUps, onSelectFollowUp }: AgendaViewProps) {
                         {f.notes && (
                           <>
                             <span>•</span>
-                            <span className="truncate max-w-xs">&ldquo;{f.notes}&rdquo;</span>
+                            <span className="break-words min-w-0 md:truncate md:max-w-xs">&ldquo;{f.notes}&rdquo;</span>
                           </>
                         )}
                       </div>
                     </div>
 
                     {/* Actions */}
-                    <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                    <div className="flex flex-wrap items-center gap-2 shrink-0 self-start sm:self-center">
                       <Button
                         variant="outline"
                         size="sm"

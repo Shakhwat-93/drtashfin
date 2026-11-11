@@ -24,17 +24,17 @@ export function PageHeader({
       )}
       {...props}
     >
-      <div className="space-y-1">
+      <div className="space-y-1 min-w-0">
         {label && (
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-[#7A746F]">
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-[#7A746F] break-words">
             {label}
           </p>
         )}
-        <h1 className="font-serif text-2xl sm:text-3xl font-medium tracking-tight text-[#201C1A]">
+        <h1 className="font-serif text-2xl sm:text-3xl font-medium tracking-tight text-[#201C1A] break-words">
           {title}
         </h1>
         {description && (
-          <p className="text-sm text-[#7A746F] max-w-2xl leading-relaxed">
+          <p className="text-xs sm:text-sm text-[#7A746F] max-w-2xl leading-relaxed break-words">
             {description}
           </p>
         )}

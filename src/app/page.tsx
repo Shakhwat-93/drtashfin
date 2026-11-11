@@ -210,14 +210,14 @@ export default function DashboardPage() {
         />
 
         {/* Active Chamber Context Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-xl border border-[#EAE3D9] bg-white shadow-2xs">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FAF5EE] border border-[#EAE3D9] text-[#DE4F3C]">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3.5 sm:p-4 rounded-xl border border-[#EAE3D9] bg-white shadow-2xs min-w-0">
+          <div className="flex items-start sm:items-center gap-3 min-w-0">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FAF5EE] border border-[#EAE3D9] text-[#DE4F3C]">
               <Building2 className="h-5 w-5" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-sm font-bold text-[#201C1A]">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-sm font-bold text-[#201C1A] break-words">
                   {activeChamber.name}
                 </h2>
                 <Badge variant="neutral" className="font-mono text-[10px]">
@@ -237,7 +237,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Quick Chamber Switch Pills */}
-          <div className="flex items-center gap-1.5 p-1 rounded-lg bg-[#FAF5EE] border border-[#EAE3D9] self-start sm:self-center">
+          <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-lg bg-[#FAF5EE] border border-[#EAE3D9] self-start sm:self-center max-w-full">
             {chambers.map((c) => {
               const active = c.id === activeChamber.id;
               return (
@@ -245,7 +245,7 @@ export default function DashboardPage() {
                   key={c.id}
                   type="button"
                   onClick={() => switchChamber(c.code)}
-                  className={`px-3 py-1 text-xs rounded-md font-medium transition-all ${
+                  className={`px-2.5 sm:px-3 py-1 text-xs rounded-md font-medium transition-all cursor-pointer ${
                     active
                       ? "bg-white text-[#DE4F3C] font-semibold shadow-xs border border-[#EAE3D9]"
                       : "text-[#7A746F] hover:text-[#201C1A]"
@@ -353,18 +353,20 @@ export default function DashboardPage() {
                         ))
                       ) : patients.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={5} className="py-8 text-center">
-                            <EmptyState
-                              title="No patients recorded"
-                              description="Click '+ New Patient' to register a patient record."
-                            />
+                          <TableCell colSpan={5} className="block md:table-cell py-8 text-center">
+                            <div className="w-full text-center">
+                              <EmptyState
+                                title="No patients recorded"
+                                description="Click '+ New Patient' to register a patient record."
+                              />
+                            </div>
                           </TableCell>
                         </TableRow>
                       ) : (
                         patients.map((patient) => (
                           <TableRow key={patient.id}>
                             <TableCell label="Patient">
-                              <div className="flex flex-col">
+                              <div className="flex flex-col items-end md:items-start text-right md:text-left">
                                 <Link
                                   href={`/patients/${patient.patientId}`}
                                   className="font-serif text-sm font-medium text-[#201C1A] hover:text-[#DE4F3C] transition-colors"
@@ -473,7 +475,7 @@ export default function DashboardPage() {
           isOpen={isNewPatientModalOpen}
           onClose={() => setIsNewPatientModalOpen(false)}
         >
-          <form onSubmit={handleRegisterPatient}>
+          <form onSubmit={handleRegisterPatient} className="flex flex-col flex-1 min-h-0">
             <ModalHeader>
               <ModalTitle>Register New Patient</ModalTitle>
               <ModalDescription>
@@ -541,7 +543,7 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 min-[360px]:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label>Weight (kg)</Label>
                   <Input

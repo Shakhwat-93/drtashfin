@@ -16,7 +16,7 @@ export function AdminShell({ children }: AdminShellProps) {
 
   return (
     <ChamberProvider>
-      <div className="flex min-h-screen bg-[#FAF5EE] text-[#201C1A]">
+      <div className="flex min-h-screen w-full max-w-full overflow-x-clip bg-[#FAF5EE] text-[#201C1A]">
         {/* Desktop Persistent Sidebar */}
         <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 z-40">
           <Sidebar />
@@ -41,9 +41,9 @@ export function AdminShell({ children }: AdminShellProps) {
         </Drawer>
 
         {/* Main Area: Top Header + Dynamic Content */}
-        <div className="flex flex-1 flex-col lg:pl-64 min-w-0 max-w-full">
+        <div className="flex flex-1 flex-col lg:pl-64 min-w-0 w-full max-w-full">
           <Header onMenuClick={() => setIsMobileNavOpen(true)} />
-          <main className="flex-1 pb-12 min-w-0 max-w-full">{children}</main>
+          <main className="flex-1 pb-12 min-w-0 w-full max-w-full">{children}</main>
         </div>
       </div>
     </ChamberProvider>

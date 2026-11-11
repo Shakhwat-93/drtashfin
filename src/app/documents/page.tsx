@@ -90,7 +90,7 @@ function DocumentsContent() {
         />
 
         {/* Document Category Toggle */}
-        <div className="flex items-center gap-2 border-b border-[#EAE3D9] pb-3">
+        <div className="flex flex-wrap items-center gap-2 border-b border-[#EAE3D9] pb-3">
           <button
             type="button"
             onClick={() => {
@@ -98,14 +98,14 @@ function DocumentsContent() {
               setPage(1);
             }}
             className={cn(
-              "inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer",
+              "inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer max-w-full",
               documentType === "diagnostics-procedures"
                 ? "bg-[#DE4F3C] text-white shadow-xs"
                 : "bg-white text-[#7A746F] border border-[#EAE3D9] hover:text-[#201C1A]"
             )}
           >
-            <FlaskConical className="h-3.5 w-3.5" />
-            Diagnostic Reports &amp; Scans
+            <FlaskConical className="h-3.5 w-3.5 shrink-0" />
+            <span>Diagnostic Reports &amp; Scans</span>
           </button>
           <button
             type="button"
@@ -114,14 +114,14 @@ function DocumentsContent() {
               setPage(1);
             }}
             className={cn(
-              "inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer",
+              "inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer max-w-full",
               documentType === "discharges"
                 ? "bg-[#DE4F3C] text-white shadow-xs"
                 : "bg-white text-[#7A746F] border border-[#EAE3D9] hover:text-[#201C1A]"
             )}
           >
-            <LogOut className="h-3.5 w-3.5" />
-            Hospital Discharge Summaries
+            <LogOut className="h-3.5 w-3.5 shrink-0" />
+            <span>Hospital Discharge Summaries</span>
           </button>
         </div>
 

@@ -138,13 +138,13 @@ export function SmsRemindersPanel({
   return (
     <div className={cn("space-y-4", className)}>
       {/* Top Banner: Provider Mode & Queue Actions */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-xl border border-[#EAE3D9] bg-white shadow-2xs">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#FAF5EE] text-[#DE4F3C]">
+      <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 sm:p-4 rounded-xl border border-[#EAE3D9] bg-white shadow-2xs">
+        <div className="flex items-start sm:items-center gap-3 min-w-0">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#FAF5EE] text-[#DE4F3C]">
             <MessageSquare className="h-4 w-4" />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs font-bold text-[#201C1A]">SMS Provider Dispatch</span>
               {config ? (
                 <Badge
@@ -158,13 +158,13 @@ export function SmsRemindersPanel({
                 <Skeleton className="h-4 w-20" />
               )}
             </div>
-            <p className="text-[11px] text-[#7A746F]">
+            <p className="text-[11px] text-[#7A746F] break-words">
               Asia/Dhaka timezone (+06:00) &bull; Privacy preserved &bull; No diagnosis/meds included
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Link href="/settings">
             <Button
               variant="ghost"
@@ -214,7 +214,7 @@ export function SmsRemindersPanel({
 
       {/* Filter Tabs */}
       <div className="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-[#EAE3D9]">
-        <div className="flex items-center gap-1">
+        <div className="flex flex-wrap items-center gap-1">
           {["all", "scheduled", "sent", "failed", "skipped", "cancelled"].map((st) => (
             <button
               key={st}
@@ -231,7 +231,7 @@ export function SmsRemindersPanel({
           ))}
         </div>
 
-        <div className="flex items-center gap-1.5 text-xs text-[#7A746F]">
+        <div className="flex flex-wrap items-center gap-1.5 text-xs text-[#7A746F]">
           <span>Type:</span>
           {["all", "24h_before", "3h_before"].map((tp) => (
             <button
@@ -327,7 +327,7 @@ export function SmsRemindersPanel({
                     )}
                   </div>
 
-                  <p className="text-xs text-[#59534E] font-mono line-clamp-1 bg-[#FAF5EE] px-2 py-1 rounded-md text-[11px]">
+                  <p className="text-[11px] text-[#59534E] font-mono break-words bg-[#FAF5EE] px-2.5 py-1.5 rounded-md">
                     &ldquo;{reminder.messageContent}&rdquo;
                   </p>
 

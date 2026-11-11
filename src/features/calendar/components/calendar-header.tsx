@@ -44,10 +44,10 @@ export function CalendarHeader({
   const { chambers } = useChamber();
 
   return (
-    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 p-4 rounded-2xl border border-[#EAE3D9] bg-white shadow-2xs">
+    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 p-3.5 sm:p-4 rounded-2xl border border-[#EAE3D9] bg-white shadow-2xs min-w-0">
       {/* Left: Period Navigation */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-1 bg-[#FAF5EE] p-1 rounded-xl border border-[#EAE3D9]">
+      <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 min-w-0">
+        <div className="flex items-center gap-1 bg-[#FAF5EE] p-1 rounded-xl border border-[#EAE3D9] shrink-0">
           <IconButton
             variant="ghost"
             size="sm"
@@ -78,20 +78,20 @@ export function CalendarHeader({
           </IconButton>
         </div>
 
-        <h2 className="font-serif text-lg sm:text-xl font-bold text-[#201C1A] tracking-tight">
+        <h2 className="font-serif text-lg sm:text-xl font-bold text-[#201C1A] tracking-tight break-words min-w-0">
           {periodTitle}
         </h2>
       </div>
 
       {/* Right: View Mode Toggle & Filters */}
-      <div className="flex flex-wrap items-center gap-2.5">
+      <div className="grid grid-cols-1 min-[420px]:grid-cols-2 sm:flex sm:flex-wrap sm:items-center gap-2 sm:gap-2.5 min-w-0">
         {/* Chamber Filter */}
-        <div className="flex items-center gap-1.5 min-w-[150px]">
+        <div className="flex items-center gap-1.5 min-w-0 sm:min-w-[150px] min-[420px]:col-span-2 sm:col-span-1">
           <Building2 className="h-4 w-4 text-[#7A746F] shrink-0 hidden sm:block" />
           <Select
             value={chamberFilter}
             onChange={(e) => onChamberChange(e.target.value)}
-            className="h-9 text-xs font-medium"
+            className="h-9 text-xs font-medium w-full"
           >
             <option value="all">All Chambers</option>
             {chambers.map((c) => (
@@ -103,11 +103,11 @@ export function CalendarHeader({
         </div>
 
         {/* Status Filter */}
-        <div className="flex items-center min-w-[130px]">
+        <div className="flex items-center min-w-0 sm:min-w-[130px]">
           <Select
             value={statusFilter}
             onChange={(e) => onStatusChange(e.target.value)}
-            className="h-9 text-xs font-medium"
+            className="h-9 text-xs font-medium w-full"
           >
             <option value="all">All Status</option>
             <option value="scheduled">Scheduled</option>
@@ -118,11 +118,11 @@ export function CalendarHeader({
         </div>
 
         {/* Priority Filter */}
-        <div className="flex items-center min-w-[120px]">
+        <div className="flex items-center min-w-0 sm:min-w-[120px]">
           <Select
             value={priorityFilter}
             onChange={(e) => onPriorityChange(e.target.value)}
-            className="h-9 text-xs font-medium"
+            className="h-9 text-xs font-medium w-full"
           >
             <option value="all">All Priority</option>
             <option value="urgent">Urgent</option>
@@ -134,11 +134,11 @@ export function CalendarHeader({
         <div className="h-6 w-[1px] bg-[#EAE3D9] mx-1 hidden sm:block" />
 
         {/* View Mode Switcher Pills */}
-        <div className="flex items-center p-1 rounded-xl bg-[#FAF5EE] border border-[#EAE3D9] text-xs">
+        <div className="grid grid-cols-3 sm:flex sm:items-center p-1 rounded-xl bg-[#FAF5EE] border border-[#EAE3D9] text-xs min-[420px]:col-span-2 sm:col-span-1">
           <button
             type="button"
             onClick={() => onViewModeChange("month")}
-            className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
+            className={`px-2.5 sm:px-3 py-1.5 rounded-lg font-medium transition-all text-center cursor-pointer ${
               viewMode === "month"
                 ? "bg-white text-[#DE4F3C] font-semibold shadow-xs"
                 : "text-[#7A746F] hover:text-[#201C1A]"
@@ -149,7 +149,7 @@ export function CalendarHeader({
           <button
             type="button"
             onClick={() => onViewModeChange("week")}
-            className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
+            className={`px-2.5 sm:px-3 py-1.5 rounded-lg font-medium transition-all text-center cursor-pointer ${
               viewMode === "week"
                 ? "bg-white text-[#DE4F3C] font-semibold shadow-xs"
                 : "text-[#7A746F] hover:text-[#201C1A]"
@@ -160,7 +160,7 @@ export function CalendarHeader({
           <button
             type="button"
             onClick={() => onViewModeChange("agenda")}
-            className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
+            className={`px-2.5 sm:px-3 py-1.5 rounded-lg font-medium transition-all text-center cursor-pointer ${
               viewMode === "agenda"
                 ? "bg-white text-[#DE4F3C] font-semibold shadow-xs"
                 : "text-[#7A746F] hover:text-[#201C1A]"

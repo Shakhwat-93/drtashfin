@@ -123,8 +123,8 @@ function ResetPasswordContent() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-[#EAE3D9] bg-white p-6 sm:p-8 shadow-xs space-y-6">
-          <div className="flex gap-2 p-1 rounded-xl bg-[#FAF5EE] border border-[#EAE3D9]">
+        <div className="rounded-2xl border border-[#EAE3D9] bg-white p-4 sm:p-8 shadow-xs space-y-6">
+          <div className="grid grid-cols-1 min-[360px]:grid-cols-2 gap-1.5 p-1 rounded-xl bg-[#FAF5EE] border border-[#EAE3D9]">
             <button
               type="button"
               onClick={() => {
@@ -132,7 +132,7 @@ function ResetPasswordContent() {
                 setError(null);
                 setSuccessMessage(null);
               }}
-              className={`flex-1 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+              className={`py-2 px-2 text-[11px] sm:text-xs font-medium rounded-lg transition-colors text-center ${
                 mode === "request"
                   ? "bg-white text-[#201C1A] shadow-2xs font-semibold"
                   : "text-[#7A746F] hover:text-[#201C1A]"
@@ -147,7 +147,7 @@ function ResetPasswordContent() {
                 setError(null);
                 setSuccessMessage(null);
               }}
-              className={`flex-1 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+              className={`py-2 px-2 text-[11px] sm:text-xs font-medium rounded-lg transition-colors text-center ${
                 mode === "confirm"
                   ? "bg-white text-[#201C1A] shadow-2xs font-semibold"
                   : "text-[#7A746F] hover:text-[#201C1A]"

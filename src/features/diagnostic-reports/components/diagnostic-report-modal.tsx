@@ -173,8 +173,8 @@ export function DiagnosticReportModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} className="max-w-xl">
-      <ModalHeader>
+    <Modal isOpen={isOpen} onClose={onClose} className="max-w-xl p-0">
+      <ModalHeader className="px-4 sm:px-6 pt-4 sm:pt-5 pb-3.5 pr-11 border-b border-[#EAE3D9]">
         <ModalTitle>
           {isEditing ? "Edit Diagnostic Report Reference" : "Add Diagnostic Test Report"}
         </ModalTitle>
@@ -183,8 +183,8 @@ export function DiagnosticReportModal({
         </ModalDescription>
       </ModalHeader>
 
-      <form onSubmit={handleSubmit}>
-        <ModalBody className="space-y-4 max-h-[72vh] overflow-y-auto px-1">
+      <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+        <ModalBody className="space-y-4 px-4 sm:px-6 py-4">
           {error && (
             <div className="flex items-start gap-2.5 rounded-xl border border-rose-200 bg-rose-50/80 p-3 text-xs text-rose-800 animate-in fade-in">
               <AlertCircle className="h-4 w-4 shrink-0 text-rose-600 mt-0.5" />
@@ -271,7 +271,7 @@ export function DiagnosticReportModal({
 
           {/* Google Drive Link */}
           <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-1.5">
               <label className="text-xs font-semibold text-[#201C1A]">
                 Google Drive URL <span className="text-[10px] text-[#7A746F] font-normal">(Optional)</span>
               </label>
@@ -297,14 +297,14 @@ export function DiagnosticReportModal({
 
           {/* Link Verification & Preview Badge */}
           {driveValidation && driveValidation.isValid && driveValidation.normalizedUrl && (
-            <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#FAF5EE] border border-[#EAE3D9] text-xs">
-              <div className="flex items-center gap-2 text-[#201C1A]">
+            <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-lg bg-[#FAF5EE] border border-[#EAE3D9] text-xs min-w-0">
+              <div className="flex items-center gap-2 text-[#201C1A] min-w-0 flex-1">
                 {driveValidation.resourceType === "folder" ? (
-                  <FolderOpen className="h-4 w-4 text-[#DE4F3C]" />
+                  <FolderOpen className="h-4 w-4 text-[#DE4F3C] shrink-0" />
                 ) : (
-                  <FileCheck className="h-4 w-4 text-[#DE4F3C]" />
+                  <FileCheck className="h-4 w-4 text-[#DE4F3C] shrink-0" />
                 )}
-                <span className="font-medium truncate max-w-[280px]">
+                <span className="font-medium truncate min-w-0 flex-1">
                   {driveValidation.normalizedUrl}
                 </span>
               </div>
@@ -312,7 +312,7 @@ export function DiagnosticReportModal({
                 href={driveValidation.normalizedUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-xs font-semibold text-[#DE4F3C] hover:underline shrink-0 ml-2"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-[#DE4F3C] hover:underline shrink-0"
               >
                 <span>Test Link</span>
                 <ExternalLink className="h-3 w-3" />
@@ -345,7 +345,7 @@ export function DiagnosticReportModal({
           </div>
         </ModalBody>
 
-        <ModalFooter>
+        <ModalFooter className="px-4 sm:px-6 py-3 sm:py-3.5 border-t border-[#EAE3D9]">
           <Button
             type="button"
             variant="outline"

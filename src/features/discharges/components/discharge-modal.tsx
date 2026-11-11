@@ -237,26 +237,25 @@ export function DischargeModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} className="max-w-3xl">
-      <div className="w-full">
-        <ModalHeader>
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-xl bg-[#FAF5EE] text-[#DE4F3C] border border-[#EAE3D9]">
-              <FileText className="h-5 w-5" />
-            </div>
-            <div>
-              <ModalTitle className="text-lg font-serif font-bold text-[#201C1A]">
-                {isEditing ? "Edit Discharge Report" : "Record Patient Discharge & Final Clinical Report"}
-              </ModalTitle>
-              <ModalDescription className="text-xs text-[#7A746F]">
-                Document treatment conclusion, final assessment, and discharge guidance while preserving lifetime medical records.
-              </ModalDescription>
-            </div>
+    <Modal isOpen={isOpen} onClose={onClose} className="max-w-3xl p-0">
+      <ModalHeader className="px-4 sm:px-6 pt-4 sm:pt-5 pb-3.5 pr-11 border-b border-[#EAE3D9]">
+        <div className="flex items-start sm:items-center gap-2.5 min-w-0">
+          <div className="p-2 shrink-0 rounded-xl bg-[#FAF5EE] text-[#DE4F3C] border border-[#EAE3D9]">
+            <FileText className="h-5 w-5" />
           </div>
-        </ModalHeader>
+          <div className="min-w-0">
+            <ModalTitle className="text-base sm:text-lg font-serif font-bold text-[#201C1A]">
+              {isEditing ? "Edit Discharge Report" : "Record Patient Discharge & Final Clinical Report"}
+            </ModalTitle>
+            <ModalDescription className="text-xs text-[#7A746F]">
+              Document treatment conclusion, final assessment, and discharge guidance while preserving lifetime medical records.
+            </ModalDescription>
+          </div>
+        </div>
+      </ModalHeader>
 
-        <form onSubmit={(e) => e.preventDefault()}>
-          <ModalBody className="space-y-4 max-h-[72vh] overflow-y-auto px-6 py-4">
+      <form onSubmit={(e) => e.preventDefault()} className="flex flex-col flex-1 min-h-0">
+        <ModalBody className="space-y-4 px-4 sm:px-6 py-4">
             {error && (
               <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
                 <AlertCircle className="h-4 w-4 shrink-0" />
@@ -468,9 +467,9 @@ export function DischargeModal({
 
             {/* Google Drive Link-Only URL Input & Verification */}
             <div className="space-y-2 pt-2 border-t border-[#EAE3D9]">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-[#201C1A] flex items-center gap-1.5">
-                  <FolderOpen className="h-3.5 w-3.5 text-[#DE4F3C]" />
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <label className="text-xs font-semibold text-[#201C1A] flex flex-wrap items-center gap-1.5 min-w-0">
+                  <FolderOpen className="h-3.5 w-3.5 text-[#DE4F3C] shrink-0" />
                   <span>Supporting Google Drive Link</span>
                   <span className="text-[10px] text-[#7A746F] font-normal">
                     (Optional Discharge Summary / Signed Certificate)
@@ -478,7 +477,7 @@ export function DischargeModal({
                 </label>
                 {driveValidation && (
                   <span
-                    className={`inline-flex items-center gap-1 text-[11px] font-medium ${
+                    className={`inline-flex items-center gap-1 text-[11px] font-medium shrink-0 ${
                       driveValidation.isValid ? "text-emerald-700" : "text-rose-600"
                     }`}
                   >
@@ -512,8 +511,8 @@ export function DischargeModal({
               />
 
               {driveValidation?.isValid && driveValidation.normalizedUrl && (
-                <div className="flex items-center justify-between p-2 rounded-lg bg-[#FAF5EE] border border-[#EAE3D9] text-xs">
-                  <span className="text-[#7A746F] truncate max-w-[400px]">
+                <div className="flex flex-wrap items-center justify-between gap-2 p-2 rounded-lg bg-[#FAF5EE] border border-[#EAE3D9] text-xs min-w-0">
+                  <span className="text-[#7A746F] truncate min-w-0 flex-1">
                     Verified: {driveValidation.normalizedUrl}
                   </span>
                   <a
@@ -539,15 +538,15 @@ export function DischargeModal({
 
             {/* Finalization Confirmation Alert */}
             {showFinalizeConfirm && (
-              <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-950 text-xs space-y-2">
+              <div className="p-3.5 sm:p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-950 text-xs space-y-2">
                 <div className="flex items-center gap-2 font-bold text-rose-800">
-                  <Lock className="h-4 w-4" />
+                  <Lock className="h-4 w-4 shrink-0" />
                   <span>Confirm Final Clinical Discharge</span>
                 </div>
                 <p>
                   Finalizing locks this discharge report for audit and medico-legal integrity. Once finalized, the core text cannot be silently edited (only formal clinical amendments can be appended).
                 </p>
-                <div className="flex items-center gap-2 pt-1">
+                <div className="flex flex-wrap items-center gap-2 pt-1">
                   <Button
                     type="button"
                     variant="danger"
@@ -571,7 +570,7 @@ export function DischargeModal({
             )}
           </ModalBody>
 
-          <ModalFooter className="flex items-center justify-between px-6 py-3 border-t border-[#EAE3D9]">
+          <ModalFooter className="flex-wrap items-center justify-between gap-2 px-4 sm:px-6 py-3 border-t border-[#EAE3D9]">
             <Button
               type="button"
               variant="outline"
@@ -582,7 +581,7 @@ export function DischargeModal({
               Cancel
             </Button>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Button
                 type="button"
                 variant="outline"
@@ -607,7 +606,6 @@ export function DischargeModal({
             </div>
           </ModalFooter>
         </form>
-      </div>
     </Modal>
   );
 }

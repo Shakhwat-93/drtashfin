@@ -24,8 +24,8 @@ export function WeekView({
   const weekDays = React.useMemo(() => getWeekDays(currentDateStr), [currentDateStr]);
 
   return (
-    <div className="rounded-2xl border border-[#EAE3D9] bg-white shadow-2xs overflow-hidden">
-      <div className="grid grid-cols-1 md:grid-cols-7 divide-y md:divide-y-0 md:divide-x divide-[#EAE3D9]/70 min-h-[500px]">
+    <div className="rounded-2xl border border-[#EAE3D9] bg-white shadow-2xs overflow-hidden min-w-0">
+      <div className="grid grid-cols-1 md:grid-cols-7 divide-y md:divide-y-0 md:divide-x divide-[#EAE3D9]/70 min-h-0 md:min-h-[500px]">
         {weekDays.map((day, idx) => {
           const dayFollowUps = followUpsByDate[day.dateStr] || [];
           const hasItems = dayFollowUps.length > 0;
@@ -129,9 +129,9 @@ export function WeekView({
                           {f.reason}
                         </p>
 
-                        <div className="mt-2 pt-1.5 border-t border-[#EAE3D9]/60 flex items-center justify-between text-[10px] text-[#7A746F]">
+                        <div className="mt-2 pt-1.5 border-t border-[#EAE3D9]/60 flex flex-wrap items-center justify-between gap-1 text-[10px] text-[#7A746F]">
                           {time ? (
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-1 shrink-0">
                               <Clock className="h-3 w-3" />
                               <span>{time}</span>
                             </div>
@@ -140,7 +140,7 @@ export function WeekView({
                           )}
 
                           {f.chamberName && (
-                            <span className="truncate max-w-[80px]">
+                            <span className="truncate min-w-0 max-w-full">
                               {f.chamberName.replace(" Chamber", "")}
                             </span>
                           )}

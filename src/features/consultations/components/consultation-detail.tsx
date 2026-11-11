@@ -131,7 +131,7 @@ export function ConsultationDetail({
           </Button>
         </Link>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {prescription ? (
             <Link
               href={`/patients/${patient.patientId}/prescriptions/${prescription.id}`}
@@ -188,7 +188,7 @@ export function ConsultationDetail({
       </div>
 
       {/* Clinical Document Paper */}
-      <div className="rounded-xl border border-[#EAE3D9] bg-white p-6 sm:p-10 shadow-xs space-y-8">
+      <div className="rounded-xl border border-[#EAE3D9] bg-white p-4 sm:p-8 lg:p-10 shadow-xs space-y-8 min-w-0">
         {/* Document Header */}
         <div className="border-b border-[#EAE3D9] pb-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -230,9 +230,9 @@ export function ConsultationDetail({
             </div>
 
             {/* Patient Demographic Summary Badge */}
-            <div className="rounded-lg bg-[#FAF5EE] border border-[#EAE3D9] p-3 text-xs">
-              <div className="font-semibold text-[#201C1A]">{patient.name}</div>
-              <div className="flex items-center gap-2 text-[#7A746F] text-[11px] mt-0.5">
+            <div className="rounded-lg bg-[#FAF5EE] border border-[#EAE3D9] p-3 text-xs max-w-full">
+              <div className="font-semibold text-[#201C1A] break-words">{patient.name}</div>
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[#7A746F] text-[11px] mt-0.5">
                 <span className="font-mono">{patient.patientId}</span>
                 <span>•</span>
                 <span>{patient.age} yrs</span>
@@ -433,9 +433,9 @@ export function ConsultationDetail({
 
         {/* SECTION: LINKED DIAGNOSTIC TEST REPORTS */}
         <section className="space-y-4">
-          <div className="flex items-center justify-between border-b border-[#FAF5EE] pb-1">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#FAF5EE] pb-2">
             <h2 className="text-xs font-bold uppercase tracking-wider text-[#7A746F] flex items-center gap-1.5">
-              <FlaskConical className="h-3.5 w-3.5 text-[#DE4F3C]" />
+              <FlaskConical className="h-3.5 w-3.5 text-[#DE4F3C] shrink-0" />
               <span>Linked Diagnostic Reports ({linkedReports.length})</span>
             </h2>
             <Button
@@ -458,14 +458,14 @@ export function ConsultationDetail({
               {linkedReports.map((report) => (
                 <div
                   key={report.id}
-                  className="rounded-xl border border-[#EAE3D9] bg-white p-3.5 space-y-2 text-xs shadow-xs"
+                  className="rounded-xl border border-[#EAE3D9] bg-white p-3.5 space-y-2 text-xs shadow-xs min-w-0"
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <div>
+                    <div className="min-w-0 flex-1">
                       <Badge variant="neutral" size="sm" className="text-[10px] mb-1 font-semibold">
                         {report.category}
                       </Badge>
-                      <h4 className="font-semibold text-[#201C1A] text-xs">
+                      <h4 className="font-semibold text-[#201C1A] text-xs break-words">
                         {report.testName}
                       </h4>
                     </div>
@@ -475,13 +475,13 @@ export function ConsultationDetail({
                   </div>
 
                   {report.diagnosticCenter && (
-                    <div className="text-[11px] text-[#7A746F]">
+                    <div className="text-[11px] text-[#7A746F] break-words">
                       Lab: {report.diagnosticCenter}
                     </div>
                   )}
 
                   {report.doctorNotes && (
-                    <p className="text-[11px] text-[#201C1A] bg-[#FAF5EE]/60 p-2 rounded-md border border-[#EAE3D9]/60 line-clamp-2">
+                    <p className="text-[11px] text-[#201C1A] bg-[#FAF5EE]/60 p-2 rounded-md border border-[#EAE3D9]/60 line-clamp-2 break-words">
                       {report.doctorNotes}
                     </p>
                   )}
@@ -495,7 +495,7 @@ export function ConsultationDetail({
                         className="inline-flex items-center gap-1 text-xs font-semibold text-[#DE4F3C] hover:underline"
                       >
                         <span>Open in Google Drive</span>
-                        <ExternalLink className="h-3 w-3" />
+                        <ExternalLink className="h-3 w-3 shrink-0" />
                       </a>
                     </div>
                   )}
@@ -507,8 +507,8 @@ export function ConsultationDetail({
 
         {/* SECTION: PROCEDURES & OPERATIONS */}
         <section className="space-y-3">
-          <div className="flex items-center justify-between border-b border-[#FAF5EE] pb-1">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#FAF5EE] pb-2">
+            <div className="flex flex-wrap items-center gap-2">
               <h2 className="text-xs font-bold uppercase tracking-wider text-[#7A746F]">
                 Procedures & Operations
               </h2>
@@ -538,14 +538,14 @@ export function ConsultationDetail({
               {linkedProcedures.map((proc) => (
                 <div
                   key={proc.id}
-                  className="rounded-xl border border-[#EAE3D9] bg-white p-3.5 space-y-2 text-xs shadow-xs"
+                  className="rounded-xl border border-[#EAE3D9] bg-white p-3.5 space-y-2 text-xs shadow-xs min-w-0"
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <div>
+                    <div className="min-w-0 flex-1">
                       <Badge variant="neutral" size="sm" className="text-[10px] mb-1 font-semibold">
                         {proc.category}
                       </Badge>
-                      <h4 className="font-semibold text-[#201C1A] text-xs">
+                      <h4 className="font-semibold text-[#201C1A] text-xs break-words">
                         {proc.procedureName}
                       </h4>
                     </div>
@@ -555,25 +555,25 @@ export function ConsultationDetail({
                   </div>
 
                   {proc.hospitalFacility && (
-                    <div className="text-[11px] text-[#7A746F]">
+                    <div className="text-[11px] text-[#7A746F] break-words">
                       Hospital: {proc.hospitalFacility}
                     </div>
                   )}
 
                   {proc.performingDoctor && (
-                    <div className="text-[11px] text-[#7A746F]">
+                    <div className="text-[11px] text-[#7A746F] break-words">
                       Surgeon: {proc.performingDoctor}
                     </div>
                   )}
 
                   {proc.clinicalIndication && (
-                    <p className="text-[11px] text-[#201C1A]">
+                    <p className="text-[11px] text-[#201C1A] break-words">
                       <span className="font-semibold">Indication:</span> {proc.clinicalIndication}
                     </p>
                   )}
 
                   {proc.doctorNotes && (
-                    <p className="text-[11px] text-[#201C1A] bg-[#FAF5EE]/60 p-2 rounded-md border border-[#EAE3D9]/60 line-clamp-2">
+                    <p className="text-[11px] text-[#201C1A] bg-[#FAF5EE]/60 p-2 rounded-md border border-[#EAE3D9]/60 line-clamp-2 break-words">
                       {proc.doctorNotes}
                     </p>
                   )}
@@ -587,7 +587,7 @@ export function ConsultationDetail({
                         className="inline-flex items-center gap-1 text-xs font-semibold text-[#DE4F3C] hover:underline"
                       >
                         <span>Open in Google Drive</span>
-                        <ExternalLink className="h-3 w-3" />
+                        <ExternalLink className="h-3 w-3 shrink-0" />
                       </a>
                     </div>
                   )}
@@ -599,8 +599,8 @@ export function ConsultationDetail({
 
         {/* SECTION: DISCHARGE & FINAL CLINICAL REPORT */}
         <section className="space-y-3">
-          <div className="flex items-center justify-between border-b border-[#FAF5EE] pb-1">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#FAF5EE] pb-2">
+            <div className="flex flex-wrap items-center gap-2">
               <h2 className="text-xs font-bold uppercase tracking-wider text-[#7A746F]">
                 Discharge & Final Clinical Report
               </h2>
@@ -630,31 +630,31 @@ export function ConsultationDetail({
               {linkedDischarges.map((dis) => (
                 <div
                   key={dis.id}
-                  className="rounded-xl border border-[#EAE3D9] bg-white p-3.5 space-y-2 text-xs shadow-xs"
+                  className="rounded-xl border border-[#EAE3D9] bg-white p-3.5 space-y-2 text-xs shadow-xs min-w-0"
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <div>
+                    <div className="min-w-0 flex-1">
                       <Badge
                         variant={dis.status === "finalized" ? "success" : "warning"}
                         size="sm"
-                        className="text-[10px] mb-1 font-semibold capitalize"
+                        className="text-[10px] mb-1 font-semibold capitalize max-w-full whitespace-normal text-left"
                       >
                         {dis.status}: {dis.conditionAtDischarge}
                       </Badge>
-                      <h4 className="font-semibold text-[#201C1A] text-xs">
+                      <h4 className="font-semibold text-[#201C1A] text-xs break-words">
                         Discharged on {dis.dischargeDate}
                       </h4>
                     </div>
                   </div>
 
                   {dis.doctorName && (
-                    <div className="text-[11px] text-[#7A746F]">
+                    <div className="text-[11px] text-[#7A746F] break-words">
                       Clinician: {dis.doctorName}
                     </div>
                   )}
 
                   {dis.treatmentSummary && (
-                    <p className="text-[11px] text-[#201C1A] bg-[#FAF5EE]/60 p-2 rounded-md border border-[#EAE3D9]/60 line-clamp-2">
+                    <p className="text-[11px] text-[#201C1A] bg-[#FAF5EE]/60 p-2 rounded-md border border-[#EAE3D9]/60 line-clamp-2 break-words">
                       {dis.treatmentSummary}
                     </p>
                   )}
@@ -668,7 +668,7 @@ export function ConsultationDetail({
                         className="inline-flex items-center gap-1 text-xs font-semibold text-[#DE4F3C] hover:underline"
                       >
                         <span>Open in Google Drive</span>
-                        <ExternalLink className="h-3 w-3" />
+                        <ExternalLink className="h-3 w-3 shrink-0" />
                       </a>
                     </div>
                   )}
@@ -875,11 +875,11 @@ export function ConsultationDetail({
         )}
 
         {/* Audit Metadata Footer */}
-        <div className="border-t border-[#EAE3D9] pt-4 flex flex-wrap items-center justify-between text-[11px] text-[#7A746F]">
-          <div>
+        <div className="border-t border-[#EAE3D9] pt-4 flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#7A746F]">
+          <div className="break-all">
             Record ID: <span className="font-mono">{consultation.id}</span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             <span>Created: {formattedCreated}</span>
             <span>•</span>
             <span>Modified: {formattedUpdated}</span>

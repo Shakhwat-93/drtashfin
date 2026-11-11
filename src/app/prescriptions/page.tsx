@@ -116,9 +116,9 @@ function PrescriptionsContent() {
         />
 
         <div className="pt-2">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <FileText className="h-4 w-4 text-[#DE4F3C]" />
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <FileText className="h-4 w-4 text-[#DE4F3C] shrink-0" />
               <h3 className="text-xs font-bold uppercase tracking-wider text-[#201C1A]">
                 Prescriptions Register ({totalCount} {totalCount === 1 ? "record" : "records"})
               </h3>

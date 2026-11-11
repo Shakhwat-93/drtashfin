@@ -273,14 +273,14 @@ export function MedicineSearchAutocomplete({
                     )}
                   >
                     {/* Top Row: Brand name, Strength, Dosage Form, Provenance Badge */}
-                    <div className="flex flex-wrap items-center justify-between gap-1.5">
-                      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 min-w-0">
-                        <span className="font-semibold text-xs sm:text-sm text-[#201C1A] truncate">
+                    <div className="flex flex-wrap items-center justify-between gap-1.5 min-w-0">
+                      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 min-w-0 max-w-full">
+                        <span className="font-semibold text-xs sm:text-sm text-[#201C1A] break-words sm:truncate">
                           {med.brandName}
                         </span>
 
                         {med.strength && (
-                          <span className="rounded-full bg-[#EAE3D9] px-2 py-0.5 text-[10px] font-semibold text-[#201C1A]">
+                          <span className="rounded-full bg-[#EAE3D9] px-2 py-0.5 text-[10px] font-semibold text-[#201C1A] break-words max-w-full">
                             {med.strength}
                           </span>
                         )}
@@ -321,15 +321,15 @@ export function MedicineSearchAutocomplete({
                     </div>
 
                     {/* Bottom Row: Generic name & Manufacturer */}
-                    <div className="flex flex-wrap items-center justify-between gap-1 text-[11px] text-[#7A746F]">
-                      <span className="font-medium text-[#504A45] truncate max-w-[65%]">
+                    <div className="flex flex-wrap items-center justify-between gap-1 text-[11px] text-[#7A746F] min-w-0">
+                      <span className="font-medium text-[#504A45] min-w-0 max-w-full sm:max-w-[65%] truncate">
                         Generic: <span className="italic">{med.genericName}</span>
                       </span>
 
                       {med.manufacturer && (
-                        <span className="inline-flex items-center gap-1 text-[10px] text-[#7A746F]">
+                        <span className="inline-flex items-center gap-1 text-[10px] text-[#7A746F] min-w-0 max-w-full">
                           <Building2 className="h-3 w-3 shrink-0" />
-                          <span className="truncate max-w-[170px]">
+                          <span className="truncate max-w-full sm:max-w-[170px]">
                             {med.manufacturer}
                           </span>
                         </span>

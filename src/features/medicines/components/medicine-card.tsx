@@ -41,17 +41,17 @@ export function MedicineCard({
         className
       )}
     >
-      <CardHeader className="bg-[#FAF8F5] pb-3 border-b border-[#EAE3D9]/60">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <CardTitle className="font-serif text-base sm:text-lg font-semibold text-[#201C1A]">
+      <CardHeader className="bg-[#FAF8F5] pb-3 border-b border-[#EAE3D9]/60 p-4 sm:p-5">
+        <div className="flex flex-wrap sm:flex-nowrap items-start justify-between gap-2 sm:gap-3 min-w-0">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap min-w-0">
+              <CardTitle className="font-serif text-base sm:text-lg font-semibold text-[#201C1A] break-words">
                 {medicine.brandName}
               </CardTitle>
               {medicine.strength && (
                 <Badge
                   variant="neutral"
-                  className="border-[#C4BCB3] text-[#201C1A] text-xs font-semibold"
+                  className="border-[#C4BCB3] text-[#201C1A] text-[11px] sm:text-xs font-semibold whitespace-normal break-words max-w-full text-left"
                 >
                   {medicine.strength}
                 </Badge>
@@ -79,7 +79,7 @@ export function MedicineCard({
                 </span>
               )}
             </div>
-            <p className="text-xs text-[#7A746F] mt-1">
+            <p className="text-xs text-[#7A746F] mt-1 break-words">
               Generic:{" "}
               <span className="font-medium text-[#201C1A] italic">
                 {medicine.genericName}
@@ -115,11 +115,11 @@ export function MedicineCard({
         </div>
       </CardHeader>
 
-      <CardContent className="pt-3.5 space-y-3 text-xs">
+      <CardContent className="p-4 sm:p-5 pt-3.5 space-y-3 text-xs min-w-0">
         {medicine.manufacturer && (
-          <div className="flex items-center gap-1.5 text-[#504A45]">
+          <div className="flex items-center gap-1.5 text-[#504A45] min-w-0">
             <Building2 className="h-3.5 w-3.5 text-[#7A746F] shrink-0" />
-            <span className="font-medium">{medicine.manufacturer}</span>
+            <span className="font-medium break-words">{medicine.manufacturer}</span>
           </div>
         )}
 
@@ -129,7 +129,7 @@ export function MedicineCard({
               <Info className="h-3 w-3 text-[#DE4F3C]" />
               <span>Indications</span>
             </div>
-            <p className="text-[11px] text-[#504A45] leading-relaxed">
+            <p className="text-[11px] text-[#504A45] leading-relaxed break-words">
               {medicine.indications}
             </p>
           </div>
@@ -140,7 +140,7 @@ export function MedicineCard({
             <span className="block text-[11px] font-semibold text-[#201C1A]">
               Standard Reference Dosage:
             </span>
-            <p className="text-[11px] text-[#504A45] leading-relaxed">
+            <p className="text-[11px] text-[#504A45] leading-relaxed break-words">
               {medicine.dosageDescription}
             </p>
           </div>

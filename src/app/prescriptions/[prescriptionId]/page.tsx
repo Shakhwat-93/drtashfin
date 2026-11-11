@@ -105,7 +105,7 @@ export default function StandalonePrescriptionDetailPage({
   return (
     <AdminShell>
       <PageContainer className="space-y-6">
-        <div className="flex items-center justify-between pb-2">
+        <div className="flex flex-wrap items-center justify-between gap-2 pb-2">
           <Link href="/prescriptions">
             <Button
               variant="outline"

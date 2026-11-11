@@ -88,7 +88,7 @@ export function ScheduleFollowUpDialog({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} className="max-w-md">
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
         <ModalHeader>
           <div className="flex items-center gap-2 text-[#DE4F3C] mb-1">
             <CalendarClock className="h-5 w-5" />

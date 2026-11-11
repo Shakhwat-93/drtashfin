@@ -40,7 +40,7 @@ export function Tabs({
 
   return (
     <TabsContext.Provider value={{ value: activeValue, onChange: handleChange }}>
-      <div className={cn("w-full", className)} {...props}>
+      <div className={cn("w-full min-w-0", className)} {...props}>
         {children}
       </div>
     </TabsContext.Provider>
@@ -55,7 +55,7 @@ export const TabsList = React.forwardRef<
     ref={ref}
     role="tablist"
     className={cn(
-      "inline-flex h-10 items-center justify-center rounded-lg bg-[#F9EFE5] p-1 text-[#7A746F] border border-[#EAE3D9]",
+      "inline-flex max-w-full min-h-10 items-center justify-center rounded-lg bg-[#F9EFE5] p-1 text-[#7A746F] border border-[#EAE3D9]",
       className
     )}
     {...props}

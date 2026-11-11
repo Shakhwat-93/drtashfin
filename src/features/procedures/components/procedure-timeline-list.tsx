@@ -166,14 +166,14 @@ export function ProcedureTimelineList({
 
       {/* Temporary Success Notification */}
       {deleteSuccessMsg && (
-        <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
-            <span>{deleteSuccessMsg}</span>
+        <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-start sm:items-center justify-between gap-2">
+          <div className="flex items-start sm:items-center gap-2 min-w-0">
+            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 mt-0.5 sm:mt-0" />
+            <span className="break-words">{deleteSuccessMsg}</span>
           </div>
           <button
             onClick={() => setDeleteSuccessMsg(null)}
-            className="text-emerald-700 hover:text-emerald-900 font-bold ml-2 text-xs"
+            className="text-emerald-700 hover:text-emerald-900 font-bold ml-1 text-xs shrink-0"
           >
             ✕
           </button>
@@ -182,9 +182,9 @@ export function ProcedureTimelineList({
 
       {/* Filter and Search Bar */}
       {procedures.length > 0 && (
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pt-1 pb-2">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pt-1 pb-2 min-w-0">
           {/* Category Chips */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+          <div className="flex flex-wrap items-center gap-1.5 min-w-0">
             <button
               onClick={() => setSelectedCategory("all")}
               className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
@@ -287,7 +287,7 @@ export function ProcedureTimelineList({
             return (
               <Card
                 key={proc.id}
-                className="border border-[#EAE3D9] bg-white p-4.5 rounded-2xl shadow-xs transition-shadow hover:shadow-md space-y-3"
+                className="border border-[#EAE3D9] bg-white p-3.5 sm:p-4 rounded-2xl shadow-xs transition-shadow hover:shadow-md space-y-3"
               >
                 {/* Header row: Category, Name, Date & Actions */}
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2.5">
@@ -430,11 +430,11 @@ export function ProcedureTimelineList({
                       href={proc.driveUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#FAF5EE] border border-[#EAE3D9] text-xs font-semibold text-[#DE4F3C] hover:bg-[#FDF0EE] transition-colors"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#FAF5EE] border border-[#EAE3D9] text-xs font-semibold text-[#DE4F3C] hover:bg-[#FDF0EE] transition-colors max-w-full"
                     >
-                      <FolderOpen className="h-3.5 w-3.5 text-[#DE4F3C]" />
+                      <FolderOpen className="h-3.5 w-3.5 text-[#DE4F3C] shrink-0" />
                       <span>View Report in Google Drive</span>
-                      <ExternalLink className="h-3 w-3" />
+                      <ExternalLink className="h-3 w-3 shrink-0" />
                     </a>
                   ) : (
                     <span className="text-[11px] text-[#7A746F]">
@@ -472,60 +472,58 @@ export function ProcedureTimelineList({
         <Modal
           isOpen={Boolean(procedureToDelete)}
           onClose={() => setProcedureToDelete(null)}
-          className="max-w-md"
+          className="max-w-md p-0"
         >
-          <div className="w-full">
-            <ModalHeader>
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-xl bg-rose-50 text-rose-600 border border-rose-200">
-                  <AlertTriangle className="h-5 w-5" />
-                </div>
-                <div>
-                  <ModalTitle className="text-base font-bold text-[#201C1A]">
-                    Remove Procedure Record?
-                  </ModalTitle>
-                  <ModalDescription className="text-xs text-[#7A746F]">
-                    Confirm removal from clinical patient timeline.
-                  </ModalDescription>
-                </div>
+          <ModalHeader className="px-4 sm:px-6 pt-4 sm:pt-5 pb-3.5 pr-11 border-b border-[#EAE3D9]">
+            <div className="flex items-start sm:items-center gap-2.5 min-w-0">
+              <div className="p-2 shrink-0 rounded-xl bg-rose-50 text-rose-600 border border-rose-200">
+                <AlertTriangle className="h-5 w-5" />
               </div>
-            </ModalHeader>
+              <div className="min-w-0">
+                <ModalTitle className="text-base font-bold text-[#201C1A]">
+                  Remove Procedure Record?
+                </ModalTitle>
+                <ModalDescription className="text-xs text-[#7A746F]">
+                  Confirm removal from clinical patient timeline.
+                </ModalDescription>
+              </div>
+            </div>
+          </ModalHeader>
 
-            <ModalBody className="space-y-3 px-6 py-4 text-xs text-[#201C1A]">
+          <ModalBody className="space-y-3 px-4 sm:px-6 py-4 text-xs text-[#201C1A]">
+            <p className="break-words">
+              Are you sure you want to remove the record for{" "}
+              <strong>&ldquo;{procedureToDelete.procedureName}&rdquo;</strong> performed on{" "}
+              <strong>{procedureToDelete.procedureDate}</strong>?
+            </p>
+
+            <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-[11px] space-y-1">
+              <strong>Important Note:</strong>
               <p>
-                Are you sure you want to remove the record for{" "}
-                <strong>&ldquo;{procedureToDelete.procedureName}&rdquo;</strong> performed on{" "}
-                <strong>{procedureToDelete.procedureDate}</strong>?
+                This action removes only the clinical database reference in this system. Any files or folders in your Google Drive will remain completely untouched and preserved.
               </p>
+            </div>
+          </ModalBody>
 
-              <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-[11px] space-y-1">
-                <strong>Important Note:</strong>
-                <p>
-                  This action removes only the clinical database reference in this system. Any files or folders in your Google Drive will remain completely untouched and preserved.
-                </p>
-              </div>
-            </ModalBody>
-
-            <ModalFooter className="flex items-center justify-between px-6 py-3 border-t border-[#EAE3D9]">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setProcedureToDelete(null)}
-                disabled={isDeleting}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="danger"
-                size="sm"
-                onClick={handleConfirmDelete}
-                disabled={isDeleting}
-                className="gap-1.5"
-              >
-                {isDeleting ? "Removing..." : "Confirm Removal"}
-              </Button>
-            </ModalFooter>
-          </div>
+          <ModalFooter className="flex flex-wrap items-center justify-between gap-2 px-4 sm:px-6 py-3 border-t border-[#EAE3D9]">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setProcedureToDelete(null)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={handleConfirmDelete}
+              disabled={isDeleting}
+              className="gap-1.5"
+            >
+              {isDeleting ? "Removing..." : "Confirm Removal"}
+            </Button>
+          </ModalFooter>
         </Modal>
       )}
     </div>

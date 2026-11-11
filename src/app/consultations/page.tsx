@@ -220,7 +220,7 @@ function ConsultationsContent() {
           <p className="text-xs text-[#7A746F]">
             M.B.B.S., M.S. (Ortho-Surgery) — Paediatric Orthopaedic Surgeon
           </p>
-          <div className="mt-2 text-xs flex items-center justify-between text-[#201C1A]">
+          <div className="mt-2 text-xs flex flex-wrap items-center justify-between gap-2 text-[#201C1A]">
             <span>Registry: <strong>{TAB_LABELS[activeTab] || activeTab}</strong></span>
             <span>Chamber: <strong>{selectedChamberObj ? selectedChamberObj.name : "All Chambers"}</strong></span>
             <span>Date Range: <strong>{selectedPreset}</strong></span>
@@ -290,23 +290,23 @@ function ConsultationsContent() {
 
         {/* Integrated Analytics & Graphs Panel (Toggleable directly on the Consultations route) */}
         {showAnalytics && (
-          <div className="space-y-6 p-5 rounded-2xl border border-[#EAE3D9] bg-[#FAF5EE]/50 animate-in fade-in slide-in-from-top-2 duration-200 print:hidden">
-            <div className="flex items-center justify-between pb-3 border-b border-[#EAE3D9]">
-              <div className="flex items-center gap-2">
-                <div className="h-7 w-7 rounded-lg bg-white border border-[#EAE3D9] flex items-center justify-center">
+          <div className="space-y-5 sm:space-y-6 p-3.5 sm:p-5 rounded-2xl border border-[#EAE3D9] bg-[#FAF5EE]/50 animate-in fade-in slide-in-from-top-2 duration-200 print:hidden min-w-0">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#EAE3D9]">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="h-7 w-7 shrink-0 rounded-lg bg-white border border-[#EAE3D9] flex items-center justify-center">
                   <BarChart3 className="h-4 w-4 text-[#DE4F3C]" />
                 </div>
-                <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#201C1A]">
+                <div className="min-w-0">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#201C1A] break-words">
                     Clinical Practice Analytics &amp; Trends
                   </h3>
-                  <p className="text-[11px] text-[#7A746F]">
+                  <p className="text-[11px] text-[#7A746F] break-words">
                     Real-time aggregated metrics for {selectedChamberObj ? selectedChamberObj.name : "all clinic chambers"}.
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
                 <Link href="/reports?tab=consultations">
                   <Button
                     variant="ghost"
@@ -344,11 +344,11 @@ function ConsultationsContent() {
         )}
 
         {/* Medical Registries Table (Supports all 7 tabs seamlessly) */}
-        <div className="pt-2">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Stethoscope className="h-4 w-4 text-[#DE4F3C]" />
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#201C1A]">
+        <div className="pt-2 min-w-0">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <Stethoscope className="h-4 w-4 text-[#DE4F3C] shrink-0" />
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[#201C1A] break-words">
                 {TAB_LABELS[activeTab] || activeTab} Registry ({totalCount} {totalCount === 1 ? "record" : "records"})
               </h3>
             </div>

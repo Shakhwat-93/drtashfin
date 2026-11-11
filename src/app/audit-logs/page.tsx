@@ -100,45 +100,45 @@ function AuditLogsContent() {
         />
 
         {/* Audit Category Tabs */}
-        <div className="flex items-center gap-2 border-b border-[#EAE3D9] pb-3">
+        <div className="flex flex-wrap items-center gap-2 border-b border-[#EAE3D9] pb-3">
           <button
             type="button"
             onClick={() => setActiveTab("sms")}
             className={cn(
-              "inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer",
+              "inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer max-w-full",
               activeTab === "sms"
                 ? "bg-[#DE4F3C] text-white shadow-xs"
                 : "bg-white text-[#7A746F] border border-[#EAE3D9] hover:text-[#201C1A]"
             )}
           >
-            <MessageSquare className="h-3.5 w-3.5" />
-            SMS Transmission Audit
+            <MessageSquare className="h-3.5 w-3.5 shrink-0" />
+            <span>SMS Transmission Audit</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("integrity")}
             className={cn(
-              "inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer",
+              "inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer max-w-full",
               activeTab === "integrity"
                 ? "bg-[#DE4F3C] text-white shadow-xs"
                 : "bg-white text-[#7A746F] border border-[#EAE3D9] hover:text-[#201C1A]"
             )}
           >
-            <Lock className="h-3.5 w-3.5" />
-            Clinical Record Integrity Ledger
+            <Lock className="h-3.5 w-3.5 shrink-0" />
+            <span>Clinical Record Integrity Ledger</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("security")}
             className={cn(
-              "inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer",
+              "inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer max-w-full",
               activeTab === "security"
                 ? "bg-[#DE4F3C] text-white shadow-xs"
                 : "bg-white text-[#7A746F] border border-[#EAE3D9] hover:text-[#201C1A]"
             )}
           >
-            <ShieldCheck className="h-3.5 w-3.5" />
-            Security &amp; RLS Status
+            <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
+            <span>Security &amp; RLS Status</span>
           </button>
         </div>
 
@@ -199,19 +199,19 @@ function AuditLogsContent() {
 
         {activeTab === "integrity" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-xl border border-[#EAE3D9] bg-white p-5 space-y-3">
+            <div className="rounded-xl border border-[#EAE3D9] bg-white p-3.5 sm:p-5 space-y-3 min-w-0">
               <div className="flex items-center gap-2 text-[#DE4F3C]">
-                <FileCheck2 className="h-5 w-5" />
+                <FileCheck2 className="h-5 w-5 shrink-0" />
                 <h4 className="font-serif font-bold text-sm text-[#201C1A]">
                   Prescription Tamper-Evidence
                 </h4>
               </div>
-              <p className="text-xs text-[#7A746F] leading-relaxed">
+              <p className="text-xs text-[#7A746F] leading-relaxed break-words">
                 Finalized clinical prescriptions are locked at the PostgreSQL database level via
-                ROW LEVEL TRIGGER <code className="bg-[#FAF5EE] px-1 py-0.5 rounded font-mono text-[11px]">trg_prevent_finalized_prescription_update</code>.
+                ROW LEVEL TRIGGER <code className="bg-[#FAF5EE] px-1 py-0.5 rounded font-mono text-[11px] break-all">trg_prevent_finalized_prescription_update</code>.
                 Any direct SQL update on medications, dosages, or advice is rejected by server constraints.
               </p>
-              <div className="flex items-center gap-2 pt-2">
+              <div className="flex flex-wrap items-center gap-2 pt-2">
                 <Badge variant="success" className="text-[10px]">
                   Enforced at Database Layer
                 </Badge>
@@ -221,9 +221,9 @@ function AuditLogsContent() {
               </div>
             </div>
 
-            <div className="rounded-xl border border-[#EAE3D9] bg-white p-5 space-y-3">
+            <div className="rounded-xl border border-[#EAE3D9] bg-white p-3.5 sm:p-5 space-y-3 min-w-0">
               <div className="flex items-center gap-2 text-[#DE4F3C]">
-                <Lock className="h-5 w-5" />
+                <Lock className="h-5 w-5 shrink-0" />
                 <h4 className="font-serif font-bold text-sm text-[#201C1A]">
                   Discharge Summary Finalization &amp; Amendments
                 </h4>
@@ -233,7 +233,7 @@ function AuditLogsContent() {
                 the core summary cannot be modified or deleted. Post-discharge observations and corrections
                 are stored exclusively as timestamped append-only clinical amendments.
               </p>
-              <div className="flex items-center gap-2 pt-2">
+              <div className="flex flex-wrap items-center gap-2 pt-2">
                 <Badge variant="success" className="text-[10px]">
                   Append-Only Amendments
                 </Badge>
@@ -247,7 +247,7 @@ function AuditLogsContent() {
 
         {activeTab === "security" && (
           <div className="space-y-4">
-            <div className="rounded-xl border border-[#EAE3D9] bg-white p-5 space-y-4">
+            <div className="rounded-xl border border-[#EAE3D9] bg-white p-3.5 sm:p-5 space-y-4">
               <div className="flex items-center gap-2 border-b border-[#EAE3D9] pb-3">
                 <ShieldCheck className="h-4 w-4 text-[#DE4F3C]" />
                 <h4 className="font-serif font-bold text-sm text-[#201C1A]">

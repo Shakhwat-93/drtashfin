@@ -214,20 +214,30 @@ export function Header({ onMenuClick }: HeaderProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-[#EAE3D9] bg-white/95 px-4 sm:px-6 backdrop-blur-xs">
-        {/* Left: Mobile Trigger & Contextual Date */}
-        <div className="flex items-center gap-3">
+      <header className="sticky top-0 z-30 flex h-16 w-full min-w-0 items-center justify-between gap-1.5 sm:gap-3 border-b border-[#EAE3D9] bg-white/95 px-2.5 sm:px-6 backdrop-blur-xs">
+        {/* Left: Mobile Trigger, Mobile Search Shortcut & Contextual Date */}
+        <div className="flex items-center gap-1 sm:gap-3 shrink-0">
           <IconButton
             variant="ghost"
             size="sm"
             aria-label="Open navigation menu"
             onClick={onMenuClick}
-            className="lg:hidden text-[#201C1A]"
+            className="lg:hidden text-[#201C1A] shrink-0"
           >
             <Menu className="h-5 w-5" />
           </IconButton>
 
-          <div className="hidden sm:flex items-center gap-2 text-xs font-medium text-[#7A746F]">
+          <IconButton
+            variant="ghost"
+            size="sm"
+            aria-label="Search patients"
+            onClick={() => router.push("/patients")}
+            className="sm:hidden text-[#7A746F] hover:text-[#201C1A] shrink-0"
+          >
+            <Search className="h-4 w-4" />
+          </IconButton>
+
+          <div className="hidden xl:flex items-center gap-2 text-xs font-medium text-[#7A746F] whitespace-nowrap">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
             <span>{currentDate}</span>
             <span className="text-[#EAE3D9]">•</span>
@@ -235,9 +245,9 @@ export function Header({ onMenuClick }: HeaderProps) {
           </div>
         </div>
 
-        {/* Center/Left: Global Patient Search */}
-        <div className="flex-1 max-w-md mx-2 sm:mx-4 min-w-0">
-          <div className="relative">
+        {/* Center/Left: Global Patient Search (Tablet & Desktop) */}
+        <div className="hidden sm:block flex-1 max-w-md mx-2 lg:mx-4 min-w-0">
+          <div className="relative min-w-0">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-[#7A746F]">
               <Search className="h-4 w-4" />
             </div>
@@ -246,7 +256,7 @@ export function Header({ onMenuClick }: HeaderProps) {
               readOnly
               onClick={() => router.push("/patients")}
               placeholder="Search patients..."
-              className="w-full h-9 rounded-lg border border-[#EAE3D9] bg-[#FAF5EE]/70 pl-9 pr-4 text-xs text-[#201C1A] placeholder:text-[#7A746F] focus:outline-hidden focus:border-[#DE4F3C] focus:bg-white transition-all cursor-pointer"
+              className="w-full min-w-0 h-9 rounded-lg border border-[#EAE3D9] bg-[#FAF5EE]/70 pl-9 pr-4 md:pr-14 text-xs text-[#201C1A] placeholder:text-[#7A746F] focus:outline-hidden focus:border-[#DE4F3C] focus:bg-white transition-all cursor-pointer"
             />
             <div className="hidden md:flex absolute right-2.5 top-1/2 -translate-y-1/2 items-center gap-0.5 rounded border border-[#EAE3D9] bg-white px-1.5 py-0.5 text-[10px] font-medium text-[#7A746F]">
               <span>⌘</span>
@@ -255,8 +265,8 @@ export function Header({ onMenuClick }: HeaderProps) {
           </div>
         </div>
 
-        {/* Right: Notifications & Doctor Profile */}
-        <div className="flex items-center gap-2 sm:gap-2.5">
+        {/* Right: Chamber Selector, Alerts & Doctor Profile */}
+        <div className="flex items-center gap-1 sm:gap-2.5 shrink-0 min-w-0">
           {/* Practice Chamber Selector */}
           <ChamberSelector variant="header" />
 
@@ -268,22 +278,22 @@ export function Header({ onMenuClick }: HeaderProps) {
           {/* Authenticated Doctor Profile Dropdown */}
           <Dropdown>
             <DropdownTrigger>
-              <div className="flex items-center gap-2.5 pl-1.5 py-1 pr-2 rounded-lg hover:bg-[#FAF5EE] transition-colors border border-transparent hover:border-[#EAE3D9]">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F9EFE5] border border-[#EAE3D9] text-[#DE4F3C] font-serif font-semibold text-xs">
+              <div className="flex items-center gap-2 pl-0.5 pr-0.5 md:pl-1.5 md:pr-2 py-1 rounded-lg hover:bg-[#FAF5EE] transition-colors border border-transparent hover:border-[#EAE3D9]">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#F9EFE5] border border-[#EAE3D9] text-[#DE4F3C] font-serif font-semibold text-xs">
                   RT
                 </div>
-                <div className="hidden md:flex flex-col text-left">
-                  <span className="text-xs font-semibold text-[#201C1A] leading-tight">
+                <div className="hidden md:flex flex-col text-left min-w-0">
+                  <span className="text-xs font-semibold text-[#201C1A] leading-tight truncate max-w-[160px]">
                     {doctorUser.fullName}
                   </span>
-                  <span className="text-[10px] text-[#7A746F]">
+                  <span className="text-[10px] text-[#7A746F] truncate max-w-[160px]">
                     {doctorUser.specialty}
                   </span>
                 </div>
-                <ChevronDown className="h-3.5 w-3.5 text-[#7A746F] hidden md:block" />
+                <ChevronDown className="h-3.5 w-3.5 text-[#7A746F] hidden md:block shrink-0" />
               </div>
             </DropdownTrigger>
-            <DropdownContent align="right" className="w-60">
+            <DropdownContent align="right" className="w-60 max-w-[calc(100vw-1rem)]">
               <div className="px-3 py-2.5 border-b border-[#EAE3D9]">
                 <div className="flex items-center justify-between">
                   <p className="text-xs font-semibold text-[#201C1A]">
@@ -407,8 +417,8 @@ export function Header({ onMenuClick }: HeaderProps) {
 
           {/* Section 2: TOTP Multi-Factor Authentication */}
           <div className="pt-4 border-t border-[#EAE3D9] space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="min-w-0">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-[#7A746F]">
                   Authenticator App (TOTP MFA)
                 </h3>
@@ -416,7 +426,7 @@ export function Header({ onMenuClick }: HeaderProps) {
                   Optional second-factor protection for clinical login
                 </p>
               </div>
-              <Badge variant={mfaEnabled ? "success" : "neutral"}>
+              <Badge variant={mfaEnabled ? "success" : "neutral"} className="shrink-0">
                 {mfaEnabled ? "Active" : "Not Enrolled"}
               </Badge>
             </div>
@@ -456,12 +466,12 @@ export function Header({ onMenuClick }: HeaderProps) {
                     className="h-36 w-36"
                   />
                   {mfaSecret && (
-                    <p className="text-[11px] font-mono text-[#7A746F] select-all">
+                    <p className="text-[11px] font-mono text-[#7A746F] select-all break-all text-center">
                       Secret: {mfaSecret}
                     </p>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col min-[380px]:flex-row items-stretch min-[380px]:items-center gap-2">
                   <Input
                     type="text"
                     inputMode="numeric"

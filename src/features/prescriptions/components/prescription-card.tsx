@@ -54,7 +54,7 @@ export function PrescriptionCard({
   return (
     <div
       className={cn(
-        "group rounded-2xl border border-[#EAE3D9] bg-white p-5 shadow-xs transition-all hover:border-[#C4BCB3] hover:shadow-md",
+        "group rounded-2xl border border-[#EAE3D9] bg-white p-3.5 sm:p-5 shadow-xs transition-all hover:border-[#C4BCB3] hover:shadow-md min-w-0",
         isDraft && "border-amber-200 bg-amber-50/20",
         className
       )}
@@ -62,10 +62,10 @@ export function PrescriptionCard({
       <div className="flex flex-col gap-4">
         {/* Top Header Row */}
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#EAE3D9]/70 pb-3">
-          <div className="flex items-center gap-2">
+          <div className="flex items-start sm:items-center gap-2 min-w-0">
             <div
               className={cn(
-                "flex h-8 w-8 items-center justify-center rounded-lg border",
+                "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border",
                 isDraft
                   ? "border-amber-300 bg-amber-50 text-amber-800"
                   : "border-emerald-200 bg-emerald-50 text-emerald-800"
@@ -73,9 +73,9 @@ export function PrescriptionCard({
             >
               <FileText className="h-4 w-4" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-sm font-bold text-[#201C1A]">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                <span className="font-mono text-sm font-bold text-[#201C1A] break-all">
                   {prescription.prescriptionCode}
                 </span>
                 {isDraft ? (
@@ -84,7 +84,7 @@ export function PrescriptionCard({
                     Draft
                   </Badge>
                 ) : (
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex flex-wrap items-center gap-1.5">
                     <Badge variant="success" className="text-[10px] px-2 py-0.5">
                       <CheckCircle2 className="h-2.5 w-2.5 mr-1" />
                       Finalized
@@ -123,9 +123,9 @@ export function PrescriptionCard({
               {prescription.items.map((item) => (
                 <span
                   key={item.id}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#EAE3D9] bg-[#FAF8F5] px-2.5 py-1 text-xs text-[#201C1A]"
+                  className="inline-flex flex-wrap items-center gap-1.5 rounded-lg border border-[#EAE3D9] bg-[#FAF8F5] px-2.5 py-1 text-xs text-[#201C1A] max-w-full break-words"
                 >
-                  <span className="font-medium">{item.brandName}</span>
+                  <span className="font-medium break-words">{item.brandName}</span>
                   {item.strength && (
                     <span className="text-[11px] text-[#7A746F]">({item.strength})</span>
                   )}
@@ -159,8 +159,8 @@ export function PrescriptionCard({
         )}
 
         {/* Action Row */}
-        <div className="flex items-center justify-between pt-2 border-t border-[#EAE3D9]/50">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#EAE3D9]/50">
+          <div className="flex flex-wrap items-center gap-2">
             {isDraft && onDeleteDraft && (
               <Button
                 variant="ghost"
@@ -174,7 +174,7 @@ export function PrescriptionCard({
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {isDraft ? (
               <Link href={`/patients/${patientId}/prescriptions/${prescription.id}/edit`}>
                 <Button

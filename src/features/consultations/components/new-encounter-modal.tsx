@@ -191,13 +191,13 @@ export function NewEncounterModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} className="max-w-2xl max-h-[92vh] flex flex-col p-0">
-      <ModalHeader className="px-6 pt-6 pb-4 border-b border-[#EAE3D9]">
-        <div className="flex items-center gap-2.5">
-          <div className="h-9 w-9 rounded-xl bg-[#FAF5EE] border border-[#EAE3D9] flex items-center justify-center">
+    <Modal isOpen={isOpen} onClose={onClose} className="max-w-2xl max-h-[90dvh] flex flex-col p-0">
+      <ModalHeader className="px-4 sm:px-6 pt-4 sm:pt-5 pb-3.5 pr-11 border-b border-[#EAE3D9]">
+        <div className="flex items-start sm:items-center gap-2.5 min-w-0">
+          <div className="h-9 w-9 shrink-0 rounded-xl bg-[#FAF5EE] border border-[#EAE3D9] flex items-center justify-center">
             <Stethoscope className="h-5 w-5 text-[#DE4F3C]" />
           </div>
-          <div>
+          <div className="min-w-0">
             <ModalTitle className="text-base font-bold text-[#201C1A]">
               Record New Clinical Encounter
             </ModalTitle>
@@ -208,7 +208,7 @@ export function NewEncounterModal({
         </div>
       </ModalHeader>
 
-      <form onSubmit={handleSaveEncounter} className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+      <form onSubmit={handleSaveEncounter} className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-5 space-y-5 min-w-0">
         {errorMessage && (
           <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-800 flex items-center gap-2">
             <AlertCircle className="h-4 w-4 shrink-0 text-red-600" />
@@ -256,11 +256,11 @@ export function NewEncounterModal({
                       key={p.id}
                       type="button"
                       onClick={() => handleSelectPatient(p)}
-                      className="w-full text-left p-3 hover:bg-[#FAF5EE] transition-colors flex items-center justify-between text-xs"
+                      className="w-full text-left p-3 hover:bg-[#FAF5EE] transition-colors flex items-center justify-between gap-2 text-xs"
                     >
-                      <div>
-                        <div className="font-semibold text-[#201C1A]">{p.name}</div>
-                        <div className="text-[11px] text-[#7A746F] flex items-center gap-2 mt-0.5">
+                      <div className="min-w-0 flex-1">
+                        <div className="font-semibold text-[#201C1A] truncate">{p.name}</div>
+                        <div className="text-[11px] text-[#7A746F] flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5">
                           <span className="font-mono text-[#DE4F3C] font-medium">{p.patientId}</span>
                           <span>•</span>
                           <span>{p.phone}</span>
@@ -268,7 +268,7 @@ export function NewEncounterModal({
                           <span>{p.gender}, {p.age ? `${p.age}y` : "Age N/A"}</span>
                         </div>
                       </div>
-                      <Badge variant="neutral" className="text-[10px]">
+                      <Badge variant="neutral" className="text-[10px] shrink-0">
                         Select
                       </Badge>
                     </button>
@@ -286,14 +286,14 @@ export function NewEncounterModal({
               )}
             </div>
           ) : (
-            <div className="p-3.5 rounded-xl border border-[#EAE3D9] bg-[#FAF5EE]/60 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-full bg-white border border-[#EAE3D9] flex items-center justify-center text-[#DE4F3C]">
+            <div className="p-3 sm:p-3.5 rounded-xl border border-[#EAE3D9] bg-[#FAF5EE]/60 flex flex-wrap items-center justify-between gap-2.5">
+              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                <div className="h-9 w-9 shrink-0 rounded-full bg-white border border-[#EAE3D9] flex items-center justify-center text-[#DE4F3C]">
                   <User className="h-4 w-4" />
                 </div>
-                <div>
-                  <div className="text-xs font-bold text-[#201C1A]">{selectedPatient.name}</div>
-                  <div className="text-[11px] text-[#7A746F] flex items-center gap-2">
+                <div className="min-w-0 flex-1">
+                  <div className="text-xs font-bold text-[#201C1A] break-words">{selectedPatient.name}</div>
+                  <div className="text-[11px] text-[#7A746F] flex flex-wrap items-center gap-x-2 gap-y-0.5">
                     <span className="font-mono text-[#DE4F3C] font-semibold">{selectedPatient.patientId}</span>
                     <span>•</span>
                     <span>{selectedPatient.phone}</span>
@@ -307,7 +307,7 @@ export function NewEncounterModal({
                 variant="outline"
                 size="sm"
                 onClick={handleClearPatient}
-                className="h-7 text-[11px] text-[#7A746F]"
+                className="h-7 text-[11px] text-[#7A746F] shrink-0"
               >
                 Change Patient
               </Button>
@@ -414,13 +414,13 @@ export function NewEncounterModal({
               type="date"
               value={nextFollowUp}
               onChange={(e) => setNextFollowUp(e.target.value)}
-              className="h-9 text-xs bg-white max-w-xs"
+              className="h-9 text-xs bg-white w-full sm:max-w-xs"
             />
           </div>
         </div>
       </form>
 
-      <ModalFooter className="px-6 py-3.5 border-t border-[#EAE3D9] bg-[#FAF5EE]/40 flex flex-wrap items-center justify-between gap-2">
+      <ModalFooter className="px-4 sm:px-6 py-3 sm:py-3.5 border-t border-[#EAE3D9] bg-[#FAF5EE]/40 flex flex-wrap items-center justify-between gap-2">
         <div>
           {selectedPatient && (
             <Button
@@ -437,7 +437,7 @@ export function NewEncounterModal({
           )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 ml-auto">
           <Button
             type="button"
             variant="outline"

@@ -97,8 +97,8 @@ export function ConsultationHistoryList({
   return (
     <div className={className}>
       {/* Top action header */}
-      <div className="flex items-center justify-between pb-4 border-b border-[#EAE3D9]/60 mb-6">
-        <div>
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[#EAE3D9]/60 mb-6">
+        <div className="min-w-0">
           <h3 className="font-serif text-base font-bold text-[#201C1A]">
             Chronological Consultation Timeline
           </h3>
@@ -111,7 +111,7 @@ export function ConsultationHistoryList({
           </p>
         </div>
 
-        <Link href={`/patients/${patient.patientId}/consultations/new`}>
+        <Link href={`/patients/${patient.patientId}/consultations/new`} className="shrink-0">
           <Button variant="primary" size="sm" className="gap-1.5 h-8 text-xs">
             <Plus className="h-3.5 w-3.5" />
             <span>New Consultation</span>
@@ -120,7 +120,7 @@ export function ConsultationHistoryList({
       </div>
 
       {/* Timeline track */}
-      <div className="relative pl-6 sm:pl-8 space-y-6 before:absolute before:left-2 sm:before:left-3 before:top-3 before:bottom-3 before:w-0.5 before:bg-[#EAE3D9]">
+      <div className="relative pl-5 sm:pl-8 space-y-5 sm:space-y-6 before:absolute before:left-1.5 sm:before:left-3 before:top-3 before:bottom-3 before:w-0.5 before:bg-[#EAE3D9]">
         {sortedConsultations.map((c, index) => {
           const formattedDate = new Date(
             c.consultationDate + "T00:00:00"
@@ -149,11 +149,11 @@ export function ConsultationHistoryList({
             "Routine clinical consultation";
 
           return (
-            <div key={c.id} className="relative group">
+            <div key={c.id} className="relative group min-w-0">
               {/* Timeline Node Bullet */}
               <div
                 className={cn(
-                  "absolute -left-6 sm:-left-8 top-4 h-4 w-4 rounded-full border-2 border-white shadow-xs transition-colors",
+                  "absolute -left-5 sm:-left-8 top-4 h-3.5 w-3.5 sm:h-4 sm:w-4 rounded-full border-2 border-white shadow-xs transition-colors",
                   index === 0
                     ? "bg-[#DE4F3C] ring-4 ring-[#DE4F3C]/15"
                     : "bg-[#7A746F] group-hover:bg-[#DE4F3C]"
@@ -161,7 +161,7 @@ export function ConsultationHistoryList({
               />
 
               {/* Consultation Card */}
-              <div className="rounded-xl border border-[#EAE3D9] bg-white p-5 shadow-xs hover:border-[#DE4F3C]/40 transition-all space-y-3">
+              <div className="rounded-xl border border-[#EAE3D9] bg-white p-3.5 sm:p-5 shadow-xs hover:border-[#DE4F3C]/40 transition-all space-y-3 min-w-0">
                 {/* Header Row */}
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                   <div className="space-y-1">

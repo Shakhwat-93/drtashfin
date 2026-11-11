@@ -56,9 +56,9 @@ export function DistributionCards({ data }: DistributionCardsProps) {
         </CardHeader>
         <CardContent className="space-y-3 pt-0">
           <div>
-            <div className="flex justify-between text-xs mb-1">
+            <div className="flex justify-between gap-2 text-xs mb-1">
               <span className="text-[#7A746F]">Completed</span>
-              <span className="font-semibold text-emerald-600">
+              <span className="font-semibold text-emerald-600 shrink-0">
                 {range.completedFollowUpsCount} ({completedPct}%)
               </span>
             </div>
@@ -71,9 +71,9 @@ export function DistributionCards({ data }: DistributionCardsProps) {
           </div>
 
           <div>
-            <div className="flex justify-between text-xs mb-1">
+            <div className="flex justify-between gap-2 text-xs mb-1">
               <span className="text-[#7A746F]">Pending / Scheduled</span>
-              <span className="font-semibold text-[#201C1A]">
+              <span className="font-semibold text-[#201C1A] shrink-0">
                 {range.pendingFollowUpsCount} ({pendingPct}%)
               </span>
             </div>
@@ -86,9 +86,9 @@ export function DistributionCards({ data }: DistributionCardsProps) {
           </div>
 
           <div>
-            <div className="flex justify-between text-xs mb-1">
+            <div className="flex justify-between gap-2 text-xs mb-1">
               <span className="text-[#7A746F]">Overdue</span>
-              <span className="font-semibold text-[#DE4F3C]">
+              <span className="font-semibold text-[#DE4F3C] shrink-0">
                 {range.overdueFollowUpsCount} ({overduePct}%)
               </span>
             </div>
@@ -115,12 +115,12 @@ export function DistributionCards({ data }: DistributionCardsProps) {
         <CardContent className="space-y-3 pt-0">
           {chamberItems.length > 0 ? (
             chamberItems.map((item) => (
-              <div key={item.name}>
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="text-[#7A746F] truncate max-w-[170px]">
+              <div key={item.name} className="min-w-0">
+                <div className="flex justify-between gap-2 text-xs mb-1 min-w-0">
+                  <span className="text-[#7A746F] min-w-0 flex-1 truncate">
                     {item.name}
                   </span>
-                  <span className="font-semibold text-[#201C1A]">
+                  <span className="font-semibold text-[#201C1A] shrink-0">
                     {item.count} ({item.pct}%)
                   </span>
                 </div>
@@ -152,9 +152,9 @@ export function DistributionCards({ data }: DistributionCardsProps) {
         </CardHeader>
         <CardContent className="space-y-3 pt-0">
           <div>
-            <div className="flex justify-between text-xs mb-1">
+            <div className="flex justify-between gap-2 text-xs mb-1">
               <span className="text-[#7A746F]">Diagnostic Reports</span>
-              <span className="font-semibold text-[#201C1A]">
+              <span className="font-semibold text-[#201C1A] shrink-0">
                 {range.diagnosticReportsCount} ({diagPct}%)
               </span>
             </div>
@@ -167,9 +167,9 @@ export function DistributionCards({ data }: DistributionCardsProps) {
           </div>
 
           <div>
-            <div className="flex justify-between text-xs mb-1">
+            <div className="flex justify-between gap-2 text-xs mb-1">
               <span className="text-[#7A746F]">Procedures & Surgeries</span>
-              <span className="font-semibold text-[#201C1A]">
+              <span className="font-semibold text-[#201C1A] shrink-0">
                 {range.proceduresCount} ({procPct}%)
               </span>
             </div>
@@ -182,9 +182,9 @@ export function DistributionCards({ data }: DistributionCardsProps) {
           </div>
 
           <div>
-            <div className="flex justify-between text-xs mb-1">
+            <div className="flex justify-between gap-2 text-xs mb-1">
               <span className="text-[#7A746F]">Patient Discharges</span>
-              <span className="font-semibold text-[#201C1A]">
+              <span className="font-semibold text-[#201C1A] shrink-0">
                 {range.dischargesCount} ({disPct}%)
               </span>
             </div>

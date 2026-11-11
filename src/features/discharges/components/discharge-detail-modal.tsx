@@ -43,48 +43,47 @@ export function DischargeDetailModal({
   const isFinalized = discharge.status === "finalized";
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} className="max-w-3xl">
-      <div className="w-full">
-        <ModalHeader className="print:hidden">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="p-2 rounded-xl bg-[#FAF5EE] text-[#DE4F3C] border border-[#EAE3D9]">
-                <FileText className="h-5 w-5" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <ModalTitle className="text-lg font-serif font-bold text-[#201C1A]">
-                    Patient Discharge Report
-                  </ModalTitle>
-                  <Badge
-                    variant={isFinalized ? "success" : "warning"}
-                    size="sm"
-                    className="text-[10px] uppercase font-bold tracking-wider"
-                  >
-                    {discharge.status}
-                  </Badge>
-                </div>
-                <ModalDescription className="text-xs text-[#7A746F]">
-                  Discharged on {discharge.dischargeDate} {discharge.dischargeTime ? `at ${discharge.dischargeTime}` : ""}
-                </ModalDescription>
-              </div>
+    <Modal isOpen={isOpen} onClose={onClose} className="max-w-3xl p-0">
+      <ModalHeader className="px-4 sm:px-6 pt-4 sm:pt-5 pb-3.5 pr-11 border-b border-[#EAE3D9] print:hidden">
+        <div className="flex flex-wrap items-start justify-between gap-2.5 min-w-0">
+          <div className="flex items-start gap-2.5 min-w-0 flex-1">
+            <div className="p-2 shrink-0 rounded-xl bg-[#FAF5EE] text-[#DE4F3C] border border-[#EAE3D9]">
+              <FileText className="h-5 w-5" />
             </div>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => window.print()}
-              className="gap-1.5 text-xs h-8"
-            >
-              <Printer className="h-3.5 w-3.5" />
-              <span>Print</span>
-            </Button>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <ModalTitle className="text-base sm:text-lg font-serif font-bold text-[#201C1A]">
+                  Patient Discharge Report
+                </ModalTitle>
+                <Badge
+                  variant={isFinalized ? "success" : "warning"}
+                  size="sm"
+                  className="text-[10px] uppercase font-bold tracking-wider"
+                >
+                  {discharge.status}
+                </Badge>
+              </div>
+              <ModalDescription className="text-xs text-[#7A746F]">
+                Discharged on {discharge.dischargeDate} {discharge.dischargeTime ? `at ${discharge.dischargeTime}` : ""}
+              </ModalDescription>
+            </div>
           </div>
-        </ModalHeader>
 
-        <ModalBody className="space-y-4 max-h-[75vh] overflow-y-auto px-6 py-4 text-xs">
-          {/* Header Summary Box */}
-          <div className="p-4 rounded-xl bg-[#FAF5EE] border border-[#EAE3D9] grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => window.print()}
+            className="gap-1.5 text-xs h-8 shrink-0"
+          >
+            <Printer className="h-3.5 w-3.5" />
+            <span>Print</span>
+          </Button>
+        </div>
+      </ModalHeader>
+
+      <ModalBody className="space-y-4 px-4 sm:px-6 py-4 text-xs">
+        {/* Header Summary Box */}
+        <div className="p-3.5 sm:p-4 rounded-xl bg-[#FAF5EE] border border-[#EAE3D9] grid grid-cols-1 min-[360px]:grid-cols-2 sm:grid-cols-4 gap-3">
             <div>
               <span className="text-[#7A746F] block text-[11px]">Patient Name</span>
               <span className="font-semibold text-[#201C1A] text-xs">
@@ -200,10 +199,10 @@ export function DischargeDetailModal({
 
           {/* Supporting Google Drive Link */}
           {discharge.driveUrl && (
-            <div className="flex items-center justify-between p-3 rounded-xl bg-[#FAF5EE] border border-[#EAE3D9]">
-              <div className="flex items-center gap-2">
-                <FolderOpen className="h-4 w-4 text-[#DE4F3C]" />
-                <span className="text-xs font-medium text-[#201C1A]">
+            <div className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-xl bg-[#FAF5EE] border border-[#EAE3D9]">
+              <div className="flex items-center gap-2 min-w-0">
+                <FolderOpen className="h-4 w-4 text-[#DE4F3C] shrink-0" />
+                <span className="text-xs font-medium text-[#201C1A] break-words">
                   Supporting Google Drive Report / Summary
                 </span>
               </div>
@@ -211,7 +210,7 @@ export function DischargeDetailModal({
                 href={discharge.driveUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-[#EAE3D9] text-xs font-semibold text-[#DE4F3C] hover:bg-[#FDF0EE]"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-[#EAE3D9] text-xs font-semibold text-[#DE4F3C] hover:bg-[#FDF0EE] shrink-0"
               >
                 <span>Open in Drive</span>
                 <ExternalLink className="h-3 w-3" />
@@ -223,24 +222,24 @@ export function DischargeDetailModal({
           {discharge.amendmentNotes && (
             <div className="space-y-1.5 pt-2 border-t border-[#EAE3D9]">
               <div className="flex items-center gap-1.5 text-xs font-bold text-purple-900">
-                <History className="h-4 w-4 text-purple-600" />
+                <History className="h-4 w-4 text-purple-600 shrink-0" />
                 <span>Permanent Clinical Amendment Trail</span>
               </div>
-              <div className="p-3.5 rounded-xl bg-purple-50/60 border border-purple-200 text-purple-950 text-xs whitespace-pre-wrap leading-relaxed">
+              <div className="p-3.5 rounded-xl bg-purple-50/60 border border-purple-200 text-purple-950 text-xs whitespace-pre-wrap leading-relaxed break-words">
                 {discharge.amendmentNotes}
               </div>
             </div>
           )}
 
           {/* Audit Metadata Footer */}
-          <div className="pt-3 border-t border-[#FAF5EE] flex flex-wrap items-center justify-between text-[11px] text-[#7A746F]">
+          <div className="pt-3 border-t border-[#FAF5EE] flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#7A746F]">
             <div>
               Responsible Clinician: <span className="font-semibold text-[#201C1A]">{discharge.doctorName || "Dr. Tashfin"}</span>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               {isFinalized && discharge.finalizedAt && (
                 <span className="flex items-center gap-1 text-emerald-700 font-medium">
-                  <Lock className="h-3 w-3" />
+                  <Lock className="h-3 w-3 shrink-0" />
                   <span>Finalized on {discharge.finalizedAt.split("T")[0]}</span>
                 </span>
               )}
@@ -249,12 +248,12 @@ export function DischargeDetailModal({
           </div>
         </ModalBody>
 
-        <ModalFooter className="flex items-center justify-between px-6 py-3 border-t border-[#EAE3D9] print:hidden">
+        <ModalFooter className="flex-wrap items-center justify-between gap-2 px-4 sm:px-6 py-3 border-t border-[#EAE3D9] print:hidden">
           <Button variant="outline" size="sm" onClick={onClose}>
             Close
           </Button>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {!isFinalized && onOpenEditDraft && (
               <Button
                 variant="outline"
@@ -284,7 +283,6 @@ export function DischargeDetailModal({
             )}
           </div>
         </ModalFooter>
-      </div>
     </Modal>
   );
 }

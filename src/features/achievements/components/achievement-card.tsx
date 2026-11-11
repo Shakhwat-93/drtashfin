@@ -93,13 +93,13 @@ export function AchievementCard({
   );
 
   return (
-    <Card className="group relative border border-[#EAE3D9] bg-white p-5 shadow-2xs hover:shadow-sm transition-all duration-200 rounded-xl flex flex-col justify-between">
-      <div className="space-y-3">
+    <Card className="group relative border border-[#EAE3D9] bg-white p-3.5 sm:p-5 shadow-2xs hover:shadow-sm transition-all duration-200 rounded-xl flex flex-col justify-between min-w-0">
+      <div className="space-y-3 min-w-0">
         {/* Header: Category Badge & Status */}
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span
             className={cn(
-              "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border",
+              "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border max-w-full whitespace-normal",
               badgeClass
             )}
           >
@@ -109,7 +109,7 @@ export function AchievementCard({
             <span>{achievement.category}</span>
           </span>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-1.5">
             {!achievement.isPublished && (
               <Badge variant="warning" size="sm" className="text-[10px]">
                 Draft
@@ -130,15 +130,15 @@ export function AchievementCard({
         </div>
 
         {/* Title & Institution */}
-        <div>
+        <div className="min-w-0">
           <h3
-            className="font-serif text-base font-bold text-[#201C1A] group-hover:text-[#DE4F3C] transition-colors cursor-pointer"
+            className="font-serif text-base font-bold text-[#201C1A] group-hover:text-[#DE4F3C] transition-colors cursor-pointer break-words"
             onClick={() => onView(achievement)}
           >
             {achievement.title}
           </h3>
           {achievement.institution && (
-            <p className="text-xs font-medium text-[#7A746F] mt-0.5">
+            <p className="text-xs font-medium text-[#7A746F] mt-0.5 break-words">
               {achievement.institution}
             </p>
           )}
@@ -163,7 +163,7 @@ export function AchievementCard({
 
         {/* Description snippet */}
         {achievement.description && (
-          <p className="text-xs text-[#201C1A] leading-relaxed line-clamp-2 bg-[#FAF5EE]/50 p-2.5 rounded-lg border border-[#EAE3D9]/60">
+          <p className="text-xs text-[#201C1A] leading-relaxed line-clamp-2 bg-[#FAF5EE]/50 p-2.5 rounded-lg border border-[#EAE3D9]/60 break-words">
             {achievement.description}
           </p>
         )}
@@ -175,12 +175,12 @@ export function AchievementCard({
               href={achievement.driveUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition-colors"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition-colors max-w-full"
               title="Verified Google Drive Evidence Document"
             >
-              <FileCheck2 className="h-3 w-3 text-emerald-600" />
+              <FileCheck2 className="h-3 w-3 shrink-0 text-emerald-600" />
               <span>Evidence Document</span>
-              <ExternalLink className="h-2.5 w-2.5 opacity-70" />
+              <ExternalLink className="h-2.5 w-2.5 shrink-0 opacity-70" />
             </a>
           )}
 
@@ -189,24 +189,24 @@ export function AchievementCard({
               href={achievement.publicationUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-sky-50 text-sky-800 border border-sky-200 hover:bg-sky-100 transition-colors"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-sky-50 text-sky-800 border border-sky-200 hover:bg-sky-100 transition-colors max-w-full"
               title="Open External Publication Link"
             >
-              <BookOpen className="h-3 w-3 text-sky-600" />
+              <BookOpen className="h-3 w-3 shrink-0 text-sky-600" />
               <span>Publication Link</span>
-              <ExternalLink className="h-2.5 w-2.5 opacity-70" />
+              <ExternalLink className="h-2.5 w-2.5 shrink-0 opacity-70" />
             </a>
           )}
         </div>
       </div>
 
       {/* Action Toolbar */}
-      <div className="mt-4 pt-3 border-t border-[#FAF5EE] flex items-center justify-between">
+      <div className="mt-4 pt-3 border-t border-[#FAF5EE] flex flex-wrap items-center justify-between gap-2">
         <div className="text-[10px] text-[#7A746F]">
           Order: #{achievement.displayOrder}
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex flex-wrap items-center gap-1">
           <Button
             variant="outline"
             size="sm"

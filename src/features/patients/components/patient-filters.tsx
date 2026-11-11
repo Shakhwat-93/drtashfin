@@ -72,7 +72,7 @@ export function PatientFilters({
       )}
     >
       {/* Search Input Box */}
-      <div className="relative flex-1 min-w-[240px] max-w-lg">
+      <div className="relative w-full min-w-0 md:flex-1 md:max-w-lg">
         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-[#7A746F]">
           <Search className="h-4 w-4" />
         </div>
@@ -81,7 +81,7 @@ export function PatientFilters({
           value={localSearch}
           onChange={(e) => setLocalSearch(e.target.value)}
           placeholder="Search by ID, name, phone, or birth date..."
-          className="w-full rounded-lg border border-[#EAE3D9] bg-[#FAF5EE]/50 py-2 pl-9 pr-9 text-xs text-[#201C1A] placeholder-[#7A746F] transition-all focus:border-[#DE4F3C] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#DE4F3C]/20"
+          className="w-full min-w-0 rounded-lg border border-[#EAE3D9] bg-[#FAF5EE]/50 py-2 pl-9 pr-9 text-xs text-[#201C1A] placeholder-[#7A746F] transition-all focus:border-[#DE4F3C] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#DE4F3C]/20"
           aria-label="Search patients"
         />
         {localSearch && (
@@ -97,13 +97,13 @@ export function PatientFilters({
       </div>
 
       {/* Gender Filter Segmented Controls */}
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="flex items-center gap-1 text-[11px] font-medium text-[#7A746F] mr-1 hidden sm:flex">
+      <div className="flex flex-wrap items-center gap-2 min-w-0">
+        <div className="items-center gap-1 text-[11px] font-medium text-[#7A746F] mr-1 hidden sm:flex">
           <Filter className="h-3 w-3" />
           <span>Gender:</span>
         </div>
 
-        <div className="inline-flex rounded-lg border border-[#EAE3D9] bg-[#FAF5EE] p-0.5">
+        <div className="grid grid-cols-2 min-[400px]:grid-cols-4 sm:inline-flex gap-0.5 rounded-lg border border-[#EAE3D9] bg-[#FAF5EE] p-0.5 w-full sm:w-auto">
           {genderOptions.map((opt) => {
             const isSelected = gender === opt.value;
             return (
@@ -112,7 +112,7 @@ export function PatientFilters({
                 type="button"
                 onClick={() => onGenderChange(opt.value)}
                 className={cn(
-                  "rounded-md px-2.5 py-1 text-xs font-medium transition-colors cursor-pointer",
+                  "rounded-md px-2.5 py-1.5 sm:py-1 text-xs font-medium whitespace-nowrap text-center transition-colors cursor-pointer",
                   isSelected
                     ? "bg-white text-[#201C1A] shadow-xs font-semibold"
                     : "text-[#7A746F] hover:text-[#201C1A]"

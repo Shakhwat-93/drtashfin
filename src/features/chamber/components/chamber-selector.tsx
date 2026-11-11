@@ -35,6 +35,8 @@ export function ChamberSelector({
     }
   };
 
+  const shortChamberName = activeChamber.name.replace(/\s+Chamber$/i, "");
+
   if (variant === "compact") {
     return (
       <Dropdown>
@@ -42,16 +44,16 @@ export function ChamberSelector({
           <button
             type="button"
             disabled={isSwitching}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-[#EAE3D9] bg-white hover:bg-[#FAF5EE] transition-all text-xs font-medium text-[#201C1A] disabled:opacity-60 ${className}`}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-[#EAE3D9] bg-white hover:bg-[#FAF5EE] transition-all text-xs font-medium text-[#201C1A] disabled:opacity-60 max-w-full min-w-0 ${className}`}
           >
             {isSwitching ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin text-[#DE4F3C]" />
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-[#DE4F3C] shrink-0" />
             ) : (
-              <MapPin className="h-3.5 w-3.5 text-[#DE4F3C]" />
+              <MapPin className="h-3.5 w-3.5 text-[#DE4F3C] shrink-0" />
             )}
-            <span className="truncate max-w-[120px]">{activeChamber.name}</span>
+            <span className="truncate max-w-[110px] sm:max-w-[140px]">{activeChamber.name}</span>
             <span
-              className={`text-[10px] font-mono px-1.5 py-0.5 rounded border font-semibold ${getPrefixColor(
+              className={`text-[10px] font-mono px-1.5 py-0.5 rounded border font-semibold shrink-0 ${getPrefixColor(
                 activeChamber.patientIdPrefix
               )}`}
             >
@@ -60,7 +62,7 @@ export function ChamberSelector({
             <ChevronDown className="h-3 w-3 text-[#7A746F] shrink-0" />
           </button>
         </DropdownTrigger>
-        <DropdownContent align="right" className="w-64 p-1">
+        <DropdownContent align="right" mobileFixed className="w-auto sm:w-64 p-1">
           <div className="px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-wider text-[#7A746F] border-b border-[#EAE3D9]/60">
             Switch Practice Chamber
           </div>
@@ -98,16 +100,16 @@ export function ChamberSelector({
   }
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative min-w-0 ${className}`}>
       <Dropdown>
         <DropdownTrigger>
           <button
             type="button"
             disabled={isSwitching}
             aria-label="Switch Practice Chamber"
-            className="group flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-[#EAE3D9] bg-white/95 hover:bg-[#FAF5EE] shadow-2xs hover:shadow-xs transition-all text-xs text-[#201C1A] focus:outline-hidden focus:ring-2 focus:ring-[#DE4F3C]/20 disabled:opacity-60"
+            className="group flex items-center gap-1.5 sm:gap-2.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl border border-[#EAE3D9] bg-white/95 hover:bg-[#FAF5EE] shadow-2xs hover:shadow-xs transition-all text-xs text-[#201C1A] focus:outline-hidden focus:ring-2 focus:ring-[#DE4F3C]/20 disabled:opacity-60 max-w-full min-w-0"
           >
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#FAF5EE] border border-[#EAE3D9] text-[#DE4F3C] group-hover:scale-105 transition-transform">
+            <div className="hidden sm:flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#FAF5EE] border border-[#EAE3D9] text-[#DE4F3C] group-hover:scale-105 transition-transform">
               {isSwitching ? (
                 <Loader2 className="h-4 w-4 animate-spin text-[#DE4F3C]" />
               ) : (
@@ -115,27 +117,36 @@ export function ChamberSelector({
               )}
             </div>
 
-            <div className="flex flex-col text-left">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#7A746F] leading-none">
+            {isSwitching ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-[#DE4F3C] shrink-0 sm:hidden" />
+            ) : (
+              <Building2 className="h-3.5 w-3.5 text-[#DE4F3C] shrink-0 hidden min-[375px]:block sm:hidden" />
+            )}
+
+            <div className="flex flex-col text-left min-w-0">
+              <span className="hidden sm:block text-[10px] font-bold uppercase tracking-wider text-[#7A746F] leading-none">
                 Chamber
               </span>
-              <span className="text-xs font-semibold text-[#201C1A] leading-tight truncate max-w-[130px] sm:max-w-[180px]">
+              <span className="sm:hidden text-[11px] font-semibold text-[#201C1A] leading-tight truncate max-w-[68px] min-[360px]:max-w-[88px] min-[410px]:max-w-[115px]">
+                {shortChamberName}
+              </span>
+              <span className="hidden sm:block text-xs font-semibold text-[#201C1A] leading-tight truncate max-w-[150px] md:max-w-[180px]">
                 {activeChamber.name}
               </span>
             </div>
 
             <span
-              className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md border ${getPrefixColor(
+              className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md border shrink-0 ${getPrefixColor(
                 activeChamber.patientIdPrefix
               )}`}
             >
               {activeChamber.patientIdPrefix}
             </span>
 
-            <ChevronDown className="h-3.5 w-3.5 text-[#7A746F] group-hover:text-[#201C1A] transition-colors ml-0.5 shrink-0" />
+            <ChevronDown className="h-3.5 w-3.5 text-[#7A746F] group-hover:text-[#201C1A] transition-colors shrink-0" />
           </button>
         </DropdownTrigger>
-        <DropdownContent align="right" className="w-72 p-1.5">
+        <DropdownContent align="right" mobileFixed className="w-auto sm:w-72 p-1.5">
           <div className="px-2.5 py-2 border-b border-[#EAE3D9]">
             <p className="text-xs font-bold uppercase tracking-wider text-[#7A746F]">
               Practice Chambers

@@ -80,11 +80,11 @@ export default function PatientsPage() {
         />
 
         {/* Chamber Scope Selector Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-white border border-[#EAE3D9] rounded-xl shadow-xs">
-          <div className="flex items-center gap-2 text-xs text-[#7A746F]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-white border border-[#EAE3D9] rounded-xl shadow-xs min-w-0">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs text-[#7A746F] min-w-0">
             <Building2 className="h-4 w-4 text-[#DE4F3C] shrink-0" />
             <span>Scope:</span>
-            <span className="font-semibold text-[#201C1A]">
+            <span className="font-semibold text-[#201C1A] break-words">
               {chamberScope === "current"
                 ? `${activeChamber.name} (${activeChamber.patientIdPrefix}-)`
                 : chamberScope === "all"
@@ -95,7 +95,7 @@ export default function PatientsPage() {
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 sm:pb-0">
+          <div className="flex flex-wrap items-center gap-1.5">
             <button
               onClick={() => {
                 setChamberScope("current");
@@ -168,7 +168,7 @@ export default function PatientsPage() {
                 patients
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
                 <Button
                   variant="outline"
                   size="sm"
@@ -180,7 +180,7 @@ export default function PatientsPage() {
                   <span>Previous</span>
                 </Button>
 
-                <div className="flex items-center gap-1">
+                <div className="flex flex-wrap items-center justify-center gap-1">
                   {Array.from({ length: totalPages }).map((_, i) => {
                     const pageNum = i + 1;
                     // Only display first, last, and window around current page

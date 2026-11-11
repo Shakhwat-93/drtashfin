@@ -91,7 +91,7 @@ export default function NewConsultationPage({
     <AdminShell>
       <PageContainer className="space-y-6 max-w-4xl">
         {/* Navigation Breadcrumb */}
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <Link href={`/patients/${patient.patientId}`}>
             <Button
               variant="outline"
@@ -109,7 +109,7 @@ export default function NewConsultationPage({
         </div>
 
         {/* Consultation Form Card */}
-        <Card className="border border-[#EAE3D9] bg-white shadow-xs p-6 sm:p-8">
+        <Card className="border border-[#EAE3D9] bg-white shadow-xs p-4 sm:p-8">
           <ConsultationForm
             mode="create"
             patient={patient}

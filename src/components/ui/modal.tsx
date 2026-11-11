@@ -33,7 +33,7 @@ export function Modal({ isOpen, onClose, children, className }: ModalProps) {
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+      className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-6"
     >
       {/* Backdrop */}
       <div
@@ -45,11 +45,11 @@ export function Modal({ isOpen, onClose, children, className }: ModalProps) {
       {/* Modal Container */}
       <div
         className={cn(
-          "relative z-10 w-full max-w-lg overflow-hidden rounded-2xl bg-white border border-[#EAE3D9] p-6 shadow-xl transition-all animate-in zoom-in-95 duration-200",
+          "relative z-10 flex max-h-[90dvh] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-white border border-[#EAE3D9] p-4 sm:p-6 shadow-xl transition-all animate-in zoom-in-95 duration-200",
           className
         )}
       >
-        <div className="absolute right-4 top-4">
+        <div className="absolute right-3 top-3 sm:right-4 sm:top-4 z-10">
           <IconButton
             variant="ghost"
             size="sm"
@@ -71,7 +71,7 @@ export function ModalHeader({
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("flex flex-col space-y-1.5 pb-4 pr-6", className)}
+      className={cn("flex flex-col space-y-1.5 pb-3 sm:pb-4 pr-8 shrink-0 min-w-0", className)}
       {...props}
     />
   );
@@ -83,7 +83,7 @@ export function ModalTitle({
 }: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h2
-      className={cn("font-serif text-xl font-medium text-[#201C1A] tracking-tight", className)}
+      className={cn("font-serif text-lg sm:text-xl font-medium text-[#201C1A] tracking-tight break-words", className)}
       {...props}
     />
   );
@@ -95,7 +95,7 @@ export function ModalDescription({
 }: React.HTMLAttributes<HTMLParagraphElement>) {
   return (
     <p
-      className={cn("text-xs text-[#7A746F] leading-relaxed", className)}
+      className={cn("text-xs text-[#7A746F] leading-relaxed break-words", className)}
       {...props}
     />
   );
@@ -105,7 +105,7 @@ export function ModalBody({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("py-2", className)} {...props} />;
+  return <div className={cn("py-2 min-w-0 flex-1 overflow-y-auto", className)} {...props} />;
 }
 
 export function ModalFooter({
@@ -114,7 +114,7 @@ export function ModalFooter({
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("flex items-center justify-end gap-3 pt-5 border-t border-[#EAE3D9]", className)}
+      className={cn("flex flex-wrap items-center justify-end gap-2 sm:gap-3 pt-4 sm:pt-5 border-t border-[#EAE3D9] shrink-0", className)}
       {...props}
     />
   );

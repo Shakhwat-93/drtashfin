@@ -66,10 +66,12 @@ export function DropdownTrigger({ children }: { children: React.ReactNode }) {
 export interface DropdownContentProps
   extends React.HTMLAttributes<HTMLDivElement> {
   align?: "left" | "right";
+  mobileFixed?: boolean;
 }
 
 export function DropdownContent({
   align = "right",
+  mobileFixed = false,
   className,
   children,
   ...props
@@ -83,8 +85,16 @@ export function DropdownContent({
     <div
       role="menu"
       className={cn(
-        "absolute z-50 mt-2 min-w-[180px] rounded-xl border border-[#EAE3D9] bg-white p-1.5 shadow-lg animate-in fade-in zoom-in-95 duration-150",
-        align === "right" ? "right-0" : "left-0",
+        mobileFixed
+          ? "fixed left-2 right-2 top-[4.25rem] sm:top-auto sm:left-auto sm:absolute z-50 sm:mt-2 sm:min-w-[180px] max-w-[calc(100vw-1rem)] rounded-xl border border-[#EAE3D9] bg-white p-1.5 shadow-lg animate-in fade-in zoom-in-95 duration-150"
+          : "absolute z-50 mt-2 min-w-[180px] max-w-[calc(100vw-1rem)] rounded-xl border border-[#EAE3D9] bg-white p-1.5 shadow-lg animate-in fade-in zoom-in-95 duration-150",
+        mobileFixed
+          ? align === "right"
+            ? "sm:right-0"
+            : "sm:left-0"
+          : align === "right"
+          ? "right-0"
+          : "left-0",
         className
       )}
       {...props}

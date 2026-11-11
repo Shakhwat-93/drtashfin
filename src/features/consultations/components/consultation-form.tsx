@@ -569,7 +569,7 @@ export function ConsultationForm({
                 <label className="block text-xs font-semibold text-[#201C1A] mb-1.5">
                   Clinical Progress Outcome Compared to Prior Visit
                 </label>
-                <div className="grid grid-cols-3 gap-2 max-w-md">
+                <div className="grid grid-cols-1 min-[360px]:grid-cols-3 gap-2 max-w-md">
                   {(
                     [
                       { value: "improved", label: "Improved" },
@@ -887,7 +887,7 @@ export function ConsultationForm({
 
       {/* SECTION 6: MANAGEMENT */}
       <section className="space-y-4 border-b border-[#EAE3D9] pb-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="font-serif text-base font-semibold text-[#201C1A]">
             Management
           </h3>
@@ -898,9 +898,9 @@ export function ConsultationForm({
 
         {/* Medicine Quick-Lookup Toolbar */}
         <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF8F5] p-3.5 space-y-2">
-          <div className="flex items-center justify-between text-xs">
+          <div className="flex flex-wrap items-center justify-between gap-1.5 text-xs">
             <span className="font-medium text-[#201C1A] flex items-center gap-1.5">
-              <Pill className="h-3.5 w-3.5 text-[#DE4F3C]" />
+              <Pill className="h-3.5 w-3.5 text-[#DE4F3C] shrink-0" />
               <span>Medicine Catalogue Lookup (MedEx BD)</span>
             </span>
             <span className="text-[11px] text-[#7A746F]">
@@ -1065,7 +1065,7 @@ export function ConsultationForm({
       </section>
 
       {/* Action Buttons */}
-      <div className="flex items-center justify-end gap-3 pt-2">
+      <div className="flex flex-wrap items-center justify-end gap-3 pt-2">
         <Button
           type="button"
           variant="outline"

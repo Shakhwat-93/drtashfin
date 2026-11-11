@@ -45,15 +45,15 @@ export function DashboardKpiGrid({ data, isLoading }: DashboardKpiGridProps) {
   return (
     <div className="space-y-6">
       {/* SECTION 1: Selected Period Highlights */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-[#DE4F3C]" />
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#201C1A]">
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div className="flex items-center gap-2 min-w-0">
+            <TrendingUp className="h-4 w-4 text-[#DE4F3C] shrink-0" />
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#201C1A] break-words">
               Period Activity — {chamberLabel}
             </h3>
           </div>
-          <span className="text-[11px] font-mono text-[#7A746F]">
+          <span className="text-[11px] font-mono text-[#7A746F] break-words">
             {dateRange.startDate} to {dateRange.endDate} ({dateRange.label})
           </span>
         </div>
@@ -158,49 +158,49 @@ export function DashboardKpiGrid({ data, isLoading }: DashboardKpiGridProps) {
         </div>
 
         {/* Secondary Metric Strip */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
-          <div className="p-3 rounded-xl border border-[#EAE3D9] bg-white flex items-center gap-3">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#FAF5EE] text-[#DE4F3C]">
+        <div className="grid grid-cols-1 min-[360px]:grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
+          <div className="p-3 rounded-xl border border-[#EAE3D9] bg-white flex items-center gap-3 min-w-0">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#FAF5EE] text-[#DE4F3C]">
               <FlaskConical className="h-3.5 w-3.5" />
             </div>
-            <div>
-              <div className="text-xs text-[#7A746F]">Diagnostic Reports</div>
+            <div className="min-w-0">
+              <div className="text-xs text-[#7A746F] truncate">Diagnostic Reports</div>
               <div className="text-sm font-bold text-[#201C1A]">
                 {range.diagnosticReportsCount}
               </div>
             </div>
           </div>
 
-          <div className="p-3 rounded-xl border border-[#EAE3D9] bg-white flex items-center gap-3">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#FAF5EE] text-[#DE4F3C]">
+          <div className="p-3 rounded-xl border border-[#EAE3D9] bg-white flex items-center gap-3 min-w-0">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#FAF5EE] text-[#DE4F3C]">
               <Activity className="h-3.5 w-3.5" />
             </div>
-            <div>
-              <div className="text-xs text-[#7A746F]">Procedures / OT</div>
+            <div className="min-w-0">
+              <div className="text-xs text-[#7A746F] truncate">Procedures / OT</div>
               <div className="text-sm font-bold text-[#201C1A]">
                 {range.proceduresCount}
               </div>
             </div>
           </div>
 
-          <div className="p-3 rounded-xl border border-[#EAE3D9] bg-white flex items-center gap-3">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#FAF5EE] text-[#DE4F3C]">
+          <div className="p-3 rounded-xl border border-[#EAE3D9] bg-white flex items-center gap-3 min-w-0">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#FAF5EE] text-[#DE4F3C]">
               <LogOut className="h-3.5 w-3.5" />
             </div>
-            <div>
-              <div className="text-xs text-[#7A746F]">Discharges</div>
+            <div className="min-w-0">
+              <div className="text-xs text-[#7A746F] truncate">Discharges</div>
               <div className="text-sm font-bold text-[#201C1A]">
                 {range.dischargesCount}
               </div>
             </div>
           </div>
 
-          <div className="p-3 rounded-xl border border-[#EAE3D9] bg-white flex items-center gap-3">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#FAF5EE] text-[#DE4F3C]">
+          <div className="p-3 rounded-xl border border-[#EAE3D9] bg-white flex items-center gap-3 min-w-0">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#FAF5EE] text-[#DE4F3C]">
               <MessageSquare className="h-3.5 w-3.5" />
             </div>
-            <div>
-              <div className="text-xs text-[#7A746F]">SMS Delivered</div>
+            <div className="min-w-0">
+              <div className="text-xs text-[#7A746F] truncate">SMS Delivered</div>
               <div className="text-sm font-bold text-[#201C1A]">
                 {range.smsDeliveredCount} / {range.smsSentCount}
               </div>
@@ -210,15 +210,15 @@ export function DashboardKpiGrid({ data, isLoading }: DashboardKpiGridProps) {
       </div>
 
       {/* SECTION 2: Lifetime Practice Totals */}
-      <div className="pt-2">
-        <div className="flex items-center gap-2 mb-3">
-          <Sparkles className="h-4 w-4 text-[#DE4F3C]" />
-          <h3 className="text-xs font-bold uppercase tracking-wider text-[#201C1A]">
+      <div className="pt-2 min-w-0">
+        <div className="flex items-center gap-2 mb-3 min-w-0">
+          <Sparkles className="h-4 w-4 text-[#DE4F3C] shrink-0" />
+          <h3 className="text-xs font-bold uppercase tracking-wider text-[#201C1A] break-words">
             Lifetime Practice Totals — {chamberLabel}
           </h3>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-1 min-[340px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           <div className="p-3.5 rounded-xl border border-[#EAE3D9] bg-[#FAF5EE]/60">
             <div className="text-[11px] font-semibold text-[#7A746F] uppercase tracking-wider">
               Total Patients

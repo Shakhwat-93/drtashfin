@@ -21,51 +21,51 @@ export function DoctorProfileCard() {
   return (
     <Card className="overflow-hidden border border-[#EAE3D9] bg-white rounded-xl shadow-2xs">
       {/* Top Banner with Accent Pattern */}
-      <div className="bg-gradient-to-r from-[#FAF5EE] via-[#FDF9F5] to-[#FAF5EE] border-b border-[#EAE3D9] p-5 sm:p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-start gap-4">
+      <div className="bg-gradient-to-r from-[#FAF5EE] via-[#FDF9F5] to-[#FAF5EE] border-b border-[#EAE3D9] p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 min-w-0">
+          <div className="flex items-start gap-3 sm:gap-4 min-w-0">
             {/* Doctor Avatar / Monogram */}
-            <div className="flex h-14 w-14 sm:h-16 sm:w-16 shrink-0 items-center justify-center rounded-2xl bg-[#DE4F3C] text-white font-serif font-bold text-xl sm:text-2xl shadow-xs">
+            <div className="flex h-12 w-12 sm:h-16 sm:w-16 shrink-0 items-center justify-center rounded-2xl bg-[#DE4F3C] text-white font-serif font-bold text-lg sm:text-2xl shadow-xs">
               RT
             </div>
 
-            <div className="space-y-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <h2 className="font-serif text-xl sm:text-2xl font-bold text-[#201C1A] tracking-tight">
+            <div className="space-y-1 min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2 min-w-0">
+                <h2 className="font-serif text-lg sm:text-2xl font-bold text-[#201C1A] tracking-tight break-words">
                   {profile.fullName}
                 </h2>
-                <Badge variant="success" className="gap-1 text-[11px] font-medium py-0.5 px-2">
+                <Badge variant="success" className="gap-1 text-[11px] font-medium py-0.5 px-2 shrink-0">
                   <BadgeCheck className="h-3 w-3" />
                   Verified Clinician
                 </Badge>
               </div>
 
               {/* Bengali Name */}
-              <p className="font-serif text-sm sm:text-base font-semibold text-[#DE4F3C]">
+              <p className="font-serif text-sm sm:text-base font-semibold text-[#DE4F3C] break-words">
                 {profile.bengaliName}
               </p>
 
               {/* Primary Designation Sub-banner */}
-              <p className="text-xs sm:text-sm font-medium text-[#7A746F]">
+              <p className="text-xs sm:text-sm font-medium text-[#7A746F] break-words">
                 {profile.primaryDesignation}
               </p>
             </div>
           </div>
 
-          <div className="flex sm:flex-col items-start sm:items-end justify-between gap-1.5 text-xs text-[#7A746F]">
-            <span className="font-mono text-[11px] bg-white px-2 py-1 rounded-md border border-[#EAE3D9]">
+          <div className="flex flex-wrap sm:flex-col items-start sm:items-end justify-between gap-1.5 text-xs text-[#7A746F] w-full sm:w-auto min-w-0 shrink-0">
+            <span className="font-mono text-[11px] bg-white px-2 py-1 rounded-md border border-[#EAE3D9] shrink-0">
               ID: {profile.doctorCode}
             </span>
-            <div className="flex items-center gap-1 text-[11px]">
-              <Mail className="h-3 w-3 text-[#7A746F]" />
-              <span className="truncate">{profile.email}</span>
+            <div className="flex items-center gap-1 text-[11px] min-w-0 max-w-full">
+              <Mail className="h-3 w-3 text-[#7A746F] shrink-0" />
+              <span className="break-all sm:break-normal sm:truncate">{profile.email}</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Structured Clinical Credentials Grid */}
-      <div className="p-5 sm:p-6 space-y-4">
+      <div className="p-4 sm:p-6 space-y-4">
         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#7A746F] border-b border-[#EAE3D9]/60 pb-2">
           <ShieldCheck className="h-4 w-4 text-[#DE4F3C]" />
           <span>Official Medical Credentials &amp; Practice Affiliation</span>

@@ -102,7 +102,7 @@ export default function StandaloneConsultationDetailPage({
   return (
     <AdminShell>
       <PageContainer className="space-y-6">
-        <div className="flex items-center justify-between pb-2 border-b border-[#EAE3D9] print:hidden">
+        <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-[#EAE3D9] print:hidden">
           <Link href="/consultations">
             <Button
               variant="outline"
@@ -113,9 +113,9 @@ export default function StandaloneConsultationDetailPage({
               <span>Back to Consultations Registry</span>
             </Button>
           </Link>
-          <div className="flex items-center gap-1.5 text-xs text-[#7A746F]">
-            <Stethoscope className="h-3.5 w-3.5 text-[#DE4F3C]" />
-            <span>Encounter ID: <strong className="font-mono text-[#201C1A]">{consultation.id}</strong></span>
+          <div className="flex items-center gap-1.5 text-xs text-[#7A746F] min-w-0 max-w-full">
+            <Stethoscope className="h-3.5 w-3.5 text-[#DE4F3C] shrink-0" />
+            <span className="truncate">Encounter ID: <strong className="font-mono text-[#201C1A]">{consultation.id}</strong></span>
           </div>
         </div>
 

@@ -33,27 +33,27 @@ export default function SettingsPage() {
           <DoctorProfileCard />
 
           {/* Doctor Achievements & Profile Card */}
-          <Card className="p-5 border border-[#EAE3D9] bg-white rounded-xl shadow-2xs">
+          <Card className="p-4 sm:p-5 border border-[#EAE3D9] bg-white rounded-xl shadow-2xs">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-start gap-3.5">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#FAF5EE] border border-[#EAE3D9] text-[#DE4F3C] shadow-2xs">
+              <div className="flex items-start gap-3 sm:gap-3.5 min-w-0">
+                <div className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl bg-[#FAF5EE] border border-[#EAE3D9] text-[#DE4F3C] shadow-2xs">
                   <Award className="h-5 w-5" />
                 </div>
-                <div>
-                  <h3 className="font-serif text-base font-bold text-[#201C1A]">
+                <div className="min-w-0">
+                  <h3 className="font-serif text-base font-bold text-[#201C1A] break-words">
                     Doctor Lifetime Achievements & Evidence
                   </h3>
-                  <p className="text-xs text-[#7A746F] mt-0.5 max-w-xl">
+                  <p className="text-xs text-[#7A746F] mt-0.5 max-w-xl break-words">
                     Manage Dr. Mohammad Rubaiath Tashfin&apos;s qualifications, clinical certifications, awards, workshops, research publications, and verified Google Drive evidence records.
                   </p>
                 </div>
               </div>
 
-              <Link href="/achievements">
+              <Link href="/achievements" className="w-full sm:w-auto shrink-0">
                 <Button
                   variant="primary"
                   size="sm"
-                  className="gap-1.5 text-xs h-9 shadow-2xs shrink-0"
+                  className="gap-1.5 text-xs h-9 shadow-2xs w-full sm:w-auto shrink-0"
                 >
                   <span>Manage Achievements</span>
                   <ArrowRight className="h-3.5 w-3.5" />

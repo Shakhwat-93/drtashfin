@@ -53,63 +53,62 @@ export function AchievementDetailModal({
   );
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl border border-[#EAE3D9] overflow-hidden">
-        {/* Header */}
-        <ModalHeader className="border-b border-[#FAF5EE] bg-[#FAF8F5] px-6 py-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white border border-[#EAE3D9] text-[#DE4F3C] shadow-2xs">
-                {React.createElement(getCategoryIcon(achievement.category), {
-                  className: "h-5 w-5",
-                })}
-              </div>
-              <div>
-                <div className="flex flex-wrap items-center gap-2 mb-1">
-                  <span
-                    className={cn(
-                      "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border",
-                      badgeClass
-                    )}
-                  >
-                    <span>{achievement.category}</span>
-                  </span>
-                  {!achievement.isPublished && (
-                    <Badge variant="warning" size="sm" className="text-[10px]">
-                      Draft / Hidden
-                    </Badge>
-                  )}
-                  {achievement.expirationDate && (
-                    <Badge
-                      variant={isExpired ? "danger" : "neutral"}
-                      size="sm"
-                      className="text-[10px]"
-                    >
-                      {isExpired
-                        ? "Expired"
-                        : `Valid until ${achievement.expirationDate}`}
-                    </Badge>
-                  )}
-                </div>
-                <ModalTitle className="text-base font-serif font-bold text-[#201C1A]">
-                  {achievement.title}
-                </ModalTitle>
-              </div>
+    <Modal isOpen={isOpen} onClose={onClose} className="max-w-2xl p-0">
+      {/* Header */}
+      <ModalHeader className="border-b border-[#FAF5EE] bg-[#FAF8F5] px-4 sm:px-6 py-4 pr-11">
+        <div className="flex flex-wrap items-start justify-between gap-3 min-w-0">
+          <div className="flex items-start gap-3 min-w-0 flex-1">
+            <div className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl bg-white border border-[#EAE3D9] text-[#DE4F3C] shadow-2xs">
+              {React.createElement(getCategoryIcon(achievement.category), {
+                className: "h-5 w-5",
+              })}
             </div>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => window.print()}
-              className="gap-1.5 text-xs h-8 shrink-0 print:hidden text-[#201C1A]"
-            >
-              <Printer className="h-3.5 w-3.5 text-[#7A746F]" />
-              <span>Print</span>
-            </Button>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1">
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border",
+                    badgeClass
+                  )}
+                >
+                  <span>{achievement.category}</span>
+                </span>
+                {!achievement.isPublished && (
+                  <Badge variant="warning" size="sm" className="text-[10px]">
+                    Draft / Hidden
+                  </Badge>
+                )}
+                {achievement.expirationDate && (
+                  <Badge
+                    variant={isExpired ? "danger" : "neutral"}
+                    size="sm"
+                    className="text-[10px]"
+                  >
+                    {isExpired
+                      ? "Expired"
+                      : `Valid until ${achievement.expirationDate}`}
+                  </Badge>
+                )}
+              </div>
+              <ModalTitle className="text-base font-serif font-bold text-[#201C1A] break-words">
+                {achievement.title}
+              </ModalTitle>
+            </div>
           </div>
-        </ModalHeader>
 
-        <ModalBody className="space-y-4 max-h-[72vh] overflow-y-auto px-6 py-4 text-xs">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => window.print()}
+            className="gap-1.5 text-xs h-8 shrink-0 print:hidden text-[#201C1A]"
+          >
+            <Printer className="h-3.5 w-3.5 text-[#7A746F]" />
+            <span>Print</span>
+          </Button>
+        </div>
+      </ModalHeader>
+
+      <ModalBody className="space-y-4 px-4 sm:px-6 py-4 text-xs">
           {/* Metadata Card */}
           <div className="p-4 rounded-xl bg-[#FAF5EE] border border-[#EAE3D9] grid grid-cols-1 sm:grid-cols-2 gap-3">
             {achievement.institution && (
@@ -184,8 +183,8 @@ export function AchievementDetailModal({
 
           {/* Google Drive Evidence Document */}
           {achievement.driveUrl && (
-            <div className="p-4 rounded-xl border border-emerald-200/90 bg-emerald-50/40 space-y-2.5">
-              <div className="flex items-center justify-between">
+            <div className="p-3.5 sm:p-4 rounded-xl border border-emerald-200/90 bg-emerald-50/40 space-y-2.5">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2 text-xs font-bold text-emerald-950">
                   <FileCheck2 className="h-4 w-4 text-emerald-700 shrink-0" />
                   <span>Verified Google Drive Evidence Document</span>
@@ -209,7 +208,7 @@ export function AchievementDetailModal({
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 text-white hover:bg-emerald-700 transition-colors shadow-2xs"
                 >
                   <span>Open Evidence Document</span>
-                  <ExternalLink className="h-3 w-3" />
+                  <ExternalLink className="h-3 w-3 shrink-0" />
                 </a>
               </div>
 
@@ -224,20 +223,20 @@ export function AchievementDetailModal({
 
           {/* External Publication / Research Link */}
           {achievement.publicationUrl && (
-            <div className="p-4 rounded-xl border border-sky-200/90 bg-sky-50/40 space-y-2">
+            <div className="p-3.5 sm:p-4 rounded-xl border border-sky-200/90 bg-sky-50/40 space-y-2 min-w-0">
               <div className="flex items-center gap-2 text-xs font-bold text-sky-950">
                 <BookOpen className="h-4 w-4 text-sky-700 shrink-0" />
                 <span>External Publication / Research URL</span>
               </div>
 
-              <div className="flex items-center gap-2 pt-1">
+              <div className="flex items-center gap-2 pt-1 min-w-0">
                 <a
                   href={achievement.publicationUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-sky-600 text-white hover:bg-sky-700 transition-colors shadow-2xs"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-sky-600 text-white hover:bg-sky-700 transition-colors shadow-2xs max-w-full min-w-0"
                 >
-                  <span className="truncate max-w-sm">{achievement.publicationUrl}</span>
+                  <span className="truncate min-w-0 flex-1">{achievement.publicationUrl}</span>
                   <ExternalLink className="h-3 w-3 shrink-0" />
                 </a>
               </div>
@@ -259,7 +258,7 @@ export function AchievementDetailModal({
           </div>
         </ModalBody>
 
-        <ModalFooter className="border-t border-[#FAF5EE] bg-[#FAF8F5] px-6 py-3.5 flex items-center justify-between">
+        <ModalFooter className="border-t border-[#FAF5EE] bg-[#FAF8F5] px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-2">
           <div>
             {onDelete && (
               <Button
@@ -277,7 +276,7 @@ export function AchievementDetailModal({
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 ml-auto">
             {onEdit && (
               <Button
                 variant="outline"
@@ -302,7 +301,6 @@ export function AchievementDetailModal({
             </Button>
           </div>
         </ModalFooter>
-      </div>
     </Modal>
   );
 }

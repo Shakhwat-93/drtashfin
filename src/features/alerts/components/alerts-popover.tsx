@@ -107,7 +107,7 @@ export function AlertsPopover({ className }: AlertsPopoverProps) {
 
       {/* Popover Dropdown Panel */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-[340px] sm:w-[420px] rounded-2xl border border-[#EAE3D9] bg-white shadow-[0_12px_36px_rgba(32,28,26,0.14)] z-50 overflow-hidden flex flex-col max-h-[85vh] animate-in fade-in slide-in-from-top-2 duration-150">
+        <div className="fixed left-2 right-2 top-[4.25rem] sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 w-auto sm:w-[420px] max-w-[calc(100vw-1rem)] rounded-2xl border border-[#EAE3D9] bg-white shadow-[0_12px_36px_rgba(32,28,26,0.14)] z-50 overflow-hidden flex flex-col max-h-[82dvh] animate-in fade-in slide-in-from-top-2 duration-150">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-[#EAE3D9] bg-[#FAF5EE]/50">
             <div className="flex items-center gap-2">
@@ -138,7 +138,7 @@ export function AlertsPopover({ className }: AlertsPopoverProps) {
           </div>
 
           {/* Category Tabs */}
-          <div className="flex items-center gap-1 px-3 py-2 border-b border-[#EAE3D9]/60 bg-white overflow-x-auto text-xs">
+          <div className="flex flex-wrap items-center gap-1 px-3 py-2 border-b border-[#EAE3D9]/60 bg-white text-xs">
             <button
               type="button"
               onClick={() => setActiveTab("all")}
@@ -276,7 +276,7 @@ export function AlertsPopover({ className }: AlertsPopoverProps) {
                       {alert.message}
                     </p>
 
-                    <div className="mt-2 flex items-center justify-between text-[11px] pt-1.5 border-t border-[#EAE3D9]/50">
+                    <div className="mt-2 flex flex-wrap items-center justify-between gap-1.5 text-[11px] pt-1.5 border-t border-[#EAE3D9]/50">
                       <div className="flex items-center gap-2 text-[#7A746F]">
                         <span>{formatDisplayDate(alert.scheduledDate, { month: "short", day: "numeric" })}</span>
                         {timeStr && (
@@ -287,7 +287,7 @@ export function AlertsPopover({ className }: AlertsPopoverProps) {
                         )}
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 shrink-0">
                         <Link
                           href={`/patients/${targetPatient}`}
                           onClick={() => setIsOpen(false)}
@@ -312,7 +312,7 @@ export function AlertsPopover({ className }: AlertsPopoverProps) {
           </div>
 
           {/* Footer Calendar Link */}
-          <div className="p-3 border-t border-[#EAE3D9] bg-[#FAF5EE]/70 flex items-center justify-between">
+          <div className="p-3 border-t border-[#EAE3D9] bg-[#FAF5EE]/70 flex flex-wrap items-center justify-between gap-2">
             <span className="text-[11px] text-[#7A746F]">
               Dr. Tashfin Schedule Manager
             </span>

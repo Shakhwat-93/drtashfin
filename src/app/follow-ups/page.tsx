@@ -122,19 +122,19 @@ export default function FollowUpsCalendarPage() {
 
             {/* Calendar View Area */}
             {isLoading ? (
-              <div className="rounded-2xl border border-[#EAE3D9] bg-white p-8 space-y-4 shadow-2xs">
-                <div className="flex items-center justify-between pb-4 border-b border-[#EAE3D9]">
-                  <Skeleton className="h-6 w-48" />
-                  <Skeleton className="h-6 w-32" />
+              <div className="rounded-2xl border border-[#EAE3D9] bg-white p-4 sm:p-8 space-y-4 shadow-2xs">
+                <div className="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-[#EAE3D9]">
+                  <Skeleton className="h-6 w-40 sm:w-48" />
+                  <Skeleton className="h-6 w-24 sm:w-32" />
                 </div>
-                <div className="grid grid-cols-7 gap-2">
+                <div className="grid grid-cols-7 gap-1 sm:gap-2">
                   {Array.from({ length: 35 }).map((_, idx) => (
-                    <Skeleton key={`cal-skel-${idx}`} className="h-24 w-full rounded-xl" />
+                    <Skeleton key={`cal-skel-${idx}`} className="h-12 sm:h-24 w-full rounded-lg sm:rounded-xl" />
                   ))}
                 </div>
               </div>
             ) : error ? (
-              <div className="p-8 text-center rounded-2xl border border-[#F9D0CA] bg-[#FDF0EE] text-[#B02A1A] space-y-2">
+              <div className="p-6 sm:p-8 text-center rounded-2xl border border-[#F9D0CA] bg-[#FDF0EE] text-[#B02A1A] space-y-2">
                 <AlertCircle className="h-6 w-6 mx-auto" />
                 <p className="text-xs font-semibold">{error}</p>
                 <Button variant="outline" size="sm" onClick={() => refresh()}>

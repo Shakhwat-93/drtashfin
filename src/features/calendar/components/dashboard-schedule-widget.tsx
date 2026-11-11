@@ -117,8 +117,8 @@ export function DashboardScheduleWidget() {
   return (
     <Card className="min-w-0 shadow-2xs border-[#EAE3D9]">
       <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-3 gap-2 border-b border-[#EAE3D9]/60">
-        <div className="flex items-center gap-2">
-          <CalendarClock className="h-4 w-4 text-[#DE4F3C]" />
+        <div className="flex flex-wrap items-center gap-2 min-w-0">
+          <CalendarClock className="h-4 w-4 text-[#DE4F3C] shrink-0" />
           <CardTitle>Daily Schedule & Follow-ups</CardTitle>
           {overdueList.length > 0 && (
             <Badge variant="danger" size="sm" className="font-bold text-[10px]">
@@ -129,16 +129,16 @@ export function DashboardScheduleWidget() {
 
         <Link
           href="/follow-ups"
-          className="inline-flex items-center gap-1 text-xs font-semibold text-[#DE4F3C] hover:text-[#B02A1A] transition-colors"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-[#DE4F3C] hover:text-[#B02A1A] transition-colors shrink-0"
         >
           <span>Full Calendar</span>
           <ArrowRight className="h-3.5 w-3.5" />
         </Link>
       </CardHeader>
 
-      <CardContent className="p-4 space-y-3">
+      <CardContent className="p-3 sm:p-4 space-y-3">
         {/* Segmented Filter Pills */}
-        <div className="flex items-center gap-1 p-1 rounded-xl bg-[#FAF5EE] border border-[#EAE3D9] overflow-x-auto text-xs">
+        <div className="flex flex-wrap items-center gap-1 p-1 rounded-xl bg-[#FAF5EE] border border-[#EAE3D9] text-xs">
           <button
             type="button"
             onClick={() => setActiveTab("today")}
@@ -252,7 +252,7 @@ export function DashboardScheduleWidget() {
               return (
                 <div
                   key={item.id}
-                  className={`flex items-start justify-between p-3 rounded-xl border transition-all ${
+                  className={`flex flex-col min-[380px]:flex-row min-[380px]:items-center justify-between gap-2.5 p-3 rounded-xl border transition-all min-w-0 ${
                     isOverdue
                       ? "bg-[#FFF8F7] border-[#F9D0CA]"
                       : item.status === "completed"
@@ -260,13 +260,13 @@ export function DashboardScheduleWidget() {
                       : "bg-[#FAF5EE]/60 border-[#EAE3D9] hover:bg-[#FAF5EE]"
                   }`}
                 >
-                  <div className="space-y-1 min-w-0 flex-1 pr-2">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-serif text-xs font-semibold text-[#201C1A] truncate">
+                  <div className="space-y-1 min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-1.5 min-w-0">
+                      <h4 className="font-serif text-xs font-semibold text-[#201C1A] truncate max-w-full">
                         {item.patientName || item.patientCode}
                       </h4>
                       {item.patientCode && (
-                        <span className="font-mono text-[10px] text-[#7A746F]">
+                        <span className="font-mono text-[10px] text-[#7A746F] shrink-0">
                           {item.patientCode}
                         </span>
                       )}
@@ -274,7 +274,7 @@ export function DashboardScheduleWidget() {
                         <Badge
                           variant={item.priority === "urgent" ? "danger" : "warning"}
                           size="sm"
-                          className="text-[9px] px-1 py-0 uppercase"
+                          className="text-[9px] px-1 py-0 uppercase shrink-0"
                         >
                           {item.priority}
                         </Badge>
@@ -285,13 +285,13 @@ export function DashboardScheduleWidget() {
                       {item.reason}
                     </p>
 
-                    <div className="flex items-center gap-2 pt-0.5 text-[11px] text-[#7A746F]">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 pt-0.5 text-[11px] text-[#7A746F]">
                       <span>{formatDisplayDate(item.scheduledDate, { month: "short", day: "numeric" })}</span>
                       {time && (
                         <>
                           <span>•</span>
                           <div className="flex items-center gap-0.5">
-                            <Clock className="h-3 w-3" />
+                            <Clock className="h-3 w-3 shrink-0" />
                             <span>{time}</span>
                           </div>
                         </>
@@ -299,13 +299,13 @@ export function DashboardScheduleWidget() {
                       {item.chamberName && (
                         <>
                           <span>•</span>
-                          <span>{item.chamberName.replace(" Chamber", "")}</span>
+                          <span className="truncate">{item.chamberName.replace(" Chamber", "")}</span>
                         </>
                       )}
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1 shrink-0 self-center">
+                  <div className="flex flex-wrap items-center gap-1.5 shrink-0 self-start min-[380px]:self-center">
                     <Link
                       href={`/patients/${targetPatient}`}
                       title={`Open file for ${item.patientName || item.patientCode}`}

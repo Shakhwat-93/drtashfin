@@ -76,81 +76,79 @@ export function DischargeAmendmentModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} className="max-w-lg">
-      <div className="w-full">
-        <ModalHeader>
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-xl bg-[#FAF5EE] text-[#DE4F3C] border border-[#EAE3D9]">
-              <History className="h-5 w-5" />
-            </div>
-            <div>
-              <ModalTitle className="text-base font-bold text-[#201C1A]">
-                Clinical Amendment to Finalized Report
-              </ModalTitle>
-              <ModalDescription className="text-xs text-[#7A746F]">
-                Add an auditable clinical correction or post-discharge update.
-              </ModalDescription>
-            </div>
+    <Modal isOpen={isOpen} onClose={onClose} className="max-w-lg p-0">
+      <ModalHeader className="px-4 sm:px-6 pt-4 sm:pt-5 pb-3.5 pr-11 border-b border-[#EAE3D9]">
+        <div className="flex items-start sm:items-center gap-2.5 min-w-0">
+          <div className="p-2 shrink-0 rounded-xl bg-[#FAF5EE] text-[#DE4F3C] border border-[#EAE3D9]">
+            <History className="h-5 w-5" />
           </div>
-        </ModalHeader>
+          <div className="min-w-0">
+            <ModalTitle className="text-base font-bold text-[#201C1A]">
+              Clinical Amendment to Finalized Report
+            </ModalTitle>
+            <ModalDescription className="text-xs text-[#7A746F]">
+              Add an auditable clinical correction or post-discharge update.
+            </ModalDescription>
+          </div>
+        </div>
+      </ModalHeader>
 
-        <form onSubmit={handleSubmit}>
-          <ModalBody className="space-y-3.5 px-6 py-4 text-xs">
-            {error && (
-              <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
-                <AlertCircle className="h-4 w-4 shrink-0" />
-                <span>{error}</span>
-              </div>
-            )}
-
-            <div className="p-3 rounded-xl bg-amber-50/70 border border-amber-200/80 text-amber-900 space-y-1">
-              <div className="flex items-center gap-1.5 font-bold">
-                <ShieldCheck className="h-4 w-4 text-amber-700" />
-                <span>Immutable Finalized Report Protection</span>
-              </div>
-              <p className="text-[11px] leading-relaxed">
-                The original finalized report for <strong>{discharge.dischargeDate}</strong> cannot be altered or deleted. Your amendment will be recorded with your clinician credentials and a permanent audit timestamp.
-              </p>
+      <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+        <ModalBody className="space-y-3.5 px-4 sm:px-6 py-4 text-xs">
+          {error && (
+            <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              <span>{error}</span>
             </div>
+          )}
 
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-[#201C1A]">
-                Amendment Details & Clinical Rationale <span className="text-rose-500">*</span>
-              </label>
-              <Textarea
-                required
-                rows={4}
-                placeholder="e.g. Histopathology report received post-discharge confirming benign pathology; wound culture sensitivity added; medication dosage adjusted..."
-                value={amendmentNotes}
-                onChange={(e) => setAmendmentNotes(e.target.value)}
-                className="text-xs resize-none"
-              />
+          <div className="p-3 rounded-xl bg-amber-50/70 border border-amber-200/80 text-amber-900 space-y-1">
+            <div className="flex items-center gap-1.5 font-bold">
+              <ShieldCheck className="h-4 w-4 text-amber-700 shrink-0" />
+              <span>Immutable Finalized Report Protection</span>
             </div>
-          </ModalBody>
+            <p className="text-[11px] leading-relaxed">
+              The original finalized report for <strong>{discharge.dischargeDate}</strong> cannot be altered or deleted. Your amendment will be recorded with your clinician credentials and a permanent audit timestamp.
+            </p>
+          </div>
 
-          <ModalFooter className="flex items-center justify-between px-6 py-3 border-t border-[#EAE3D9]">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={onClose}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              size="sm"
-              disabled={isSubmitting}
-              className="gap-1.5"
-            >
-              <History className="h-3.5 w-3.5" />
-              <span>{isSubmitting ? "Saving..." : "Record Amendment"}</span>
-            </Button>
-          </ModalFooter>
-        </form>
-      </div>
+          <div className="space-y-1">
+            <label className="text-xs font-semibold text-[#201C1A]">
+              Amendment Details & Clinical Rationale <span className="text-rose-500">*</span>
+            </label>
+            <Textarea
+              required
+              rows={4}
+              placeholder="e.g. Histopathology report received post-discharge confirming benign pathology; wound culture sensitivity added; medication dosage adjusted..."
+              value={amendmentNotes}
+              onChange={(e) => setAmendmentNotes(e.target.value)}
+              className="text-xs resize-none"
+            />
+          </div>
+        </ModalBody>
+
+        <ModalFooter className="flex flex-wrap items-center justify-between gap-2 px-4 sm:px-6 py-3 border-t border-[#EAE3D9]">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onClose}
+            disabled={isSubmitting}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            variant="primary"
+            size="sm"
+            disabled={isSubmitting}
+            className="gap-1.5"
+          >
+            <History className="h-3.5 w-3.5" />
+            <span>{isSubmitting ? "Saving..." : "Record Amendment"}</span>
+          </Button>
+        </ModalFooter>
+      </form>
     </Modal>
   );
 }

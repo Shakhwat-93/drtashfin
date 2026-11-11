@@ -77,7 +77,7 @@ export function TestSmsModal({ isOpen, onClose, onSuccess }: TestSmsModalProps) 
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} className="max-w-md">
-      <form onSubmit={handleSendTest}>
+      <form onSubmit={handleSendTest} className="flex flex-col flex-1 min-h-0">
         <ModalHeader>
           <div className="flex items-center gap-2 text-[#DE4F3C] mb-1">
             <Smartphone className="h-4 w-4" />

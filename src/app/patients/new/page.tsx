@@ -169,10 +169,10 @@ export default function NewPatientPage() {
             </Link>
           </div>
 
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#EAE3D9] bg-white text-xs">
-            <Building2 className="h-3.5 w-3.5 text-[#DE4F3C]" />
+          <div className="flex flex-wrap items-center gap-2 px-3 py-1.5 rounded-lg border border-[#EAE3D9] bg-white text-xs max-w-full">
+            <Building2 className="h-3.5 w-3.5 text-[#DE4F3C] shrink-0" />
             <span className="text-[#7A746F]">Registering for:</span>
-            <span className="font-semibold text-[#201C1A]">{activeChamber.name}</span>
+            <span className="font-semibold text-[#201C1A] break-words">{activeChamber.name}</span>
             <Badge variant="neutral" className="font-mono text-[10px]">
               {activeChamber.patientIdPrefix}
             </Badge>
@@ -180,7 +180,7 @@ export default function NewPatientPage() {
         </div>
 
         {/* Form Container Card */}
-        <Card className="border border-[#EAE3D9] bg-white shadow-xs p-6">
+        <Card className="border border-[#EAE3D9] bg-white shadow-xs p-3.5 sm:p-6">
           <PatientForm
             mode="create"
             nextPatientId={nextPatientId}

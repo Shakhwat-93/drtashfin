@@ -73,9 +73,9 @@ export function ReportsTable({
   isLoading,
 }: ReportsTableProps) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 min-w-0">
       {/* Tab Navigation Pill Bar */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 border-b border-[#EAE3D9] print:hidden">
+      <div className="flex flex-wrap items-center gap-1.5 pb-2 border-b border-[#EAE3D9] print:hidden">
         {REPORT_TABS.map((tab) => {
           const Icon = tab.icon;
           const active = activeTab === tab.id || (tab.id === "diagnostics-procedures" && activeTab === "diagnostic-procedures");
@@ -84,13 +84,13 @@ export function ReportsTable({
               key={tab.id}
               type="button"
               onClick={() => onTabChange(tab.id)}
-              className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-lg whitespace-nowrap transition-all ${
+              className={`flex items-center gap-1.5 sm:gap-2 px-2.5 py-1.5 sm:px-3.5 sm:py-2 text-[11px] sm:text-xs font-semibold rounded-lg whitespace-nowrap transition-all ${
                 active
                   ? "bg-[#201C1A] text-white shadow-xs"
                   : "text-[#7A746F] hover:text-[#201C1A] hover:bg-[#FAF5EE]"
               }`}
             >
-              <Icon className="h-3.5 w-3.5" />
+              <Icon className="h-3.5 w-3.5 shrink-0" />
               <span>{tab.label}</span>
             </button>
           );
@@ -98,7 +98,7 @@ export function ReportsTable({
       </div>
 
       {/* Summary Header */}
-      <div className="flex items-center justify-between text-xs px-1">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-xs px-1">
         <span className="text-[#7A746F]">
           Showing{" "}
           <strong className="text-[#201C1A]">
@@ -122,7 +122,7 @@ export function ReportsTable({
             {isLoading ? (
               [...Array(5)].map((_, i) => (
                 <TableRow key={i}>
-                  <TableCell colSpan={8} className="py-4">
+                  <TableCell colSpan={8} className="block md:table-cell py-3 md:py-4">
                     <Skeleton className="h-5 w-full" />
                   </TableCell>
                 </TableRow>
@@ -131,9 +131,11 @@ export function ReportsTable({
               <TableRow>
                 <TableCell
                   colSpan={8}
-                  className="py-12 text-center text-xs text-[#7A746F]"
+                  className="block md:table-cell py-8 md:py-12 text-center text-xs text-[#7A746F]"
                 >
-                  No records match the selected filter criteria.
+                  <div className="w-full text-center">
+                    No records match the selected filter criteria.
+                  </div>
                 </TableCell>
               </TableRow>
             ) : (
@@ -145,7 +147,7 @@ export function ReportsTable({
 
       {/* Pagination Controls */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between pt-2 print:hidden">
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-2 print:hidden">
           <Button
             type="button"
             variant="outline"
@@ -271,24 +273,30 @@ function renderTableRow(type: ReportType, row: any, idx: number) {
       const r = row as PatientActivityReportRow;
       return (
         <TableRow key={r.id || idx} className="hover:bg-[#FAF5EE]/40 text-xs">
-          <TableCell className="font-mono font-medium text-[#201C1A]">
+          <TableCell label="Patient ID" className="font-mono font-medium text-[#201C1A]">
             <Link
               href={`/patients/${r.id}`}
-              className="text-[#DE4F3C] hover:underline flex items-center gap-1"
+              className="text-[#DE4F3C] hover:underline inline-flex items-center justify-end md:justify-start gap-1"
             >
               {r.patientId}
-              <ExternalLink className="h-3 w-3" />
+              <ExternalLink className="h-3 w-3 shrink-0" />
             </Link>
           </TableCell>
-          <TableCell className="font-medium text-[#201C1A]">{r.name}</TableCell>
-          <TableCell className="font-mono text-[#7A746F]">{r.phone}</TableCell>
-          <TableCell>
+          <TableCell label="Patient Name" className="font-medium text-[#201C1A]">
+            {r.name}
+          </TableCell>
+          <TableCell label="Phone" className="font-mono text-[#7A746F]">
+            {r.phone}
+          </TableCell>
+          <TableCell label="Chamber">
             <Badge variant="neutral" className="text-[10px]">
               {r.chamberName}
             </Badge>
           </TableCell>
-          <TableCell>{r.bloodGroup}</TableCell>
-          <TableCell className="text-[#7A746F]">{r.registeredDate}</TableCell>
+          <TableCell label="Blood Group">{r.bloodGroup}</TableCell>
+          <TableCell label="Registered Date" className="text-[#7A746F]">
+            {r.registeredDate}
+          </TableCell>
         </TableRow>
       );
     }
@@ -297,19 +305,19 @@ function renderTableRow(type: ReportType, row: any, idx: number) {
       const patientIdentifier = r.patientCode || r.patientId;
       return (
         <TableRow key={r.id || idx} className="hover:bg-[#FAF5EE]/40 text-xs">
-          <TableCell className="font-mono text-[#201C1A] whitespace-nowrap">
+          <TableCell label="Date" className="font-mono text-[#201C1A] md:whitespace-nowrap">
             {r.consultationDate}
           </TableCell>
-          <TableCell className="font-mono font-medium">
+          <TableCell label="Patient ID" className="font-mono font-medium">
             <Link
               href={`/patients/${patientIdentifier}`}
-              className="text-[#DE4F3C] hover:underline inline-flex items-center gap-1"
+              className="text-[#DE4F3C] hover:underline inline-flex items-center justify-end md:justify-start gap-1"
             >
               {r.patientCode || r.patientId}
-              <ExternalLink className="h-3 w-3" />
+              <ExternalLink className="h-3 w-3 shrink-0" />
             </Link>
           </TableCell>
-          <TableCell className="font-medium text-[#201C1A]">
+          <TableCell label="Patient Name" className="font-medium text-[#201C1A]">
             <Link
               href={`/patients/${patientIdentifier}`}
               className="hover:underline"
@@ -317,19 +325,27 @@ function renderTableRow(type: ReportType, row: any, idx: number) {
               {r.patientName}
             </Link>
           </TableCell>
-          <TableCell>
+          <TableCell label="Chamber">
             <Badge variant="neutral" className="text-[10px]">
               {r.chamberName}
             </Badge>
           </TableCell>
-          <TableCell className="max-w-[200px] truncate text-[#201C1A]" title={r.diagnosis ?? ""}>
+          <TableCell
+            label="Diagnosis"
+            className="md:max-w-[200px] md:truncate break-words text-[#201C1A]"
+            title={r.diagnosis ?? ""}
+          >
             {r.diagnosis || <span className="text-[#A8A29E]">—</span>}
           </TableCell>
-          <TableCell className="max-w-[200px] truncate text-[#7A746F]" title={r.chiefComplaint ?? ""}>
+          <TableCell
+            label="Chief Complaint"
+            className="md:max-w-[200px] md:truncate break-words text-[#7A746F]"
+            title={r.chiefComplaint ?? ""}
+          >
             {r.chiefComplaint || <span className="text-[#A8A29E]">—</span>}
           </TableCell>
-          <TableCell className="text-right whitespace-nowrap print:hidden">
-            <div className="flex items-center justify-end gap-1.5">
+          <TableCell label="Actions" isAction className="text-right md:whitespace-nowrap print:hidden">
+            <div className="flex flex-wrap items-center justify-end gap-1.5">
               <Link href={`/consultations/${r.id}`}>
                 <Button
                   variant="outline"
@@ -361,25 +377,33 @@ function renderTableRow(type: ReportType, row: any, idx: number) {
       const r = row as PrescriptionReportRow;
       return (
         <TableRow key={r.id || idx} className="hover:bg-[#FAF5EE]/40 text-xs">
-          <TableCell className="font-mono font-medium text-[#DE4F3C]">
+          <TableCell label="Rx Code" className="font-mono font-medium text-[#DE4F3C]">
             <Link
               href={`/prescriptions/${r.id}`}
-              className="hover:underline flex items-center gap-1"
+              className="hover:underline inline-flex items-center justify-end md:justify-start gap-1"
             >
               {r.prescriptionCode}
-              <ExternalLink className="h-3 w-3" />
+              <ExternalLink className="h-3 w-3 shrink-0" />
             </Link>
           </TableCell>
-          <TableCell className="font-mono text-[#201C1A]">{r.prescriptionDate}</TableCell>
-          <TableCell className="font-mono text-[#7A746F]">{r.patientCode}</TableCell>
-          <TableCell className="font-medium text-[#201C1A]">{r.patientName}</TableCell>
-          <TableCell>
+          <TableCell label="Date" className="font-mono text-[#201C1A]">
+            {r.prescriptionDate}
+          </TableCell>
+          <TableCell label="Patient ID" className="font-mono text-[#7A746F]">
+            {r.patientCode}
+          </TableCell>
+          <TableCell label="Patient Name" className="font-medium text-[#201C1A]">
+            {r.patientName}
+          </TableCell>
+          <TableCell label="Chamber">
             <Badge variant="neutral" className="text-[10px]">
               {r.chamberName}
             </Badge>
           </TableCell>
-          <TableCell className="text-center font-bold">{r.itemsCount}</TableCell>
-          <TableCell>
+          <TableCell label="Medicines" className="md:text-center font-bold">
+            {r.itemsCount}
+          </TableCell>
+          <TableCell label="Status">
             <Badge
               variant={r.status === "finalized" ? "success" : "warning"}
               className="text-[10px]"
@@ -407,19 +431,19 @@ function renderTableRow(type: ReportType, row: any, idx: number) {
 
       return (
         <TableRow key={r.id || idx} className="hover:bg-[#FAF5EE]/40 text-xs">
-          <TableCell className="font-mono font-semibold text-[#201C1A]">
+          <TableCell label="Scheduled Date" className="font-mono font-semibold text-[#201C1A]">
             {r.scheduledDate}
           </TableCell>
-          <TableCell className="font-mono font-medium">
+          <TableCell label="Patient ID" className="font-mono font-medium">
             <Link
               href={`/patients/${r.patientCode || r.patientId}`}
-              className="text-[#DE4F3C] hover:underline inline-flex items-center gap-1"
+              className="text-[#DE4F3C] hover:underline inline-flex items-center justify-end md:justify-start gap-1"
             >
               {r.patientCode}
-              <ExternalLink className="h-3 w-3" />
+              <ExternalLink className="h-3 w-3 shrink-0" />
             </Link>
           </TableCell>
-          <TableCell className="font-medium text-[#201C1A]">
+          <TableCell label="Patient Name" className="font-medium text-[#201C1A]">
             <Link
               href={`/patients/${r.patientCode || r.patientId}`}
               className="hover:underline"
@@ -427,15 +451,15 @@ function renderTableRow(type: ReportType, row: any, idx: number) {
               {r.patientName}
             </Link>
           </TableCell>
-          <TableCell>
+          <TableCell label="Chamber">
             <Badge variant="neutral" className="text-[10px]">
               {r.chamberName}
             </Badge>
           </TableCell>
-          <TableCell className="max-w-[200px] truncate text-[#7A746F]">
+          <TableCell label="Reason" className="md:max-w-[200px] md:truncate break-words text-[#7A746F]">
             {r.reason ?? "Routine follow-up"}
           </TableCell>
-          <TableCell>{getStatusBadge(r.status)}</TableCell>
+          <TableCell label="Status">{getStatusBadge(r.status)}</TableCell>
         </TableRow>
       );
     }
@@ -444,7 +468,7 @@ function renderTableRow(type: ReportType, row: any, idx: number) {
       const r = row as DiagnosticProcedureReportRow;
       return (
         <TableRow key={r.id || idx} className="hover:bg-[#FAF5EE]/40 text-xs">
-          <TableCell>
+          <TableCell label="Type">
             <Badge
               variant={r.itemType === "diagnostic" ? "neutral" : "info"}
               className="text-[10px]"
@@ -452,12 +476,16 @@ function renderTableRow(type: ReportType, row: any, idx: number) {
               {r.itemType === "diagnostic" ? "Diagnostic" : "Procedure"}
             </Badge>
           </TableCell>
-          <TableCell className="font-mono text-[#201C1A]">{r.activityDate}</TableCell>
-          <TableCell className="font-semibold text-[#201C1A] max-w-[180px] truncate">
+          <TableCell label="Date" className="font-mono text-[#201C1A]">
+            {r.activityDate}
+          </TableCell>
+          <TableCell label="Title / Name" className="font-semibold text-[#201C1A] md:max-w-[180px] md:truncate break-words">
             {r.title}
           </TableCell>
-          <TableCell className="text-[#7A746F]">{r.category}</TableCell>
-          <TableCell>
+          <TableCell label="Category" className="text-[#7A746F]">
+            {r.category}
+          </TableCell>
+          <TableCell label="Patient">
             <Link
               href={`/patients/${r.patientCode || r.patientId}`}
               className="hover:underline block"
@@ -465,20 +493,20 @@ function renderTableRow(type: ReportType, row: any, idx: number) {
               <div className="font-medium text-[#201C1A]">{r.patientName}</div>
               <div className="font-mono text-[11px] text-[#DE4F3C] inline-flex items-center gap-1">
                 {r.patientCode}
-                <ExternalLink className="h-2.5 w-2.5" />
+                <ExternalLink className="h-2.5 w-2.5 shrink-0" />
               </div>
             </Link>
           </TableCell>
-          <TableCell>
+          <TableCell label="Evidence">
             {r.driveUrl ? (
               <a
                 href={r.driveUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="text-[#DE4F3C] hover:underline flex items-center gap-1 font-medium"
+                className="text-[#DE4F3C] hover:underline inline-flex items-center justify-end md:justify-start gap-1 font-medium"
               >
                 Drive Link
-                <ExternalLink className="h-3 w-3" />
+                <ExternalLink className="h-3 w-3 shrink-0" />
               </a>
             ) : (
               <span className="text-[#7A746F]">None</span>
@@ -491,19 +519,19 @@ function renderTableRow(type: ReportType, row: any, idx: number) {
       const r = row as DischargeReportRow;
       return (
         <TableRow key={r.id || idx} className="hover:bg-[#FAF5EE]/40 text-xs">
-          <TableCell className="font-mono font-medium text-[#201C1A]">
+          <TableCell label="Discharge Date" className="font-mono font-medium text-[#201C1A]">
             {r.dischargeDate}
           </TableCell>
-          <TableCell className="font-mono font-medium">
+          <TableCell label="Patient ID" className="font-mono font-medium">
             <Link
               href={`/patients/${r.patientCode || r.patientId}`}
-              className="text-[#DE4F3C] hover:underline inline-flex items-center gap-1"
+              className="text-[#DE4F3C] hover:underline inline-flex items-center justify-end md:justify-start gap-1"
             >
               {r.patientCode}
-              <ExternalLink className="h-3 w-3" />
+              <ExternalLink className="h-3 w-3 shrink-0" />
             </Link>
           </TableCell>
-          <TableCell className="font-medium text-[#201C1A]">
+          <TableCell label="Patient Name" className="font-medium text-[#201C1A]">
             <Link
               href={`/patients/${r.patientCode || r.patientId}`}
               className="hover:underline"
@@ -511,11 +539,13 @@ function renderTableRow(type: ReportType, row: any, idx: number) {
               {r.patientName}
             </Link>
           </TableCell>
-          <TableCell className="text-[#7A746F]">{r.conditionAtDischarge}</TableCell>
-          <TableCell className="max-w-[200px] truncate text-[#201C1A]">
+          <TableCell label="Condition" className="text-[#7A746F]">
+            {r.conditionAtDischarge}
+          </TableCell>
+          <TableCell label="Final Diagnosis" className="md:max-w-[200px] md:truncate break-words text-[#201C1A]">
             {r.finalDiagnosis}
           </TableCell>
-          <TableCell>
+          <TableCell label="Status">
             <Badge
               variant={r.status === "finalized" ? "success" : "warning"}
               className="text-[10px]"
@@ -545,8 +575,10 @@ function renderTableRow(type: ReportType, row: any, idx: number) {
 
       return (
         <TableRow key={r.id || idx} className="hover:bg-[#FAF5EE]/40 text-xs">
-          <TableCell className="font-mono text-[#7A746F]">{r.createdAt.slice(0, 16)}</TableCell>
-          <TableCell>
+          <TableCell label="Created" className="font-mono text-[#7A746F]">
+            {r.createdAt.slice(0, 16)}
+          </TableCell>
+          <TableCell label="Patient">
             <Link
               href={`/patients/${r.patientCode || r.patientId}`}
               className="hover:underline block"
@@ -554,13 +586,17 @@ function renderTableRow(type: ReportType, row: any, idx: number) {
               <div className="font-medium text-[#201C1A]">{r.patientName}</div>
               <div className="font-mono text-[11px] text-[#DE4F3C] inline-flex items-center gap-1">
                 {r.patientCode}
-                <ExternalLink className="h-2.5 w-2.5" />
+                <ExternalLink className="h-2.5 w-2.5 shrink-0" />
               </div>
             </Link>
           </TableCell>
-          <TableCell className="font-mono text-[#201C1A]">{r.recipientPhoneMasked}</TableCell>
-          <TableCell className="font-mono text-[#201C1A]">{r.scheduledFor}</TableCell>
-          <TableCell>{getSmsBadge(r.deliveryStatus)}</TableCell>
+          <TableCell label="Phone" className="font-mono text-[#201C1A]">
+            {r.recipientPhoneMasked}
+          </TableCell>
+          <TableCell label="Scheduled For" className="font-mono text-[#201C1A]">
+            {r.scheduledFor}
+          </TableCell>
+          <TableCell label="Delivery Status">{getSmsBadge(r.deliveryStatus)}</TableCell>
         </TableRow>
       );
     }

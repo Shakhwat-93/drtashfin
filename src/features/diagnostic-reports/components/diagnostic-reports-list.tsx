@@ -122,8 +122,8 @@ export function DiagnosticReportsList({
   if (isLoading) {
     return (
       <div className={cn("space-y-4", className)}>
-        <div className="flex justify-between items-center">
-          <Skeleton className="h-6 w-48" />
+        <div className="flex flex-wrap justify-between items-center gap-2">
+          <Skeleton className="h-6 w-48 max-w-full" />
           <Skeleton className="h-9 w-32" />
         </div>
         <Skeleton className="h-28 w-full rounded-2xl" />
@@ -153,7 +153,7 @@ export function DiagnosticReportsList({
         <Button
           variant="primary"
           size="sm"
-          className="gap-1.5 h-8 text-xs font-medium shrink-0"
+          className="gap-1.5 h-8 text-xs font-medium shrink-0 self-start sm:self-auto"
           onClick={handleOpenAddModal}
         >
           <Plus className="h-3.5 w-3.5" />
@@ -163,23 +163,23 @@ export function DiagnosticReportsList({
 
       {/* Success Notification */}
       {deleteSuccessMsg && (
-        <div className="flex items-center gap-2 p-3 rounded-xl border border-emerald-200 bg-emerald-50 text-xs text-emerald-900 animate-in fade-in">
-          <Check className="h-4 w-4 shrink-0 text-emerald-600" />
-          <span>{deleteSuccessMsg}</span>
+        <div className="flex items-start gap-2 p-3 rounded-xl border border-emerald-200 bg-emerald-50 text-xs text-emerald-900 animate-in fade-in">
+          <Check className="h-4 w-4 shrink-0 text-emerald-600 mt-0.5" />
+          <span className="min-w-0 break-words">{deleteSuccessMsg}</span>
         </div>
       )}
 
       {/* Error Message */}
       {error && (
-        <div className="flex items-center gap-2 p-3 rounded-xl border border-rose-200 bg-rose-50 text-xs text-rose-800">
-          <AlertTriangle className="h-4 w-4 shrink-0 text-rose-600" />
-          <span>{error}</span>
+        <div className="flex items-start gap-2 p-3 rounded-xl border border-rose-200 bg-rose-50 text-xs text-rose-800">
+          <AlertTriangle className="h-4 w-4 shrink-0 text-rose-600 mt-0.5" />
+          <span className="min-w-0 break-words">{error}</span>
         </div>
       )}
 
       {/* Category Filter Pills (if reports exist) */}
       {reports.length > 0 && (
-        <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+        <div className="flex flex-wrap items-center gap-1.5 pb-1 text-xs">
           <button
             type="button"
             onClick={() => setSelectedCategory("all")}
@@ -259,7 +259,7 @@ export function DiagnosticReportsList({
             return (
               <Card
                 key={report.id}
-                className="border border-[#EAE3D9] bg-white p-4.5 sm:p-5 shadow-xs hover:border-[#DE4F3C]/30 transition-all rounded-xl"
+                className="border border-[#EAE3D9] bg-white p-3.5 sm:p-5 shadow-xs hover:border-[#DE4F3C]/30 transition-all rounded-xl"
               >
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                   {/* Left Column: Report Details */}
@@ -274,22 +274,22 @@ export function DiagnosticReportsList({
                       </Badge>
 
                       <div className="flex items-center gap-1.5 text-xs text-[#7A746F]">
-                        <Calendar className="h-3.5 w-3.5 text-[#DE4F3C]" />
+                        <Calendar className="h-3.5 w-3.5 text-[#DE4F3C] shrink-0" />
                         <span className="font-medium text-[#201C1A]">
                           {formattedDate}
                         </span>
                       </div>
 
                       {report.diagnosticCenter && (
-                        <div className="flex items-center gap-1.5 text-xs text-[#7A746F]">
-                          <Building className="h-3.5 w-3.5 text-[#7A746F]" />
-                          <span>{report.diagnosticCenter}</span>
+                        <div className="flex items-center gap-1.5 text-xs text-[#7A746F] min-w-0">
+                          <Building className="h-3.5 w-3.5 text-[#7A746F] shrink-0" />
+                          <span className="break-words">{report.diagnosticCenter}</span>
                         </div>
                       )}
                     </div>
 
                     {/* Test Name */}
-                    <h4 className="font-serif text-base font-bold text-[#201C1A] tracking-tight">
+                    <h4 className="font-serif text-base font-bold text-[#201C1A] tracking-tight break-words">
                       {report.testName}
                     </h4>
 
@@ -299,15 +299,15 @@ export function DiagnosticReportsList({
                         <span className="text-[11px] font-bold uppercase tracking-wider text-[#7A746F] block mb-0.5">
                           Doctor&apos;s Notes:
                         </span>
-                        <p className="whitespace-pre-wrap">{report.doctorNotes}</p>
+                        <p className="whitespace-pre-wrap break-words">{report.doctorNotes}</p>
                       </div>
                     )}
 
                     {/* Consultation Link Reference */}
                     {report.consultationId && (
-                      <div className="flex items-center gap-1.5 text-xs text-[#7A746F] pt-0.5">
-                        <FileText className="h-3.5 w-3.5 text-[#DE4F3C]" />
-                        <span>
+                      <div className="flex items-start gap-1.5 text-xs text-[#7A746F] pt-0.5">
+                        <FileText className="h-3.5 w-3.5 text-[#DE4F3C] shrink-0 mt-0.5" />
+                        <span className="min-w-0 break-words">
                           Linked to Consultation:{" "}
                           <Link
                             href={`/patients/${patient.patientId}/consultations/${report.consultationId}`}
@@ -321,17 +321,17 @@ export function DiagnosticReportsList({
                   </div>
 
                   {/* Right Column: Actions */}
-                  <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2.5 shrink-0 border-t sm:border-t-0 border-[#EAE3D9]/60 pt-3 sm:pt-0">
+                  <div className="flex flex-wrap sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2.5 shrink-0 border-t sm:border-t-0 border-[#EAE3D9]/60 pt-3 sm:pt-0">
                     {/* Open Google Drive Link */}
                     {report.driveUrl ? (
                       <a
                         href={report.driveUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#FAF5EE] text-[#DE4F3C] border border-[#EAE3D9] hover:bg-[#DE4F3C] hover:text-white transition-colors shadow-2xs group"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#FAF5EE] text-[#DE4F3C] border border-[#EAE3D9] hover:bg-[#DE4F3C] hover:text-white transition-colors shadow-2xs group max-w-full"
                       >
                         <span>Open Google Drive Report</span>
-                        <ExternalLink className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+                        <ExternalLink className="h-3.5 w-3.5 shrink-0 group-hover:translate-x-0.5 transition-transform" />
                       </a>
                     ) : (
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] text-[#7A746F] bg-[#FAF5EE]/60 border border-[#EAE3D9]/60">
@@ -340,7 +340,7 @@ export function DiagnosticReportsList({
                     )}
 
                     {/* Edit and Delete Actions */}
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex flex-wrap items-center gap-1.5">
                       <Button
                         variant="ghost"
                         size="sm"

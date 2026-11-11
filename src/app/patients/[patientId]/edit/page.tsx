@@ -112,7 +112,7 @@ export default function EditPatientPage({
         </div>
 
         {/* Edit Form Container */}
-        <Card className="border border-[#EAE3D9] bg-white shadow-xs p-6">
+        <Card className="border border-[#EAE3D9] bg-white shadow-xs p-3.5 sm:p-6">
           <PatientForm
             mode="edit"
             initialData={patient}

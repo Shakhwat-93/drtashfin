@@ -606,20 +606,20 @@ export function PatientForm({
 
       {/* Duplicate Alert (Non-blocking warning with link) */}
       {duplicateWarning && (
-        <div className="flex items-start gap-3 rounded-xl border border-amber-300 bg-amber-50/90 p-4 text-xs text-amber-900 shadow-xs">
+        <div className="flex items-start gap-3 rounded-xl border border-amber-300 bg-amber-50/90 p-3.5 sm:p-4 text-xs text-amber-900 shadow-xs">
           <AlertCircle className="h-5 w-5 shrink-0 text-amber-600 mt-0.5" />
-          <div className="space-y-1.5 flex-1">
-            <div className="font-bold flex items-center justify-between">
+          <div className="space-y-1.5 flex-1 min-w-0">
+            <div className="font-bold flex flex-wrap items-center justify-between gap-2">
               <span>Possible Matching Patient Record Detected</span>
               <Link
                 href={`/patients/${duplicateWarning.patientId}`}
                 target="_blank"
-                className="text-xs text-[#DE4F3C] font-semibold hover:underline inline-flex items-center gap-1"
+                className="text-xs text-[#DE4F3C] font-semibold hover:underline inline-flex items-center gap-1 shrink-0"
               >
                 Inspect Existing File &rarr;
               </Link>
             </div>
-            <p className="leading-relaxed text-[#7A746F]">
+            <p className="leading-relaxed text-[#7A746F] break-words">
               A profile already exists for{" "}
               <strong className="text-[#201C1A]">
                 {duplicateWarning.name}
@@ -643,7 +643,7 @@ export function PatientForm({
 
       {/* Form Error Banner */}
       {errors.form && (
-        <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs text-rose-800 font-medium">
+        <div className="rounded-xl border border-rose-200 bg-rose-50 p-3.5 sm:p-4 text-xs text-rose-800 font-medium break-words">
           {errors.form}
         </div>
       )}
@@ -651,7 +651,7 @@ export function PatientForm({
       {/* ====================================================================== */}
       {/* SECTION A: PATIENT IDENTITY & FAMILY */}
       {/* ====================================================================== */}
-      <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF5EE]/30 p-5 space-y-5">
+      <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF5EE]/30 p-3.5 sm:p-5 space-y-5">
         <div className="flex items-center gap-2 border-b border-[#EAE3D9] pb-3">
           <User className="h-4 w-4 text-[#DE4F3C]" />
           <h4 className="font-serif text-sm font-bold text-[#201C1A] uppercase tracking-wide">
@@ -876,7 +876,7 @@ export function PatientForm({
       {/* ====================================================================== */}
       {/* SECTION B: CONTACT & EMERGENCY INFORMATION */}
       {/* ====================================================================== */}
-      <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF5EE]/30 p-5 space-y-5">
+      <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF5EE]/30 p-3.5 sm:p-5 space-y-5">
         <div className="flex items-center gap-2 border-b border-[#EAE3D9] pb-3">
           <Phone className="h-4 w-4 text-[#DE4F3C]" />
           <h4 className="font-serif text-sm font-bold text-[#201C1A] uppercase tracking-wide">
@@ -961,10 +961,10 @@ export function PatientForm({
           </div>
 
           {/* SMS Follow-up Reminder Consent */}
-          <div className="sm:col-span-2 rounded-lg border border-[#EAE3D9] bg-white p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <MessageSquare className="h-4 w-4 text-[#DE4F3C]" />
+          <div className="sm:col-span-2 rounded-lg border border-[#EAE3D9] bg-white p-3.5 sm:p-4 space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <MessageSquare className="h-4 w-4 text-[#DE4F3C] shrink-0" />
                 <label className="text-xs font-bold text-[#201C1A]">
                   SMS Follow-up Reminder Consent
                 </label>
@@ -1064,7 +1064,7 @@ export function PatientForm({
 
           {/* Permanent Address */}
           <div className="sm:col-span-2">
-            <div className="flex items-center justify-between mb-1">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
               <label className="text-xs font-semibold text-[#201C1A]">
                 Permanent Address
               </label>
@@ -1170,7 +1170,7 @@ export function PatientForm({
       {/* ====================================================================== */}
       {/* SECTION C: ADDITIONAL CLINICAL & SOCIAL INFORMATION */}
       {/* ====================================================================== */}
-      <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF5EE]/30 p-5 space-y-5">
+      <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF5EE]/30 p-3.5 sm:p-5 space-y-5">
         <div className="flex items-center gap-2 border-b border-[#EAE3D9] pb-3">
           <Activity className="h-4 w-4 text-[#DE4F3C]" />
           <h4 className="font-serif text-sm font-bold text-[#201C1A] uppercase tracking-wide">
@@ -1355,10 +1355,10 @@ export function PatientForm({
       {/* SECTION D: FOLLOW-UP SCHEDULING (REGISTRATION WORKFLOW) */}
       {/* ====================================================================== */}
       {mode === "create" && (
-        <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF5EE]/30 p-5 space-y-4">
-          <div className="flex items-center justify-between border-b border-[#EAE3D9] pb-3">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-[#DE4F3C]" />
+        <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF5EE]/30 p-3.5 sm:p-5 space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#EAE3D9] pb-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <Calendar className="h-4 w-4 text-[#DE4F3C] shrink-0" />
               <h4 className="font-serif text-sm font-bold text-[#201C1A] uppercase tracking-wide">
                 Section D &mdash; Follow-up Scheduling & Next Visit
               </h4>
@@ -1428,10 +1428,10 @@ export function PatientForm({
       {/* SECTION E: INITIAL DIAGNOSTIC INVESTIGATION (REGISTRATION WORKFLOW) */}
       {/* ====================================================================== */}
       {mode === "create" && (
-        <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF5EE]/30 p-5 space-y-4">
-          <div className="flex items-center justify-between border-b border-[#EAE3D9] pb-3">
-            <div className="flex items-center gap-2">
-              <FileText className="h-4 w-4 text-[#DE4F3C]" />
+        <div className="rounded-xl border border-[#EAE3D9] bg-[#FAF5EE]/30 p-3.5 sm:p-5 space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#EAE3D9] pb-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <FileText className="h-4 w-4 text-[#DE4F3C] shrink-0" />
               <h4 className="font-serif text-sm font-bold text-[#201C1A] uppercase tracking-wide">
                 Section E &mdash; Diagnostic Investigation & Report
               </h4>
@@ -1542,7 +1542,7 @@ export function PatientForm({
       )}
 
       {/* Action Buttons */}
-      <div className="flex items-center justify-end gap-3 border-t border-[#EAE3D9] pt-5">
+      <div className="flex flex-wrap items-center justify-end gap-3 border-t border-[#EAE3D9] pt-5">
         {onCancel && (
           <Button
             type="button"

@@ -172,14 +172,14 @@ export function DischargesList({
 
       {/* Success Notification */}
       {actionSuccessMsg && (
-        <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
-            <span>{actionSuccessMsg}</span>
+        <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-start sm:items-center justify-between gap-2">
+          <div className="flex items-start sm:items-center gap-2 min-w-0">
+            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 mt-0.5 sm:mt-0" />
+            <span className="break-words">{actionSuccessMsg}</span>
           </div>
           <button
             onClick={() => setActionSuccessMsg(null)}
-            className="text-emerald-700 hover:text-emerald-900 font-bold ml-2 text-xs"
+            className="text-emerald-700 hover:text-emerald-900 font-bold ml-1 text-xs shrink-0"
           >
             ✕
           </button>
@@ -188,9 +188,9 @@ export function DischargesList({
 
       {/* Filters and Search */}
       {discharges.length > 0 && (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 pb-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 pb-2 min-w-0">
           {/* Status Chips */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-1.5 min-w-0">
             <button
               onClick={() => setSelectedStatus("all")}
               className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
@@ -296,11 +296,11 @@ export function DischargesList({
             return (
               <Card
                 key={d.id}
-                className="border border-[#EAE3D9] bg-white p-4.5 rounded-2xl shadow-xs transition-shadow hover:shadow-md space-y-3"
+                className="border border-[#EAE3D9] bg-white p-3.5 sm:p-4 rounded-2xl shadow-xs transition-shadow hover:shadow-md space-y-3"
               >
                 {/* Header row: Status, Date, Condition & Actions */}
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2.5">
-                  <div className="space-y-1">
+                  <div className="space-y-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <Badge
                         variant={isFinalized ? "success" : "warning"}
@@ -322,13 +322,13 @@ export function DischargesList({
                       )}
                     </div>
 
-                    <h4 className="font-serif text-sm font-bold text-[#201C1A] pt-0.5">
+                    <h4 className="font-serif text-sm font-bold text-[#201C1A] pt-0.5 break-words">
                       {d.finalDiagnosis}
                     </h4>
 
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#7A746F]">
                       <div className="flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5 text-[#DE4F3C]" />
+                        <Calendar className="h-3.5 w-3.5 text-[#DE4F3C] shrink-0" />
                         <span className="font-medium text-[#201C1A]">
                           Discharged: {d.dischargeDate} {d.dischargeTime ? `(${d.dischargeTime})` : ""}
                         </span>
@@ -340,7 +340,7 @@ export function DischargesList({
                   </div>
 
                   {/* Actions Header */}
-                  <div className="flex items-center gap-1.5 self-end sm:self-start shrink-0">
+                  <div className="flex flex-wrap items-center gap-1.5 self-start shrink-0">
                     <Button
                       variant="outline"
                       size="sm"
@@ -396,7 +396,7 @@ export function DischargesList({
                 </div>
 
                 {/* Reason & Treatment Summary */}
-                <div className="space-y-1.5 text-xs text-[#201C1A] bg-[#FAF5EE]/50 p-3 rounded-xl border border-[#EAE3D9]/60">
+                <div className="space-y-1.5 text-xs text-[#201C1A] bg-[#FAF5EE]/50 p-3 rounded-xl border border-[#EAE3D9]/60 break-words">
                   <div>
                     <span className="font-semibold text-[#7A746F]">Clinical Reason: </span>
                     <span>{d.clinicalReason}</span>
@@ -409,13 +409,13 @@ export function DischargesList({
 
                 {/* Footer: Linked Visit, Follow-up & Drive URL */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#FAF5EE] text-xs">
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                     {d.consultationId ? (
                       <Link
                         href={`/patients/${patient.patientId}/consultations/${d.consultationId}`}
                         className="inline-flex items-center gap-1.5 text-xs text-[#7A746F] hover:text-[#DE4F3C]"
                       >
-                        <FileText className="h-3.5 w-3.5 text-[#DE4F3C]" />
+                        <FileText className="h-3.5 w-3.5 text-[#DE4F3C] shrink-0" />
                         <span>
                           Linked Visit: {d.consultationDate || "Consultation record"}
                         </span>
@@ -427,7 +427,7 @@ export function DischargesList({
                     )}
 
                     {d.recommendedFollowUpDate && (
-                      <span className="text-[11px] text-[#7A746F] border-l border-[#EAE3D9] pl-3">
+                      <span className="text-[11px] text-[#7A746F] sm:border-l sm:border-[#EAE3D9] sm:pl-3">
                         Follow-up: <strong className="text-[#201C1A]">{d.recommendedFollowUpDate}</strong>
                       </span>
                     )}
@@ -440,9 +440,9 @@ export function DischargesList({
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 text-xs font-semibold text-[#DE4F3C] hover:underline"
                     >
-                      <FolderOpen className="h-3.5 w-3.5" />
+                      <FolderOpen className="h-3.5 w-3.5 shrink-0" />
                       <span>Supporting Doc in Drive</span>
-                      <ExternalLink className="h-3 w-3" />
+                      <ExternalLink className="h-3 w-3 shrink-0" />
                     </a>
                   )}
                 </div>
@@ -499,55 +499,53 @@ export function DischargesList({
         <Modal
           isOpen={Boolean(dischargeToDelete)}
           onClose={() => setDischargeToDelete(null)}
-          className="max-w-md"
+          className="max-w-md p-0"
         >
-          <div className="w-full">
-            <ModalHeader>
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-xl bg-rose-50 text-rose-600 border border-rose-200">
-                  <AlertTriangle className="h-5 w-5" />
-                </div>
-                <div>
-                  <ModalTitle className="text-base font-bold text-[#201C1A]">
-                    Discard Draft Discharge Record?
-                  </ModalTitle>
-                  <ModalDescription className="text-xs text-[#7A746F]">
-                    Confirm removal of unfinalized draft.
-                  </ModalDescription>
-                </div>
+          <ModalHeader className="px-4 sm:px-6 pt-5 pb-3 pr-11">
+            <div className="flex items-start gap-2.5">
+              <div className="p-2 rounded-xl bg-rose-50 text-rose-600 border border-rose-200 shrink-0">
+                <AlertTriangle className="h-5 w-5" />
               </div>
-            </ModalHeader>
+              <div className="min-w-0">
+                <ModalTitle className="text-base font-bold text-[#201C1A]">
+                  Discard Draft Discharge Record?
+                </ModalTitle>
+                <ModalDescription className="text-xs text-[#7A746F]">
+                  Confirm removal of unfinalized draft.
+                </ModalDescription>
+              </div>
+            </div>
+          </ModalHeader>
 
-            <ModalBody className="space-y-3 px-6 py-4 text-xs text-[#201C1A]">
-              <p>
-                Are you sure you want to discard the draft discharge record created on{" "}
-                <strong>{dischargeToDelete.dischargeDate}</strong> for{" "}
-                <strong>&ldquo;{dischargeToDelete.finalDiagnosis}&rdquo;</strong>?
-              </p>
-              <p className="text-[#7A746F]">
-                This will delete the unfinalized draft from the database. Note: External Google Drive files remain untouched.
-              </p>
-            </ModalBody>
+          <ModalBody className="space-y-3 px-4 sm:px-6 py-4 text-xs text-[#201C1A]">
+            <p className="break-words">
+              Are you sure you want to discard the draft discharge record created on{" "}
+              <strong>{dischargeToDelete.dischargeDate}</strong> for{" "}
+              <strong>&ldquo;{dischargeToDelete.finalDiagnosis}&rdquo;</strong>?
+            </p>
+            <p className="text-[#7A746F]">
+              This will delete the unfinalized draft from the database. Note: External Google Drive files remain untouched.
+            </p>
+          </ModalBody>
 
-            <ModalFooter className="flex items-center justify-between px-6 py-3 border-t border-[#EAE3D9]">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setDischargeToDelete(null)}
-                disabled={isDeleting}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="danger"
-                size="sm"
-                onClick={handleConfirmDelete}
-                disabled={isDeleting}
-              >
-                {isDeleting ? "Discarding..." : "Confirm Discard"}
-              </Button>
-            </ModalFooter>
-          </div>
+          <ModalFooter className="flex-wrap items-center justify-between gap-2 px-4 sm:px-6 py-3 border-t border-[#EAE3D9]">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setDischargeToDelete(null)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={handleConfirmDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Discarding..." : "Confirm Discard"}
+            </Button>
+          </ModalFooter>
         </Modal>
       )}
     </div>
