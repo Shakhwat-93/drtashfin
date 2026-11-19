@@ -16,7 +16,7 @@ export function AdminShell({ children }: AdminShellProps) {
 
   return (
     <ChamberProvider>
-      <div className="flex min-h-screen w-full max-w-full overflow-x-clip bg-[#FAF5EE] text-[#201C1A]">
+      <div className="flex min-h-screen w-full max-w-full overflow-x-hidden bg-[#FAF5EE] text-[#201C1A]">
         {/* Desktop Persistent Sidebar */}
         <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 z-40">
           <Sidebar />

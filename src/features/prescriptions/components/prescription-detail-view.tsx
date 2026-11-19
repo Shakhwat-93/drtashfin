@@ -23,7 +23,8 @@ import { Prescription } from "@/types/prescription";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { OFFICIAL_DOCTOR_PROFILE } from "@/config/doctor-profile";
+import { getDoctorProfile } from "@/config/doctor-profile";
+import { useDemoMode } from "@/hooks/use-demo-mode";
 import { usePrescriptionArchive } from "../hooks/use-prescription-archive";
 
 export interface PrescriptionDetailViewProps {
@@ -37,6 +38,8 @@ export function PrescriptionDetailView({
   patient,
   className,
 }: PrescriptionDetailViewProps) {
+  const isDemo = useDemoMode();
+  const doctorProfile = getDoctorProfile(isDemo);
   const isFinalized = prescription.status === "finalized";
   const [copiedHash, setCopiedHash] = React.useState(false);
   const [showIntegrityCard, setShowIntegrityCard] = React.useState(false);
@@ -422,13 +425,13 @@ export function PrescriptionDetailView({
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 border-b-2 border-[#201C1A] pb-6">
           <div className="min-w-0">
             <h2 className="font-serif text-xl sm:text-3xl font-bold text-[#201C1A] tracking-tight break-words">
-              {OFFICIAL_DOCTOR_PROFILE.fullName}
+              {doctorProfile.fullName}
             </h2>
             <p className="text-xs sm:text-sm font-medium text-[#DE4F3C] mt-0.5 break-words">
-              {OFFICIAL_DOCTOR_PROFILE.qualifications} • {OFFICIAL_DOCTOR_PROFILE.primaryDesignation}
+              {doctorProfile.qualifications} • {doctorProfile.primaryDesignation}
             </p>
             <p className="text-xs text-[#7A746F] mt-1 break-words">
-              {OFFICIAL_DOCTOR_PROFILE.workplace}
+              {doctorProfile.workplace}
             </p>
           </div>
 
@@ -607,7 +610,7 @@ export function PrescriptionDetailView({
         {/* Signature & Medico-Legal Footer */}
         <div className="pt-8 border-t border-[#EAE3D9] flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
           <div className="text-[10px] text-[#7A746F] space-y-0.5 min-w-0">
-            <p>Generated via Doctor Tashfin Patient Management System.</p>
+            <p>Generated via {isDemo ? "Clinical Practice Management System" : "Doctor Tashfin Patient Management System"}.</p>
             <p>MedEx Bangladesh Verified Pharmaceutical Sourcing.</p>
             {isFinalized && prescription.finalizedAt && (
               <p className="font-mono text-emerald-700 break-words">
@@ -623,9 +626,9 @@ export function PrescriptionDetailView({
 
           <div className="text-left sm:text-right sm:min-w-[200px] border-t border-[#201C1A] pt-2 shrink-0">
             <p className="font-serif text-sm font-bold text-[#201C1A]">
-              {OFFICIAL_DOCTOR_PROFILE.fullName}
+              {doctorProfile.fullName}
             </p>
-            <p className="text-[11px] text-[#7A746F]">{OFFICIAL_DOCTOR_PROFILE.primaryDesignation}</p>
+            <p className="text-[11px] text-[#7A746F]">{doctorProfile.primaryDesignation}</p>
           </div>
         </div>
       </div>

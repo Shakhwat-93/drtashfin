@@ -26,6 +26,8 @@ import {
   DistributionCards,
 } from "@/features/reports";
 import { NewEncounterModal } from "@/features/consultations";
+import { useDemoMode } from "@/hooks/use-demo-mode";
+import { getDoctorProfile } from "@/config/doctor-profile";
 
 const VALID_TABS: ReportType[] = [
   "patient-activity",
@@ -53,6 +55,8 @@ function ConsultationsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { chambers } = useChamber();
+  const isDemo = useDemoMode();
+  const doctorProfile = getDoctorProfile(isDemo);
 
   const tabParam = searchParams.get("tab") as ReportType | null;
   const analyticsParam = searchParams.get("analytics") === "true";
@@ -215,10 +219,10 @@ function ConsultationsContent() {
         {/* Printable Header (Visible only when printing) */}
         <div className="hidden print:block pb-4 mb-4 border-b border-[#201C1A]">
           <h1 className="text-xl font-bold font-serif text-[#201C1A]">
-            Dr. Mohammad Rubaiath Tashfin
+            {doctorProfile.fullName}
           </h1>
           <p className="text-xs text-[#7A746F]">
-            M.B.B.S., M.S. (Ortho-Surgery) — Paediatric Orthopaedic Surgeon
+            {doctorProfile.qualifications} — {doctorProfile.primaryDesignation}
           </p>
           <div className="mt-2 text-xs flex flex-wrap items-center justify-between gap-2 text-[#201C1A]">
             <span>Registry: <strong>{TAB_LABELS[activeTab] || activeTab}</strong></span>

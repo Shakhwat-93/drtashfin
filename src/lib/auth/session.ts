@@ -1,10 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, SupabaseClient, User } from "@supabase/supabase-js";
 import { CLINICAL_API_SECURITY_HEADERS } from "@/lib/security/api-security";
-import { OFFICIAL_DOCTOR_PROFILE } from "@/config/doctor-profile";
+import { OFFICIAL_DOCTOR_PROFILE, DEMO_DOCTOR_PROFILE } from "@/config/doctor-profile";
 
 export const DR_ACCESS_COOKIE = "dr_access_token";
 export const DR_REFRESH_COOKIE = "dr_refresh_token";
+export const DEMO_EMAIL = "demo@drtashfin.online";
+
+/**
+ * Returns true when the email or app_metadata indicates a demo session.
+ */
+export function isDemoAccount(
+  email: string | null | undefined,
+  appMeta?: Record<string, unknown>
+): boolean {
+  const lowerEmail = (email || "").toLowerCase().trim();
+  if (lowerEmail === DEMO_EMAIL.toLowerCase()) return true;
+  if (appMeta && (appMeta["role"] === "demo" || appMeta["is_demo"] === true)) return true;
+  return false;
+}
 
 export interface DoctorIdentity {
   id: string;
@@ -19,6 +33,8 @@ export interface DoctorIdentity {
   fellowship?: string;
   additionalTraining?: string;
   workplace?: string;
+  monogram?: string;
+  isDemo?: boolean;
 }
 
 export interface VerifiedDoctorSession {
@@ -232,6 +248,42 @@ export function extractTokensFromRequest(request: NextRequest): {
 }
 
 /**
+ * Creates a valid standalone Demo JWT and tokens for showcase/presentation mode.
+ */
+export function createDemoJwt(): {
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
+} {
+  const nowSec = Math.floor(Date.now() / 1000);
+  const expiresIn = 30 * 24 * 60 * 60; // 30 days
+  const expSec = nowSec + expiresIn;
+
+  const header = Buffer.from(JSON.stringify({ alg: "HS256", typ: "JWT" })).toString("base64url");
+  const payload = Buffer.from(
+    JSON.stringify({
+      sub: "demo-clinician-id",
+      email: DEMO_EMAIL,
+      role: "authenticated",
+      app_metadata: { role: "doctor", is_demo: true },
+      user_metadata: {
+        name: DEMO_DOCTOR_PROFILE.fullName,
+        specialty: DEMO_DOCTOR_PROFILE.primaryDesignation,
+        is_demo: true,
+      },
+      iat: nowSec,
+      exp: expSec,
+    })
+  ).toString("base64url");
+
+  const signature = Buffer.from("demo_secure_signature").toString("base64url");
+  const accessToken = `${header}.${payload}.${signature}`;
+  const refreshToken = `demo_refresh_${Date.now()}`;
+
+  return { accessToken, refreshToken, expiresIn };
+}
+
+/**
  * Authoritatively verifies the clinician's session against Supabase Auth
  * and the `public.authorized_doctors` registry.
  * Transparently refreshes expired access tokens when a valid refresh token is present.
@@ -248,6 +300,49 @@ export async function verifyDoctorSession(
       status: 401,
       reason: "Authentication required. Valid clinician session missing.",
     };
+  }
+
+  // Check if candidate access token is a valid demo token
+  if (initialAccessToken) {
+    const claims = inspectJwtClaims(initialAccessToken);
+    if (claims.valid && (claims.email === DEMO_EMAIL || claims.sub === "demo-clinician-id")) {
+      const demoClient = createServerSupabaseAnonClient() as SupabaseClient & {
+        __isDemo?: boolean;
+      };
+      demoClient.__isDemo = true;
+
+      return {
+        authenticated: true,
+        user: {
+          id: "demo-clinician-id",
+          email: DEMO_EMAIL,
+          doctorCode: DEMO_DOCTOR_PROFILE.doctorCode,
+          fullName: DEMO_DOCTOR_PROFILE.fullName,
+          specialty: DEMO_DOCTOR_PROFILE.primaryDesignation,
+          role: "doctor",
+          bengaliName: DEMO_DOCTOR_PROFILE.bengaliName,
+          qualifications: DEMO_DOCTOR_PROFILE.qualifications,
+          primaryDesignation: DEMO_DOCTOR_PROFILE.primaryDesignation,
+          fellowship: DEMO_DOCTOR_PROFILE.fellowship,
+          additionalTraining: DEMO_DOCTOR_PROFILE.additionalTraining,
+          workplace: DEMO_DOCTOR_PROFILE.workplace,
+          monogram: DEMO_DOCTOR_PROFILE.monogram,
+          isDemo: true,
+        },
+        rawUser: {
+          id: "demo-clinician-id",
+          app_metadata: { role: "doctor", is_demo: true },
+          user_metadata: { name: DEMO_DOCTOR_PROFILE.fullName, is_demo: true },
+          aud: "authenticated",
+          created_at: new Date().toISOString(),
+          email: DEMO_EMAIL,
+        } as unknown as User,
+        accessToken: initialAccessToken,
+        refreshToken: initialRefreshToken,
+        refreshed: false,
+        supabaseClient: demoClient,
+      };
+    }
   }
 
   const anonClient = createServerSupabaseAnonClient();
@@ -296,17 +391,39 @@ export async function verifyDoctorSession(
   const authenticatedClient =
     createAuthenticatedSupabaseClient(activeAccessToken);
 
-  const { data: doctorRecord, error: doctorError } = await authenticatedClient
-    .from("authorized_doctors")
-    .select("user_id, doctor_code, email, full_name, specialty, is_active")
-    .eq("user_id", verifiedUser.id)
-    .eq("is_active", true)
-    .maybeSingle();
+  const appMeta = (verifiedUser.app_metadata || {}) as Record<string, unknown>;
+  const userEmail = verifiedUser.email || "";
 
-  const appMetaRole = verifiedUser.app_metadata?.role;
+  // Check if this is a demo account — demo accounts bypass the authorized_doctors registry check
+  const isDemo = isDemoAccount(userEmail, appMeta);
+
+  interface AuthorizedDoctorRow {
+    user_id?: string;
+    doctor_code?: string;
+    email?: string;
+    full_name?: string;
+    specialty?: string;
+    is_active?: boolean;
+  }
+
+  let doctorRecord: AuthorizedDoctorRow | null = null;
+  let doctorError: Error | null = null;
+
+  if (!isDemo) {
+    const result = await authenticatedClient
+      .from("authorized_doctors")
+      .select("user_id, doctor_code, email, full_name, specialty, is_active")
+      .eq("user_id", verifiedUser.id)
+      .eq("is_active", true)
+      .maybeSingle();
+    doctorRecord = (result.data as AuthorizedDoctorRow | null) ?? null;
+    doctorError = (result.error as unknown as Error | null) ?? null;
+  }
+
+  const appMetaRole = appMeta.role as string | undefined;
   const isAuthorizedInRegistry = Boolean(!doctorError && doctorRecord?.is_active);
 
-  if (!isAuthorizedInRegistry && appMetaRole !== "doctor") {
+  if (!isDemo && !isAuthorizedInRegistry && appMetaRole !== "doctor") {
     return {
       authenticated: false,
       status: 403,
@@ -320,34 +437,60 @@ export async function verifyDoctorSession(
     unknown
   >;
 
-  const doctorIdentity: DoctorIdentity = {
-    id: verifiedUser.id,
-    email: String(doctorRecord?.email || verifiedUser.email || OFFICIAL_DOCTOR_PROFILE.email),
-    doctorCode: String(
-      doctorRecord?.doctor_code ||
-        verifiedUser.app_metadata?.doctor_code ||
-        OFFICIAL_DOCTOR_PROFILE.doctorCode
-    ),
-    fullName: String(
-      doctorRecord?.full_name || userMeta.name || OFFICIAL_DOCTOR_PROFILE.fullName
-    ),
-    specialty: String(
-      doctorRecord?.specialty ||
-        userMeta.specialty ||
-        OFFICIAL_DOCTOR_PROFILE.primaryDesignation
-    ),
-    role: "doctor",
-    bengaliName: String(userMeta.bengali_name || OFFICIAL_DOCTOR_PROFILE.bengaliName),
-    qualifications: String(userMeta.qualifications || OFFICIAL_DOCTOR_PROFILE.qualifications),
-    primaryDesignation: String(
-      doctorRecord?.specialty ||
-        userMeta.primary_designation ||
-        OFFICIAL_DOCTOR_PROFILE.primaryDesignation
-    ),
-    fellowship: String(userMeta.fellowship || OFFICIAL_DOCTOR_PROFILE.fellowship),
-    additionalTraining: String(userMeta.additional_training || OFFICIAL_DOCTOR_PROFILE.additionalTraining),
-    workplace: String(userMeta.workplace || OFFICIAL_DOCTOR_PROFILE.workplace),
-  };
+  // For demo accounts, populate profile from DEMO_DOCTOR_PROFILE; real accounts use OFFICIAL_DOCTOR_PROFILE
+  const profileSource = isDemo ? DEMO_DOCTOR_PROFILE : OFFICIAL_DOCTOR_PROFILE;
+
+  const doctorIdentity: DoctorIdentity = isDemo
+    ? {
+        id: verifiedUser.id,
+        email: userEmail,
+        doctorCode: profileSource.doctorCode,
+        fullName: profileSource.fullName,
+        specialty: profileSource.primaryDesignation,
+        role: "doctor",
+        bengaliName: profileSource.bengaliName,
+        qualifications: profileSource.qualifications,
+        primaryDesignation: profileSource.primaryDesignation,
+        fellowship: profileSource.fellowship,
+        additionalTraining: profileSource.additionalTraining,
+        workplace: profileSource.workplace,
+        monogram: profileSource.monogram,
+        isDemo: true,
+      }
+    : {
+        id: verifiedUser.id,
+        email: String(doctorRecord?.email || userEmail || profileSource.email),
+        doctorCode: String(
+          doctorRecord?.doctor_code ||
+            appMeta.doctor_code ||
+            profileSource.doctorCode
+        ),
+        fullName: String(
+          doctorRecord?.full_name || userMeta.name || profileSource.fullName
+        ),
+        specialty: String(
+          doctorRecord?.specialty ||
+            userMeta.specialty ||
+            profileSource.primaryDesignation
+        ),
+        role: "doctor",
+        bengaliName: String(userMeta.bengali_name || profileSource.bengaliName),
+        qualifications: String(userMeta.qualifications || profileSource.qualifications),
+        primaryDesignation: String(
+          doctorRecord?.specialty ||
+            userMeta.primary_designation ||
+            profileSource.primaryDesignation
+        ),
+        fellowship: String(userMeta.fellowship || profileSource.fellowship),
+        additionalTraining: String(userMeta.additional_training || profileSource.additionalTraining),
+        workplace: String(userMeta.workplace || profileSource.workplace),
+        monogram: profileSource.monogram,
+        isDemo: false,
+      };
+
+  if (isDemo) {
+    (authenticatedClient as SupabaseClient & { __isDemo?: boolean }).__isDemo = true;
+  }
 
   return {
     authenticated: true,

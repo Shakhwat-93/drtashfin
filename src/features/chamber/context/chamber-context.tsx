@@ -1,7 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { Chamber, KNOWN_CHAMBERS, DEFAULT_CHAMBER } from "@/types/chamber";
+import {
+  Chamber,
+  KNOWN_CHAMBERS,
+  DEMO_CHAMBERS,
+  DEFAULT_CHAMBER,
+  DEFAULT_DEMO_CHAMBER,
+} from "@/types/chamber";
 import { getChamberRepository } from "@/lib/data";
 
 interface ChamberContextValue {
@@ -9,6 +15,7 @@ interface ChamberContextValue {
   chambers: Chamber[];
   isLoading: boolean;
   isSwitching: boolean;
+  isDemo: boolean;
   switchChamber: (codeOrId: string) => Promise<void>;
 }
 
@@ -16,6 +23,19 @@ const ChamberContext = React.createContext<ChamberContextValue | undefined>(unde
 
 const COOKIE_NAME = "dr_selected_chamber";
 const STORAGE_KEY = "drtashfin_active_chamber_code";
+const DEMO_COOKIE = "dr_is_demo";
+const DEMO_STORAGE_KEY = "dr_is_demo";
+
+function getClientDemoMode(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const cookieMatch = document.cookie.match(new RegExp(`(?:^|; )${DEMO_COOKIE}=([^;]*)`));
+    if (cookieMatch && cookieMatch[1] === "true") return true;
+    return localStorage.getItem(DEMO_STORAGE_KEY) === "true";
+  } catch {
+    return false;
+  }
+}
 
 function getStoredChamberCode(): string | null {
   if (typeof window === "undefined") return null;
@@ -49,8 +69,12 @@ function persistChamberCode(code: string) {
 }
 
 export function ChamberProvider({ children }: { children: React.ReactNode }) {
-  const [chambers, setChambers] = React.useState<Chamber[]>(KNOWN_CHAMBERS);
-  const [activeChamber, setActiveChamber] = React.useState<Chamber>(DEFAULT_CHAMBER);
+  const isDemo = React.useMemo(() => getClientDemoMode(), []);
+  const fallbackChambers = isDemo ? DEMO_CHAMBERS : KNOWN_CHAMBERS;
+  const fallbackDefault = isDemo ? DEFAULT_DEMO_CHAMBER : DEFAULT_CHAMBER;
+
+  const [chambers, setChambers] = React.useState<Chamber[]>(fallbackChambers);
+  const [activeChamber, setActiveChamber] = React.useState<Chamber>(fallbackDefault);
   const [isLoading, setIsLoading] = React.useState(true);
   const [isSwitching, setIsSwitching] = React.useState(false);
 
@@ -65,7 +89,7 @@ export function ChamberProvider({ children }: { children: React.ReactNode }) {
 
         if (!isMounted) return;
 
-        const available = loaded.length > 0 ? loaded : KNOWN_CHAMBERS;
+        const available = loaded.length > 0 ? loaded : fallbackChambers;
         setChambers(available);
 
         // Check stored selection
@@ -84,12 +108,12 @@ export function ChamberProvider({ children }: { children: React.ReactNode }) {
         }
 
         // Default to first chamber (Dhaka)
-        setActiveChamber(available[0] || DEFAULT_CHAMBER);
+        setActiveChamber(available[0] || fallbackDefault);
         persistChamberCode(available[0]?.code || "dhaka");
       } catch {
         if (isMounted) {
-          setChambers(KNOWN_CHAMBERS);
-          setActiveChamber(DEFAULT_CHAMBER);
+          setChambers(fallbackChambers);
+          setActiveChamber(fallbackDefault);
         }
       } finally {
         if (isMounted) {
@@ -103,6 +127,7 @@ export function ChamberProvider({ children }: { children: React.ReactNode }) {
     return () => {
       isMounted = false;
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const switchChamber = React.useCallback(
@@ -141,9 +166,10 @@ export function ChamberProvider({ children }: { children: React.ReactNode }) {
       chambers,
       isLoading,
       isSwitching,
+      isDemo,
       switchChamber,
     }),
-    [activeChamber, chambers, isLoading, isSwitching, switchChamber]
+    [activeChamber, chambers, isLoading, isSwitching, isDemo, switchChamber]
   );
 
   return (
@@ -160,6 +186,7 @@ export function useChamber(): ChamberContextValue {
       chambers: KNOWN_CHAMBERS,
       isLoading: false,
       isSwitching: false,
+      isDemo: false,
       switchChamber: async () => {},
     };
   }

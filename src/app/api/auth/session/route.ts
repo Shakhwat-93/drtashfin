@@ -24,14 +24,16 @@ export async function GET(request: NextRequest) {
   }
 
   let mfaEnabled = false;
-  try {
-    const { data: factorsData } =
-      await session.supabaseClient.auth.mfa.listFactors();
-    mfaEnabled = Boolean(
-      factorsData?.totp?.some((f) => f.status === "verified")
-    );
-  } catch {
-    mfaEnabled = false;
+  if (!session.user.isDemo) {
+    try {
+      const { data: factorsData } =
+        await session.supabaseClient.auth.mfa.listFactors();
+      mfaEnabled = Boolean(
+        factorsData?.totp?.some((f) => f.status === "verified")
+      );
+    } catch {
+      mfaEnabled = false;
+    }
   }
 
   const response = NextResponse.json(
@@ -42,6 +44,15 @@ export async function GET(request: NextRequest) {
     },
     { status: 200, headers: CLINICAL_API_SECURITY_HEADERS }
   );
+
+  if (session.user.isDemo) {
+    response.cookies.set("dr_is_demo", "true", {
+      httpOnly: false,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 30 * 24 * 60 * 60,
+    });
+  }
 
   if (session.refreshed) {
     applySessionCookies(response, request, {

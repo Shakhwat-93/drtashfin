@@ -29,5 +29,10 @@ export async function POST(request: NextRequest) {
   );
 
   clearSessionCookies(response, request);
+  response.cookies.set("dr_is_demo", "", {
+    httpOnly: false,
+    path: "/",
+    maxAge: 0,
+  });
   return response;
 }

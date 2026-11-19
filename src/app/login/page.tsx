@@ -13,6 +13,7 @@ import {
   AlertCircle,
   ArrowRight,
   KeyRound,
+  Sparkles,
 } from "lucide-react";
 import { Button, Input, Label } from "@/components/ui";
 
@@ -59,6 +60,11 @@ function LoginFormContent() {
         return;
       }
 
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("dr_is_demo");
+        document.cookie = "dr_is_demo=false; path=/; max-age=2592000; SameSite=Lax";
+      }
+
       const safeRedirect =
         redirectPath.startsWith("/") && !redirectPath.startsWith("//")
           ? redirectPath
@@ -67,6 +73,44 @@ function LoginFormContent() {
       router.refresh();
     } catch {
       setError("Network error while connecting to authentication service.");
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDemoLogin = async () => {
+    setError(null);
+    setIsSubmitting(true);
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          isDemo: true,
+          email: "demo@drtashfin.online",
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setError(data?.error || "Demo authentication failed.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (typeof window !== "undefined") {
+        localStorage.setItem("dr_is_demo", "true");
+        document.cookie = "dr_is_demo=true; path=/; max-age=2592000; SameSite=Lax";
+      }
+
+      const safeRedirect =
+        redirectPath.startsWith("/") && !redirectPath.startsWith("//")
+          ? redirectPath
+          : "/";
+      router.replace(safeRedirect);
+      router.refresh();
+    } catch {
+      setError("Network error while connecting to demo service.");
       setIsSubmitting(false);
     }
   };
@@ -229,6 +273,31 @@ function LoginFormContent() {
               </span>
               <ArrowRight className="h-4 w-4" />
             </Button>
+
+            {/* Quick Demo Mode Access */}
+            {!mfaRequired && (
+              <div className="pt-2 space-y-2.5">
+                <div className="relative flex items-center justify-center py-1">
+                  <div className="border-t border-[#EAE3D9] w-full" />
+                  <span className="bg-white px-2.5 text-[10px] uppercase font-bold tracking-wider text-[#7A746F] absolute">
+                    Client Showcase
+                  </span>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleDemoLogin}
+                  disabled={isSubmitting}
+                  className="w-full justify-center gap-2 h-10 border-[#DE4F3C]/40 text-[#DE4F3C] hover:bg-[#DE4F3C]/5 hover:border-[#DE4F3C]"
+                >
+                  <Sparkles className="h-4 w-4 text-[#DE4F3C]" />
+                  <span>Try Demo Account / ডেমো দেখুন</span>
+                </Button>
+                <p className="text-[11px] text-center text-[#7A746F]">
+                  Sanitized demonstration sandbox with anonymized clinical data
+                </p>
+              </div>
+            )}
           </form>
 
           {/* Security Footer Note */}

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Stethoscope, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NAVIGATION_SECTIONS, type NavigationItem } from "@/config/navigation";
+import { useDemoMode } from "@/hooks/use-demo-mode";
 
 export interface SidebarProps {
   onItemClick?: () => void;
@@ -14,6 +15,7 @@ export interface SidebarProps {
 
 export function Sidebar({ onItemClick, className }: SidebarProps) {
   const pathname = usePathname();
+  const isDemo = useDemoMode();
 
   const isItemActive = (item: NavigationItem) => {
     if (item.exact || item.href === "/") {
@@ -39,12 +41,12 @@ export function Sidebar({ onItemClick, className }: SidebarProps) {
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#DE4F3C] text-white shadow-xs">
             <Stethoscope className="h-5 w-5" />
           </div>
-          <div className="flex flex-col">
-            <span className="font-serif text-base font-semibold text-[#201C1A] leading-tight">
-              Dr. Tashfin
+          <div className="flex flex-col min-w-0">
+            <span className="font-serif text-base font-semibold text-[#201C1A] leading-tight truncate">
+              {isDemo ? "Clinical PMS" : "Dr. Tashfin"}
             </span>
-            <span className="text-[11px] font-medium tracking-wide text-[#7A746F]">
-              Patient Care System
+            <span className="text-[11px] font-medium tracking-wide text-[#7A746F] truncate">
+              {isDemo ? "Demo Sandbox" : "Patient Care System"}
             </span>
           </div>
         </Link>

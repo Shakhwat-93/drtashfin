@@ -13,10 +13,12 @@ import {
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { OFFICIAL_DOCTOR_PROFILE } from "@/config/doctor-profile";
+import { getDoctorProfile } from "@/config/doctor-profile";
+import { useDemoMode } from "@/hooks/use-demo-mode";
 
 export function DoctorProfileCard() {
-  const profile = OFFICIAL_DOCTOR_PROFILE;
+  const isDemo = useDemoMode();
+  const profile = getDoctorProfile(isDemo);
 
   return (
     <Card className="overflow-hidden border border-[#EAE3D9] bg-white rounded-xl shadow-2xs">
@@ -26,7 +28,7 @@ export function DoctorProfileCard() {
           <div className="flex items-start gap-3 sm:gap-4 min-w-0">
             {/* Doctor Avatar / Monogram */}
             <div className="flex h-12 w-12 sm:h-16 sm:w-16 shrink-0 items-center justify-center rounded-2xl bg-[#DE4F3C] text-white font-serif font-bold text-lg sm:text-2xl shadow-xs">
-              RT
+              {profile.monogram || (isDemo ? "KR" : "RT")}
             </div>
 
             <div className="space-y-1 min-w-0 flex-1">
@@ -34,9 +36,12 @@ export function DoctorProfileCard() {
                 <h2 className="font-serif text-lg sm:text-2xl font-bold text-[#201C1A] tracking-tight break-words">
                   {profile.fullName}
                 </h2>
-                <Badge variant="success" className="gap-1 text-[11px] font-medium py-0.5 px-2 shrink-0">
+                <Badge
+                  variant={isDemo ? "neutral" : "success"}
+                  className="gap-1 text-[11px] font-medium py-0.5 px-2 shrink-0"
+                >
                   <BadgeCheck className="h-3 w-3" />
-                  Verified Clinician
+                  {isDemo ? "Demonstration Clinician" : "Verified Clinician"}
                 </Badge>
               </div>
 

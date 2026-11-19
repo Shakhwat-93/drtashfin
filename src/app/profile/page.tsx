@@ -8,19 +8,24 @@ import { PageHeader } from "@/components/ui/page-header";
 import { DoctorProfileCard } from "@/features/settings";
 import { AchievementsList } from "@/features/achievements";
 import { ShieldCheck, Award } from "lucide-react";
+import { useDemoMode } from "@/hooks/use-demo-mode";
+import { getDoctorProfile } from "@/config/doctor-profile";
 
 export default function DoctorProfilePage() {
+  const isDemo = useDemoMode();
+  const profile = getDoctorProfile(isDemo);
+
   return (
     <AdminShell>
       <PageContainer className="space-y-6 max-w-5xl">
         <PageHeader
           label="CLINICIAN IDENTITY &amp; CREDENTIALS"
           title="Doctor Profile"
-          description="Verified professional credentials, qualifications, designations, and clinical affiliations for Dr. Mohammad Rubaiath Tashfin."
+          description={`Verified professional credentials, qualifications, designations, and clinical affiliations for ${profile.fullName}.`}
           actions={
             <div className="flex items-center gap-2 text-xs text-[#7A746F] bg-[#FAF5EE] px-3 py-1.5 rounded-lg border border-[#EAE3D9] max-w-full">
               <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
-              <span>Verified Doctor Profile</span>
+              <span>{isDemo ? "Demonstration Profile" : "Verified Doctor Profile"}</span>
             </div>
           }
         />

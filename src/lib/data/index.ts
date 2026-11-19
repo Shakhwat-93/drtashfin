@@ -117,7 +117,35 @@ export function setRepositoryProvider(mode: "auto" | "supabase" | "mock"): void 
   resetRepositoryInstances();
 }
 
-function shouldUseSupabase(): boolean {
+/**
+ * Checks whether client-side or session-level Demo Mode is active.
+ * In Demo Mode, all clinical queries are isolated to synthetic mock repositories
+ * to prevent leaking the clinician's private practice data.
+ */
+export function isDemoActive(): boolean {
+  if (typeof window !== "undefined") {
+    try {
+      return (
+        document.cookie.includes("dr_is_demo=true") ||
+        localStorage.getItem("dr_is_demo") === "true"
+      );
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+
+export function shouldUseSupabase(client?: import("@supabase/supabase-js").SupabaseClient | unknown): boolean {
+  if (client && typeof client === "object") {
+    const c = client as { __isDemo?: boolean; isDemo?: boolean };
+    if (c.__isDemo === true || c.isDemo === true) {
+      return false;
+    }
+  }
+  if (isDemoActive()) {
+    return false;
+  }
   if (providerMode === "mock") return false;
   if (providerMode === "supabase") return true;
 
@@ -140,15 +168,18 @@ function shouldUseSupabase(): boolean {
 export function getPatientRepository(
   client?: import("@supabase/supabase-js").SupabaseClient
 ): IPatientRepository {
-  if (client && shouldUseSupabase()) {
+  if (client && shouldUseSupabase(client)) {
     return new SupabasePatientRepository(client);
   }
-  if (!patientRepositoryInstance) {
-    if (shouldUseSupabase()) {
-      patientRepositoryInstance = new SupabasePatientRepository();
-    } else {
-      patientRepositoryInstance = new MockPatientRepository();
-    }
+  const useSb = shouldUseSupabase(client);
+  if (
+    !patientRepositoryInstance ||
+    (useSb && !(patientRepositoryInstance instanceof SupabasePatientRepository)) ||
+    (!useSb && (patientRepositoryInstance instanceof SupabasePatientRepository))
+  ) {
+    patientRepositoryInstance = useSb
+      ? new SupabasePatientRepository()
+      : new MockPatientRepository();
   }
   return patientRepositoryInstance;
 }
@@ -157,12 +188,15 @@ export function getPatientRepository(
  * Factory for Clinical Repository.
  */
 export function getClinicalRepository(): IClinicalRepository {
-  if (!clinicalRepositoryInstance) {
-    if (shouldUseSupabase()) {
-      clinicalRepositoryInstance = new SupabaseClinicalRepository();
-    } else {
-      clinicalRepositoryInstance = new MockClinicalRepository();
-    }
+  const useSb = shouldUseSupabase();
+  if (
+    !clinicalRepositoryInstance ||
+    (useSb && !(clinicalRepositoryInstance instanceof SupabaseClinicalRepository)) ||
+    (!useSb && (clinicalRepositoryInstance instanceof SupabaseClinicalRepository))
+  ) {
+    clinicalRepositoryInstance = useSb
+      ? new SupabaseClinicalRepository()
+      : new MockClinicalRepository();
   }
   return clinicalRepositoryInstance;
 }
@@ -173,22 +207,21 @@ export function getClinicalRepository(): IClinicalRepository {
 export function getConsultationRepository(
   client?: import("@supabase/supabase-js").SupabaseClient
 ): IConsultationRepository {
-  if (client && shouldUseSupabase()) {
+  if (client && shouldUseSupabase(client)) {
     return new SupabaseConsultationRepository(
       getPatientRepository(client),
       client
     );
   }
-  if (!consultationRepositoryInstance) {
-    if (shouldUseSupabase()) {
-      consultationRepositoryInstance = new SupabaseConsultationRepository(
-        getPatientRepository()
-      );
-    } else {
-      consultationRepositoryInstance = new MockConsultationRepository(
-        getPatientRepository()
-      );
-    }
+  const useSb = shouldUseSupabase(client);
+  if (
+    !consultationRepositoryInstance ||
+    (useSb && !(consultationRepositoryInstance instanceof SupabaseConsultationRepository)) ||
+    (!useSb && (consultationRepositoryInstance instanceof SupabaseConsultationRepository))
+  ) {
+    consultationRepositoryInstance = useSb
+      ? new SupabaseConsultationRepository(getPatientRepository())
+      : new MockConsultationRepository(getPatientRepository());
   }
   return consultationRepositoryInstance;
 }
@@ -199,15 +232,18 @@ export function getConsultationRepository(
 export function getMedicineRepository(
   client?: import("@supabase/supabase-js").SupabaseClient
 ): IMedicineRepository {
-  if (client && shouldUseSupabase()) {
+  if (client && shouldUseSupabase(client)) {
     return new SupabaseMedicineRepository(client);
   }
-  if (!medicineRepositoryInstance) {
-    if (shouldUseSupabase()) {
-      medicineRepositoryInstance = new SupabaseMedicineRepository();
-    } else {
-      medicineRepositoryInstance = new MockMedicineRepository();
-    }
+  const useSb = shouldUseSupabase(client);
+  if (
+    !medicineRepositoryInstance ||
+    (useSb && !(medicineRepositoryInstance instanceof SupabaseMedicineRepository)) ||
+    (!useSb && (medicineRepositoryInstance instanceof SupabaseMedicineRepository))
+  ) {
+    medicineRepositoryInstance = useSb
+      ? new SupabaseMedicineRepository()
+      : new MockMedicineRepository();
   }
   return medicineRepositoryInstance;
 }
@@ -218,15 +254,18 @@ export function getMedicineRepository(
 export function getPrescriptionRepository(
   client?: import("@supabase/supabase-js").SupabaseClient
 ): IPrescriptionRepository {
-  if (client && shouldUseSupabase()) {
+  if (client && shouldUseSupabase(client)) {
     return new SupabasePrescriptionRepository(client);
   }
-  if (!prescriptionRepositoryInstance) {
-    if (shouldUseSupabase()) {
-      prescriptionRepositoryInstance = new SupabasePrescriptionRepository();
-    } else {
-      prescriptionRepositoryInstance = new MockPrescriptionRepository();
-    }
+  const useSb = shouldUseSupabase(client);
+  if (
+    !prescriptionRepositoryInstance ||
+    (useSb && !(prescriptionRepositoryInstance instanceof SupabasePrescriptionRepository)) ||
+    (!useSb && (prescriptionRepositoryInstance instanceof SupabasePrescriptionRepository))
+  ) {
+    prescriptionRepositoryInstance = useSb
+      ? new SupabasePrescriptionRepository()
+      : new MockPrescriptionRepository();
   }
   return prescriptionRepositoryInstance;
 }
@@ -237,17 +276,18 @@ export function getPrescriptionRepository(
 export function getClinicalDocumentRepository(
   client?: import("@supabase/supabase-js").SupabaseClient
 ): IClinicalDocumentRepository {
-  if (client && shouldUseSupabase()) {
+  if (client && shouldUseSupabase(client)) {
     return new SupabaseClinicalDocumentRepository(client);
   }
-  if (!clinicalDocumentRepositoryInstance) {
-    if (shouldUseSupabase()) {
-      clinicalDocumentRepositoryInstance =
-        new SupabaseClinicalDocumentRepository();
-    } else {
-      clinicalDocumentRepositoryInstance =
-        new MockClinicalDocumentRepository();
-    }
+  const useSb = shouldUseSupabase(client);
+  if (
+    !clinicalDocumentRepositoryInstance ||
+    (useSb && !(clinicalDocumentRepositoryInstance instanceof SupabaseClinicalDocumentRepository)) ||
+    (!useSb && (clinicalDocumentRepositoryInstance instanceof SupabaseClinicalDocumentRepository))
+  ) {
+    clinicalDocumentRepositoryInstance = useSb
+      ? new SupabaseClinicalDocumentRepository()
+      : new MockClinicalDocumentRepository();
   }
   return clinicalDocumentRepositoryInstance;
 }
@@ -258,15 +298,18 @@ export function getClinicalDocumentRepository(
 export function getChamberRepository(
   client?: import("@supabase/supabase-js").SupabaseClient
 ): IChamberRepository {
-  if (client && shouldUseSupabase()) {
+  if (client && shouldUseSupabase(client)) {
     return new SupabaseChamberRepository(client);
   }
-  if (!chamberRepositoryInstance) {
-    if (shouldUseSupabase()) {
-      chamberRepositoryInstance = new SupabaseChamberRepository();
-    } else {
-      chamberRepositoryInstance = new MockChamberRepository();
-    }
+  const useSb = shouldUseSupabase(client);
+  if (
+    !chamberRepositoryInstance ||
+    (useSb && !(chamberRepositoryInstance instanceof SupabaseChamberRepository)) ||
+    (!useSb && (chamberRepositoryInstance instanceof SupabaseChamberRepository))
+  ) {
+    chamberRepositoryInstance = useSb
+      ? new SupabaseChamberRepository()
+      : new MockChamberRepository();
   }
   return chamberRepositoryInstance;
 }
@@ -277,22 +320,21 @@ export function getChamberRepository(
 export function getFollowUpRepository(
   client?: import("@supabase/supabase-js").SupabaseClient
 ): IFollowUpRepository {
-  if (client && shouldUseSupabase()) {
+  if (client && shouldUseSupabase(client)) {
     return new SupabaseFollowUpRepository(
       getPatientRepository(client),
       client
     );
   }
-  if (!followUpRepositoryInstance) {
-    if (shouldUseSupabase()) {
-      followUpRepositoryInstance = new SupabaseFollowUpRepository(
-        getPatientRepository()
-      );
-    } else {
-      followUpRepositoryInstance = new MockFollowUpRepository(
-        getPatientRepository()
-      );
-    }
+  const useSb = shouldUseSupabase(client);
+  if (
+    !followUpRepositoryInstance ||
+    (useSb && !(followUpRepositoryInstance instanceof SupabaseFollowUpRepository)) ||
+    (!useSb && (followUpRepositoryInstance instanceof SupabaseFollowUpRepository))
+  ) {
+    followUpRepositoryInstance = useSb
+      ? new SupabaseFollowUpRepository(getPatientRepository())
+      : new MockFollowUpRepository(getPatientRepository());
   }
   return followUpRepositoryInstance;
 }
@@ -303,15 +345,18 @@ export function getFollowUpRepository(
 export function getSmsReminderRepository(
   client?: import("@supabase/supabase-js").SupabaseClient
 ): ISmsReminderRepository {
-  if (client && shouldUseSupabase()) {
+  if (client && shouldUseSupabase(client)) {
     return new SupabaseSmsReminderRepository(client);
   }
-  if (!smsReminderRepositoryInstance) {
-    if (shouldUseSupabase()) {
-      smsReminderRepositoryInstance = new SupabaseSmsReminderRepository();
-    } else {
-      smsReminderRepositoryInstance = new MockSmsReminderRepository();
-    }
+  const useSb = shouldUseSupabase(client);
+  if (
+    !smsReminderRepositoryInstance ||
+    (useSb && !(smsReminderRepositoryInstance instanceof SupabaseSmsReminderRepository)) ||
+    (!useSb && (smsReminderRepositoryInstance instanceof SupabaseSmsReminderRepository))
+  ) {
+    smsReminderRepositoryInstance = useSb
+      ? new SupabaseSmsReminderRepository()
+      : new MockSmsReminderRepository();
   }
   return smsReminderRepositoryInstance;
 }
@@ -323,18 +368,21 @@ export function getSmsReminderRepository(
 export function getDiagnosticReportRepository(
   client?: import("@supabase/supabase-js").SupabaseClient
 ): IDiagnosticReportRepository {
-  if (client && shouldUseSupabase()) {
+  if (client && shouldUseSupabase(client)) {
     return new SupabaseDiagnosticReportRepository(client);
   }
-  if (!diagnosticReportRepositoryInstance) {
-    if (shouldUseSupabase()) {
-      diagnosticReportRepositoryInstance = new SupabaseDiagnosticReportRepository();
-    } else {
-      diagnosticReportRepositoryInstance = new MockDiagnosticReportRepository(
-        getPatientRepository(),
-        getConsultationRepository()
-      );
-    }
+  const useSb = shouldUseSupabase(client);
+  if (
+    !diagnosticReportRepositoryInstance ||
+    (useSb && !(diagnosticReportRepositoryInstance instanceof SupabaseDiagnosticReportRepository)) ||
+    (!useSb && (diagnosticReportRepositoryInstance instanceof SupabaseDiagnosticReportRepository))
+  ) {
+    diagnosticReportRepositoryInstance = useSb
+      ? new SupabaseDiagnosticReportRepository()
+      : new MockDiagnosticReportRepository(
+          getPatientRepository(),
+          getConsultationRepository()
+        );
   }
   return diagnosticReportRepositoryInstance;
 }
@@ -346,15 +394,18 @@ export function getDiagnosticReportRepository(
 export function getSmsGatewaySettingsRepository(
   client?: import("@supabase/supabase-js").SupabaseClient
 ): ISmsGatewaySettingsRepository {
-  if (client && shouldUseSupabase()) {
+  if (client && shouldUseSupabase(client)) {
     return new SupabaseSmsGatewaySettingsRepository(client);
   }
-  if (!smsGatewaySettingsRepositoryInstance) {
-    if (shouldUseSupabase()) {
-      smsGatewaySettingsRepositoryInstance = new SupabaseSmsGatewaySettingsRepository();
-    } else {
-      smsGatewaySettingsRepositoryInstance = new MockSmsGatewaySettingsRepository();
-    }
+  const useSb = shouldUseSupabase(client);
+  if (
+    !smsGatewaySettingsRepositoryInstance ||
+    (useSb && !(smsGatewaySettingsRepositoryInstance instanceof SupabaseSmsGatewaySettingsRepository)) ||
+    (!useSb && (smsGatewaySettingsRepositoryInstance instanceof SupabaseSmsGatewaySettingsRepository))
+  ) {
+    smsGatewaySettingsRepositoryInstance = useSb
+      ? new SupabaseSmsGatewaySettingsRepository()
+      : new MockSmsGatewaySettingsRepository();
   }
   return smsGatewaySettingsRepositoryInstance;
 }
@@ -366,18 +417,21 @@ export function getSmsGatewaySettingsRepository(
 export function getProcedureRepository(
   client?: import("@supabase/supabase-js").SupabaseClient
 ): IProcedureRepository {
-  if (client && shouldUseSupabase()) {
+  if (client && shouldUseSupabase(client)) {
     return new SupabaseProcedureRepository(client);
   }
-  if (!procedureRepositoryInstance) {
-    if (shouldUseSupabase()) {
-      procedureRepositoryInstance = new SupabaseProcedureRepository();
-    } else {
-      procedureRepositoryInstance = new MockProcedureRepository(
-        getPatientRepository(),
-        getConsultationRepository()
-      );
-    }
+  const useSb = shouldUseSupabase(client);
+  if (
+    !procedureRepositoryInstance ||
+    (useSb && !(procedureRepositoryInstance instanceof SupabaseProcedureRepository)) ||
+    (!useSb && (procedureRepositoryInstance instanceof SupabaseProcedureRepository))
+  ) {
+    procedureRepositoryInstance = useSb
+      ? new SupabaseProcedureRepository()
+      : new MockProcedureRepository(
+          getPatientRepository(),
+          getConsultationRepository()
+        );
   }
   return procedureRepositoryInstance;
 }
@@ -389,19 +443,22 @@ export function getProcedureRepository(
 export function getDischargeRepository(
   client?: import("@supabase/supabase-js").SupabaseClient
 ): IDischargeRepository {
-  if (client && shouldUseSupabase()) {
+  if (client && shouldUseSupabase(client)) {
     return new SupabaseDischargeRepository(client);
   }
-  if (!dischargeRepositoryInstance) {
-    if (shouldUseSupabase()) {
-      dischargeRepositoryInstance = new SupabaseDischargeRepository();
-    } else {
-      dischargeRepositoryInstance = new MockDischargeRepository(
-        getPatientRepository(),
-        getConsultationRepository(),
-        getFollowUpRepository()
-      );
-    }
+  const useSb = shouldUseSupabase(client);
+  if (
+    !dischargeRepositoryInstance ||
+    (useSb && !(dischargeRepositoryInstance instanceof SupabaseDischargeRepository)) ||
+    (!useSb && (dischargeRepositoryInstance instanceof SupabaseDischargeRepository))
+  ) {
+    dischargeRepositoryInstance = useSb
+      ? new SupabaseDischargeRepository()
+      : new MockDischargeRepository(
+          getPatientRepository(),
+          getConsultationRepository(),
+          getFollowUpRepository()
+        );
   }
   return dischargeRepositoryInstance;
 }
@@ -412,17 +469,18 @@ export function getDischargeRepository(
 export function getDoctorAchievementRepository(
   client?: import("@supabase/supabase-js").SupabaseClient
 ): IDoctorAchievementRepository {
-  if (client && shouldUseSupabase()) {
+  if (client && shouldUseSupabase(client)) {
     return new SupabaseDoctorAchievementRepository(client);
   }
-  if (!doctorAchievementRepositoryInstance) {
-    if (shouldUseSupabase()) {
-      doctorAchievementRepositoryInstance =
-        new SupabaseDoctorAchievementRepository();
-    } else {
-      doctorAchievementRepositoryInstance =
-        new MockDoctorAchievementRepository();
-    }
+  const useSb = shouldUseSupabase(client);
+  if (
+    !doctorAchievementRepositoryInstance ||
+    (useSb && !(doctorAchievementRepositoryInstance instanceof SupabaseDoctorAchievementRepository)) ||
+    (!useSb && (doctorAchievementRepositoryInstance instanceof SupabaseDoctorAchievementRepository))
+  ) {
+    doctorAchievementRepositoryInstance = useSb
+      ? new SupabaseDoctorAchievementRepository()
+      : new MockDoctorAchievementRepository();
   }
   return doctorAchievementRepositoryInstance;
 }
@@ -434,15 +492,18 @@ export function getDoctorAchievementRepository(
 export function getReportRepository(
   client?: import("@supabase/supabase-js").SupabaseClient
 ): IReportRepository {
-  if (client && shouldUseSupabase()) {
+  if (client && shouldUseSupabase(client)) {
     return new SupabaseReportRepository(client);
   }
-  if (!reportRepositoryInstance) {
-    if (shouldUseSupabase()) {
-      reportRepositoryInstance = new SupabaseReportRepository();
-    } else {
-      reportRepositoryInstance = new MockReportRepository();
-    }
+  const useSb = shouldUseSupabase(client);
+  if (
+    !reportRepositoryInstance ||
+    (useSb && !(reportRepositoryInstance instanceof SupabaseReportRepository)) ||
+    (!useSb && (reportRepositoryInstance instanceof SupabaseReportRepository))
+  ) {
+    reportRepositoryInstance = useSb
+      ? new SupabaseReportRepository()
+      : new MockReportRepository();
   }
   return reportRepositoryInstance;
 }

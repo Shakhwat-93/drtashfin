@@ -3,6 +3,9 @@ import {
   createServerSupabaseAnonClient,
   createAuthenticatedSupabaseClient,
   applySessionCookies,
+  DEMO_EMAIL,
+  createDemoJwt,
+  isSecureRequest,
 } from "@/lib/auth/session";
 import {
   getRateLimitKey,
@@ -11,7 +14,7 @@ import {
   resetRateLimit,
 } from "@/lib/security/rate-limiter";
 import { CLINICAL_API_SECURITY_HEADERS } from "@/lib/security/api-security";
-import { OFFICIAL_DOCTOR_PROFILE } from "@/config/doctor-profile";
+import { OFFICIAL_DOCTOR_PROFILE, DEMO_DOCTOR_PROFILE } from "@/config/doctor-profile";
 
 export const runtime = "nodejs";
 
@@ -23,6 +26,7 @@ export async function POST(request: NextRequest) {
     const password = typeof body?.password === "string" ? body.password : "";
     const totpCode =
       typeof body?.totpCode === "string" ? body.totpCode.trim() : "";
+    const isExplicitDemo = Boolean(body?.isDemo);
 
     const clientIp =
       request.headers.get("x-forwarded-for") ||
@@ -33,6 +37,50 @@ export async function POST(request: NextRequest) {
       "doctor_login",
       email || "unknown"
     );
+
+    // 0. Handle Demo Account Login directly
+    if (isExplicitDemo || email === DEMO_EMAIL) {
+      resetRateLimit(rateKey);
+      const demoTokens = createDemoJwt();
+      const response = NextResponse.json(
+        {
+          success: true,
+          user: {
+            id: "demo-clinician-id",
+            email: DEMO_EMAIL,
+            doctorCode: DEMO_DOCTOR_PROFILE.doctorCode,
+            fullName: DEMO_DOCTOR_PROFILE.fullName,
+            specialty: DEMO_DOCTOR_PROFILE.primaryDesignation,
+            role: "doctor" as const,
+            bengaliName: DEMO_DOCTOR_PROFILE.bengaliName,
+            qualifications: DEMO_DOCTOR_PROFILE.qualifications,
+            primaryDesignation: DEMO_DOCTOR_PROFILE.primaryDesignation,
+            fellowship: DEMO_DOCTOR_PROFILE.fellowship,
+            additionalTraining: DEMO_DOCTOR_PROFILE.additionalTraining,
+            workplace: DEMO_DOCTOR_PROFILE.workplace,
+            monogram: DEMO_DOCTOR_PROFILE.monogram,
+            isDemo: true,
+          },
+        },
+        { status: 200, headers: CLINICAL_API_SECURITY_HEADERS }
+      );
+
+      applySessionCookies(response, request, {
+        accessToken: demoTokens.accessToken,
+        refreshToken: demoTokens.refreshToken,
+        expiresIn: demoTokens.expiresIn,
+      });
+
+      response.cookies.set("dr_is_demo", "true", {
+        httpOnly: false,
+        secure: isSecureRequest(request),
+        sameSite: "lax",
+        path: "/",
+        maxAge: 30 * 24 * 60 * 60,
+      });
+
+      return response;
+    }
 
     // 1. Check brute-force rate limit (5 attempts / 15 minutes)
     const rateStatus = checkRateLimit(rateKey, 5, 15 * 60 * 1000);
@@ -208,6 +256,14 @@ export async function POST(request: NextRequest) {
       accessToken: activeSession.access_token,
       refreshToken: activeSession.refresh_token,
       expiresIn: activeSession.expires_in,
+    });
+
+    response.cookies.set("dr_is_demo", "false", {
+      httpOnly: false,
+      secure: isSecureRequest(request),
+      sameSite: "lax",
+      path: "/",
+      maxAge: 30 * 24 * 60 * 60,
     });
 
     return response;

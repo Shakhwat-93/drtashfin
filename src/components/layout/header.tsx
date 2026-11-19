@@ -35,7 +35,7 @@ import {
 import { supabase } from "@/lib/supabase/client";
 import { ChamberSelector } from "@/features/chamber";
 import { AlertsPopover } from "@/features/alerts";
-import { OFFICIAL_DOCTOR_PROFILE } from "@/config/doctor-profile";
+import { OFFICIAL_DOCTOR_PROFILE, DEMO_DOCTOR_PROFILE } from "@/config/doctor-profile";
 
 export interface HeaderProps {
   onMenuClick?: () => void;
@@ -47,16 +47,38 @@ interface DoctorSessionUser {
   doctorCode: string;
   fullName: string;
   specialty: string;
+  monogram?: string;
+  isDemo?: boolean;
 }
 
 export function Header({ onMenuClick }: HeaderProps) {
   const router = useRouter();
-  const [doctorUser, setDoctorUser] = React.useState<DoctorSessionUser>({
-    id: "",
-    email: OFFICIAL_DOCTOR_PROFILE.email,
-    doctorCode: OFFICIAL_DOCTOR_PROFILE.doctorCode,
-    fullName: OFFICIAL_DOCTOR_PROFILE.fullName,
-    specialty: OFFICIAL_DOCTOR_PROFILE.primaryDesignation,
+  const [doctorUser, setDoctorUser] = React.useState<DoctorSessionUser>(() => {
+    if (typeof window !== "undefined") {
+      const isDemo =
+        document.cookie.includes("dr_is_demo=true") ||
+        localStorage.getItem("dr_is_demo") === "true";
+      if (isDemo) {
+        return {
+          id: "demo",
+          email: DEMO_DOCTOR_PROFILE.email,
+          doctorCode: DEMO_DOCTOR_PROFILE.doctorCode,
+          fullName: DEMO_DOCTOR_PROFILE.fullName,
+          specialty: DEMO_DOCTOR_PROFILE.primaryDesignation,
+          monogram: DEMO_DOCTOR_PROFILE.monogram,
+          isDemo: true,
+        };
+      }
+    }
+    return {
+      id: "",
+      email: OFFICIAL_DOCTOR_PROFILE.email,
+      doctorCode: OFFICIAL_DOCTOR_PROFILE.doctorCode,
+      fullName: OFFICIAL_DOCTOR_PROFILE.fullName,
+      specialty: OFFICIAL_DOCTOR_PROFILE.primaryDesignation,
+      monogram: OFFICIAL_DOCTOR_PROFILE.monogram,
+      isDemo: false,
+    };
   });
   const [mfaEnabled, setMfaEnabled] = React.useState(false);
   const [isSecurityModalOpen, setIsSecurityModalOpen] = React.useState(false);
@@ -103,6 +125,10 @@ export function Header({ onMenuClick }: HeaderProps) {
 
   const handleLogout = async () => {
     try {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("dr_is_demo");
+        document.cookie = "dr_is_demo=; path=/; max-age=0";
+      }
       await fetch("/api/auth/logout", { method: "POST" });
       await supabase.auth.signOut().catch(() => {});
     } finally {
@@ -280,7 +306,7 @@ export function Header({ onMenuClick }: HeaderProps) {
             <DropdownTrigger>
               <div className="flex items-center gap-2 pl-0.5 pr-0.5 md:pl-1.5 md:pr-2 py-1 rounded-lg hover:bg-[#FAF5EE] transition-colors border border-transparent hover:border-[#EAE3D9]">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#F9EFE5] border border-[#EAE3D9] text-[#DE4F3C] font-serif font-semibold text-xs">
-                  RT
+                  {doctorUser.monogram || (doctorUser.isDemo ? "KR" : "RT")}
                 </div>
                 <div className="hidden md:flex flex-col text-left min-w-0">
                   <span className="text-xs font-semibold text-[#201C1A] leading-tight truncate max-w-[160px]">
@@ -295,12 +321,15 @@ export function Header({ onMenuClick }: HeaderProps) {
             </DropdownTrigger>
             <DropdownContent align="right" className="w-60 max-w-[calc(100vw-1rem)]">
               <div className="px-3 py-2.5 border-b border-[#EAE3D9]">
-                <div className="flex items-center justify-between">
-                  <p className="text-xs font-semibold text-[#201C1A]">
+                <div className="flex items-center justify-between gap-1.5">
+                  <p className="text-xs font-semibold text-[#201C1A] truncate">
                     {doctorUser.fullName}
                   </p>
-                  <Badge variant="success" className="text-[10px] px-1.5 py-0">
-                    Verified
+                  <Badge
+                    variant={doctorUser.isDemo ? "neutral" : "success"}
+                    className="text-[10px] px-1.5 py-0 shrink-0"
+                  >
+                    {doctorUser.isDemo ? "Demo Sandbox" : "Verified"}
                   </Badge>
                 </div>
                 <p className="text-[10px] text-[#7A746F] truncate mt-0.5">

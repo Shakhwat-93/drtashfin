@@ -314,7 +314,7 @@ export function AlertsPopover({ className }: AlertsPopoverProps) {
           {/* Footer Calendar Link */}
           <div className="p-3 border-t border-[#EAE3D9] bg-[#FAF5EE]/70 flex flex-wrap items-center justify-between gap-2">
             <span className="text-[11px] text-[#7A746F]">
-              Dr. Tashfin Schedule Manager
+              Clinical Schedule Manager
             </span>
             <Link
               href="/follow-ups"

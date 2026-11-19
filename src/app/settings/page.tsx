@@ -5,12 +5,17 @@ import { AdminShell } from "@/components/layout/admin-shell";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/ui/page-header";
 import { SmsGatewaySettingsSection, DoctorProfileCard } from "@/features/settings";
-import { Sliders, ShieldCheck, Award, ArrowRight } from "lucide-react";
+import { ShieldCheck, Award, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useDemoMode } from "@/hooks/use-demo-mode";
+import { getDoctorProfile } from "@/config/doctor-profile";
 
 export default function SettingsPage() {
+  const isDemo = useDemoMode();
+  const profile = getDoctorProfile(isDemo);
+
   return (
     <AdminShell>
       <PageContainer className="space-y-6 max-w-5xl">
@@ -22,7 +27,7 @@ export default function SettingsPage() {
           actions={
             <div className="flex items-center gap-2 text-xs text-[#7A746F] bg-[#FAF5EE] px-3 py-1.5 rounded-lg border border-[#EAE3D9]">
               <ShieldCheck className="h-4 w-4 text-emerald-600" />
-              <span>Doctor Authenticated Session</span>
+              <span>{isDemo ? "Demonstration Session" : "Doctor Authenticated Session"}</span>
             </div>
           }
         />
@@ -44,7 +49,7 @@ export default function SettingsPage() {
                     Doctor Lifetime Achievements & Evidence
                   </h3>
                   <p className="text-xs text-[#7A746F] mt-0.5 max-w-xl break-words">
-                    Manage Dr. Mohammad Rubaiath Tashfin&apos;s qualifications, clinical certifications, awards, workshops, research publications, and verified Google Drive evidence records.
+                    Manage {profile.fullName}&apos;s qualifications, clinical certifications, awards, workshops, research publications, and verified Google Drive evidence records.
                   </p>
                 </div>
               </div>

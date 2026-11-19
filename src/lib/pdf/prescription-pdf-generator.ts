@@ -3,12 +3,14 @@ import fs from "fs";
 import path from "path";
 import { Prescription } from "@/types/prescription";
 import { Patient } from "@/types/patient";
+import { getDoctorProfile } from "@/config/doctor-profile";
 
 export interface GeneratePrescriptionPdfOptions {
   prescription: Prescription;
   patient: Patient;
   contentHash?: string;
   version?: number;
+  isDemo?: boolean;
 }
 
 /**
@@ -26,7 +28,9 @@ export async function generatePrescriptionPdf({
   prescription,
   patient,
   version = 1,
+  isDemo = false,
 }: GeneratePrescriptionPdfOptions): Promise<Buffer> {
+  const doctorProfile = getDoctorProfile(isDemo);
   return new Promise<Buffer>((resolve, reject) => {
     try {
       const doc = new PDFDocument({
@@ -34,9 +38,11 @@ export async function generatePrescriptionPdf({
         margin: 36, // 0.5 inch margins
         info: {
           Title: `Prescription - ${prescription.prescriptionCode}`,
-          Author: "Dr. Mohammad Rubaiath Tashfin",
+          Author: doctorProfile.fullName,
           Subject: `Medical Prescription for ${patient.name} (${patient.patientId})`,
-          Creator: "Doctor Tashfin Patient Management System",
+          Creator: isDemo
+            ? "Clinical Practice Management System"
+            : "Doctor Tashfin Patient Management System",
         },
       });
 
@@ -82,20 +88,20 @@ export async function generatePrescriptionPdf({
         .font(fontBold)
         .fontSize(17)
         .fillColor("#201C1A")
-        .text("Dr. Mohammad Rubaiath Tashfin", margin, margin);
+        .text(doctorProfile.fullName, margin, margin);
 
       doc
         .font(fontBold)
         .fontSize(9)
         .fillColor("#DE4F3C")
-        .text("M.B.B.S., M.S. (Ortho-Surgery) • Paediatric Orthopaedic Surgeon", margin, margin + 24);
+        .text(`${doctorProfile.qualifications} • ${doctorProfile.primaryDesignation}`, margin, margin + 24);
 
       doc
         .font(fontReg)
         .fontSize(8)
         .fillColor("#7A746F")
         .text(
-          "Rangpur Medical College & Hospital, Rangpur, Bangladesh",
+          doctorProfile.workplace,
           margin,
           margin + 38
         );
@@ -448,7 +454,7 @@ export async function generatePrescriptionPdf({
         .font(fontBold)
         .fontSize(9.5)
         .fillColor("#201C1A")
-        .text("Dr. Mohammad Rubaiath Tashfin", sigX, footerY + 26, {
+        .text(doctorProfile.fullName, sigX, footerY + 26, {
           width: 160,
           align: "center",
         });
@@ -457,7 +463,7 @@ export async function generatePrescriptionPdf({
         .font(fontReg)
         .fontSize(7.5)
         .fillColor("#7A746F")
-        .text("Paediatric Orthopaedic Surgeon", sigX, footerY + 38, {
+        .text(doctorProfile.primaryDesignation, sigX, footerY + 38, {
           width: 160,
           align: "center",
         });

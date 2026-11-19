@@ -33,8 +33,12 @@ import {
   AlertTriangle,
   Trash2,
 } from "lucide-react";
+import { useDemoMode } from "@/hooks/use-demo-mode";
+import { getDoctorProfile } from "@/config/doctor-profile";
 
 export function AchievementsList() {
+  const isDemo = useDemoMode();
+  const doctorProfile = getDoctorProfile(isDemo);
   const {
     achievements,
     categoryCounts,
@@ -143,7 +147,7 @@ export function AchievementsList() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-serif font-bold text-black">
-              Dr. Tashfin — Professional Lifetime Achievements & Credentials
+              {doctorProfile.fullName} — Professional Lifetime Achievements & Credentials
             </h1>
             <p className="text-sm text-stone-600 mt-1">
               Official summary of verified medical qualifications, certifications, awards, and research accomplishments.
@@ -389,7 +393,7 @@ export function AchievementsList() {
           <p className="text-xs text-[#7A746F] max-w-md mx-auto">
             {searchQuery || selectedCategory !== "all" || publishedFilter !== "all"
               ? "No records matched your search or filter criteria. Try clearing filters to see all achievements."
-              : "No lifetime achievements have been recorded yet. Document Dr. Tashfin's degrees, certifications, awards, workshops, or research publications."}
+              : `No lifetime achievements have been recorded yet. Document ${doctorProfile.fullName}'s degrees, certifications, awards, workshops, or research publications.`}
           </p>
           <div className="pt-2">
             <Button
@@ -475,7 +479,7 @@ export function AchievementsList() {
             &ldquo;{achievementToDelete?.title}&rdquo;
           </p>
           <p className="text-[11px] text-[#7A746F]">
-            This action permanently deletes the achievement from Dr. Tashfin&apos;s professional portfolio. Any linked Google Drive files remain completely safe in your Google Drive.
+            This action permanently deletes the achievement from {doctorProfile.fullName}&apos;s professional portfolio. Any linked Google Drive files remain completely safe in your Google Drive.
           </p>
 
           {deleteError && (

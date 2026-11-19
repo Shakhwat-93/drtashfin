@@ -277,7 +277,7 @@ export function SmsGatewaySettingsSection() {
               </a>
             </div>
             <p className="text-[11px] text-[#7A746F] leading-relaxed">
-              Dr. Tashfin Patient Care uses Bulk SMS Dhaka for automated appointment follow-up reminders. All requests use server-to-server POST with encrypted parameters in the Asia/Dhaka (+06:00) timezone.
+              This clinical practice uses Bulk SMS Dhaka for automated appointment follow-up reminders. All requests use server-to-server POST with encrypted parameters in the Asia/Dhaka (+06:00) timezone.
             </p>
           </div>
 
